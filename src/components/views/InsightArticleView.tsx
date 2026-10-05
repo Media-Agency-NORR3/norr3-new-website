@@ -5,6 +5,8 @@ import type { CmsPost } from "@/lib/cms";
 import { getPosts, getSiteContent } from "@/lib/cms";
 import { linkTo } from "@/lib/links";
 import { ogImage } from "@/lib/ogImage";
+import { JsonLd } from "@/components/JsonLd";
+import { absolute, articleAuthor, breadcrumbList, homeCrumb, inLanguage, pageUrl, publisherRef, webPage } from "@/lib/jsonld";
 import { Container, HeroPill } from "@/components/Container";
 import { PillButton } from "@/components/PillButton";
 import { Reveal } from "@/components/Reveal";
@@ -30,35 +32,44 @@ export async function InsightArticleView({
   dict: Dictionary;
 }) {
   const content = post[locale];
-  const others = (await getPosts()).filter((entry) => entry.slug !== post.slug).slice(0, 3);
+  const [others, site] = await Promise.all([
+    getPosts().then((posts) => posts.filter((entry) => entry.slug !== post.slug).slice(0, 3)),
+    getSiteContent(),
+  ]);
   const minutes = post.readingMinutes;
-  const url = `https://norr3.fi${linkTo(locale, `/${post.slug}`)}`;
+  const url = pageUrl(locale, `/${post.slug}`);
 
   return (
     <>
       {/* Article structured data — the post's own facts (title, date, author,
-          image), nothing invented. Home page already carries the Organization
-          graph; this marks the article up for rich results. */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            "@context": "https://schema.org",
+          image), nothing invented. The author is the team member the CMS
+          names (linked to their profile by @id) or, failing that, NØRR3. */}
+      <JsonLd
+        data={[
+          {
             "@type": "Article",
+            "@id": `${url}#article`,
             headline: content.title,
             description: content.excerpt,
-            inLanguage: locale === "fi" ? "fi-FI" : "en-US",
+            inLanguage: inLanguage(locale),
             ...(post.isoDate ? { datePublished: post.isoDate } : {}),
-            image: `https://norr3.fi${ogImage(post.image ?? "/images/brand/space-arch.webp")}`,
-            author: { "@type": "Organization", name: post.author || "NØRR3" },
-            publisher: {
-              "@type": "Organization",
-              name: "NØRR3",
-              logo: { "@type": "ImageObject", url: "https://norr3.fi/images/brand/og-image.jpg" },
-            },
-            mainEntityOfPage: { "@type": "WebPage", "@id": url },
+            image: absolute(ogImage(post.image ?? "/images/brand/space-arch.webp")),
+            author: articleAuthor(post.author, site.team, locale),
+            publisher: publisherRef(),
+            mainEntityOfPage: { "@id": url },
+            ...(post.tags.length ? { keywords: post.tags.join(", ") } : {}),
+            url,
+          },
+          webPage({
+            url,
+            locale,
+            name: post.seo[locale].title || content.title,
+            description: post.seo[locale].description || content.excerpt,
+            image: ogImage(post.image ?? "/images/brand/space-arch.webp"),
+            extra: { mainEntity: { "@id": `${url}#article` } },
           }),
-        }}
+          breadcrumbList(url, [homeCrumb(locale), { name: dict.nav.insights, url: pageUrl(locale, "/insights") }, { name: content.title }]),
+        ]}
       />
 
       {/* Title block: back-link, pill, headline, hairline meta row. */}

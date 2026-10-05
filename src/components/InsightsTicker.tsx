@@ -73,15 +73,21 @@ export function InsightsTicker({ locale }: { locale: Locale }) {
           Media Insights
         </span>
       </span>
-      {items.map((insight) => (
-        <span key={insight.id} className="flex items-center gap-2.5 whitespace-nowrap px-5 py-3">
-          <span className="text-sm font-medium tabular-nums tracking-tight text-[#F6FF4F]">
-            {nbspNumbers((insight.bigNumber || "").trim())}
+      {items.map((insight) => {
+        // The route already filtered on locale; an empty string here would be
+        // a cached payload from before it did, and it must not leave a bare number.
+        const text = insightText(insight, locale);
+        if (!text) return null;
+        return (
+          <span key={insight.id} className="flex items-center gap-2.5 whitespace-nowrap px-5 py-3">
+            <span className="text-sm font-medium tabular-nums tracking-tight text-[#F6FF4F]">
+              {nbspNumbers((insight.bigNumber || "").trim())}
+            </span>
+            <span className="text-sm text-white/80">{nbspNumbers(text)}</span>
+            <span aria-hidden className="ml-3 h-4 w-px bg-white/20" />
           </span>
-          <span className="text-sm text-white/80">{nbspNumbers(insightText(insight, locale))}</span>
-          <span aria-hidden className="ml-3 h-4 w-px bg-white/20" />
-        </span>
-      ))}
+        );
+      })}
     </div>
   );
 

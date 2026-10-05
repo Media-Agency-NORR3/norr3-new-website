@@ -603,7 +603,7 @@ function BlockSwitch({
                     <p className="text-xl font-medium text-ink dark:text-white">{role.title[locale]}</p>
                     <p className="mt-1 text-sm text-ink/55 dark:text-white/55">{role.location[locale]}</p>
                   </div>
-                  <PillButton href={linkTo(locale, "/toihin-meille")} variant="secondary">
+                  <PillButton href={role.applyUrl || linkTo(locale, "/toihin-meille#open-roles")} variant="secondary">
                     {t("applyLabel") || dict.common.readMore}
                   </PillButton>
                 </li>

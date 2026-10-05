@@ -1,8 +1,9 @@
 import { isLocale } from "@/i18n/config";
 import { notFound } from "next/navigation";
-import Link from "next/link";
 import { getDictionary } from "@/lib/dictionary";
 import { pageSeo, robotsDirective } from "@/lib/pageSeo";
+import { JsonLd } from "@/components/JsonLd";
+import { ORGANIZATION_ID, absolute, homeCrumb, pageGraph, type Crumb } from "@/lib/jsonld";
 import { getSiteContent } from "@/lib/cms";
 import { imageSlot } from "@/content/imageSlots";
 import { Container, HeroPill } from "@/components/Container";
@@ -14,6 +15,7 @@ import { StaggerGrid } from "@/components/StaggerGrid";
 import { SectionHeader } from "@/components/SectionHeader";
 import { BenefitCard } from "@/components/cards/BenefitCard";
 import { CultureCard } from "@/components/cards/CultureCard";
+import { OpenRoleCard } from "@/components/cards/OpenRoleCard";
 import { PhotoInterstitial } from "@/components/PhotoInterstitial";
 import { ContactBanner } from "@/components/ContactBanner";
 import { OpenApplicationCta } from "@/components/OpenApplicationCta";
@@ -36,7 +38,7 @@ export async function generateMetadata({ params }: PageProps<"/[locale]/toihin-m
     title: seo.title,
     description: seo.description,
     robots: robotsDirective(seo.robots),
-    alternates: { canonical: seo.canonical || linkTo(locale, "/toihin-meille"), languages: { "fi-FI": "/careers", "en-US": "/en/careers" } },
+    alternates: { canonical: seo.canonical || linkTo(locale, "/toihin-meille"), languages: { "fi-FI": "/toihin-meille", en: "/en/toihin-meille", "x-default": "/toihin-meille" } },
     openGraph: {
       type: "website" as const,
       siteName: "NØRR3",
@@ -66,8 +68,20 @@ export default async function CareersPage({ params }: PageProps<"/[locale]/toihi
   const { valuePills } = content.brand;
   const c = dict.careers;
 
+  // Structured data: the same CMS-managed SEO the <head> uses, this page's
+  // WebPage node and its breadcrumb (Home › careers).
+  const seo = await pageSeo("careers", locale, {
+    title: dict.seo.careers.title,
+    description: dict.seo.careers.description,
+    image: ogImage("/images/brand/team-energy.webp"),
+  });
+  const url = absolute(seo.canonical || linkTo(locale, "/toihin-meille"));
+  const crumbs: Crumb[] = [homeCrumb(locale), { name: dict.nav.careers }];
+  const jsonLd = pageGraph({ url, locale, name: seo.title, description: seo.description, image: seo.image, extra: { about: { "@id": ORGANIZATION_ID } }, crumbs });
+
   return (
     <>
+      <JsonLd data={jsonLd} />
       {/* Same section rhythm as the other interior pages: opener
           `pt-12 lg:pt-20`, members close `pb-24 lg:pb-32`, bands reset. */}
 
@@ -89,7 +103,7 @@ export default async function CareersPage({ params }: PageProps<"/[locale]/toihi
           <div className="flex flex-wrap items-center gap-x-7 gap-y-4">
             {/* Full path + hash, like the team page's roles CTA, so the link
                 resolves the same whether it is clicked or copied. */}
-            <PillButton href={linkTo(locale, "/careers#open-roles")}>{dict.common.openJobs}</PillButton>
+            <PillButton href={linkTo(locale, "/toihin-meille#open-roles")}>{dict.common.openJobs}</PillButton>
             <PillButton href={linkTo(locale, "/meista")} variant="secondary">
               {c.culture.cta}
             </PillButton>
@@ -109,20 +123,7 @@ export default async function CareersPage({ params }: PageProps<"/[locale]/toihi
           </Reveal>
           <StaggerGrid className="mt-14 grid gap-card-gap sm:grid-cols-3 lg:mt-16">
             {openRoles.map((role) => (
-              <Link
-                key={role.id}
-                href={linkTo(locale, "/contact")}
-                className="group flex h-full flex-col rounded-card bg-yellow p-8 transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple dark:focus-visible:outline-light-purple"
-              >
-                <span className="flex h-[64px] w-[64px] items-center justify-center rounded-[5px] bg-white/60 text-ink">
-                  <Icon name="work" style={{ fontSize: "28px" }} />
-                </span>
-                <h3 className="mt-8 text-lg font-medium leading-snug text-ink">{role.title[locale]}</h3>
-                <p className="mt-1.5 text-sm text-ink/70">{role.location[locale]}</p>
-                <span className="mt-auto inline-flex items-center gap-1 pt-8 text-xs font-medium uppercase tracking-[0.08em] text-ink transition-transform group-hover:translate-x-0.5">
-                  {c.roles.apply} <span aria-hidden>→</span>
-                </span>
-              </Link>
+              <OpenRoleCard key={role.id} role={role} locale={locale} applyLabel={c.roles.apply} />
             ))}
           </StaggerGrid>
         </Container>

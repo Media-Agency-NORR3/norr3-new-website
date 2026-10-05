@@ -2,6 +2,8 @@ import { isLocale } from "@/i18n/config";
 import { notFound } from "next/navigation";
 import { getDictionary } from "@/lib/dictionary";
 import { pageSeo, robotsDirective } from "@/lib/pageSeo";
+import { JsonLd } from "@/components/JsonLd";
+import { ORGANIZATION_ID, absolute, homeCrumb, pageGraph, type Crumb } from "@/lib/jsonld";
 import { getSiteContent } from "@/lib/cms";
 import { dashboardData, dataset } from "@/content/datasets";
 import { Container, HeroPill } from "@/components/Container";
@@ -33,7 +35,7 @@ export async function generateMetadata({ params }: PageProps<"/[locale]/engine">
     title: seo.title,
     description: seo.description,
     robots: robotsDirective(seo.robots),
-    alternates: { canonical: seo.canonical || linkTo(locale, "/engine"), languages: { "fi-FI": "/engine", "en-US": "/en/engine" } },
+    alternates: { canonical: seo.canonical || linkTo(locale, "/engine"), languages: { "fi-FI": "/engine", en: "/en/engine", "x-default": "/engine" } },
     openGraph: {
       type: "website" as const,
       siteName: "NØRR3",
@@ -54,8 +56,20 @@ export default async function EnginePage({ params }: PageProps<"/[locale]/engine
   const dict = content.dictionaries[locale];
   const e = dict.engine;
 
+  // Structured data: the same CMS-managed SEO the <head> uses, this page's
+  // WebPage node and its breadcrumb (Home › engine).
+  const seo = await pageSeo("engine", locale, {
+    title: dict.seo.engine.title,
+    description: dict.seo.engine.description,
+    image: ogImage("/images/brand/engine-team.webp"),
+  });
+  const url = absolute(seo.canonical || linkTo(locale, "/engine"));
+  const crumbs: Crumb[] = [homeCrumb(locale), { name: dict.nav.engine }];
+  const jsonLd = pageGraph({ url, locale, name: seo.title, description: seo.description, image: seo.image, extra: { about: { "@type": "SoftwareApplication", name: "NØRR3 Marketing Engine", applicationCategory: "BusinessApplication", provider: { "@id": ORGANIZATION_ID } } }, crumbs });
+
   return (
     <>
+      <JsonLd data={jsonLd} />
       {/* Hero — copy left, the live product (animated dashboard) right */}
       <Container className="pt-12 lg:pt-16">
         <Reveal>

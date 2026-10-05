@@ -11,8 +11,6 @@ import { getSiteContent } from "@/lib/cms";
 import { pageSeo, robotsDirective } from "@/lib/pageSeo";
 import { linkTo } from "@/lib/links";
 import { ogImage } from "@/lib/ogImage";
-import { isProductionHost } from "@/lib/host";
-import { headers } from "next/headers";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { SmoothScroll } from "@/components/SmoothScroll";
@@ -28,6 +26,24 @@ const hostGrotesk = Host_Grotesk({
   variable: "--font-host-grotesk",
   subsets: ["latin", "latin-ext"],
 });
+
+/**
+ * ISR for every content page under this layout.
+ *
+ * Nothing in the shared chrome reads a Request-time API any more (`headers()`
+ * used to be called here for the non-production noindex, which made *every*
+ * route dynamic: `Cache-Control: private, no-store`, a full React render per
+ * request, Cloudflare "DYNAMIC"). The CMS bundle fetch in `src/lib/cms.ts`
+ * already revalidates every 300 s and carries the `cms:*` tags, so the HTML
+ * is served from the ISR cache with `s-maxage=300, stale-while-revalidate`
+ * and the publish hook (`/api/revalidate` → `revalidateTag`) expires it
+ * on demand. Stated here explicitly so the window stays 300 s even for a
+ * page whose CMS fetch fails over to the bundled content.
+ *
+ * Routes that must stay dynamic opt out themselves: `/cms-preview`
+ * (`force-dynamic`), `/case-preview` (cookies), `/feed` (searchParams).
+ */
+export const revalidate = 300;
 
 /**
  * Runs before first paint so the stored theme is on <html> ahead of hydration —
@@ -58,9 +74,11 @@ export async function generateMetadata({ params }: LayoutProps<"/[locale]">) {
     image: "/images/brand/og-image.jpg",
   });
   const homeUrl = `https://norr3.fi${linkTo(locale)}`;
-  // Non-production hosts (staging, raw IP) must be noindexed even if a crawler
-  // ignores robots.txt — the DNS cutover has not happened yet.
-  const prod = isProductionHost((await headers()).get("host"));
+  // Non-production hosts (staging, raw IP) are noindexed by the proxy, which
+  // sets `X-Robots-Tag: noindex, nofollow` per request (src/proxy.ts). That
+  // used to be a `headers()` read here — but a Request-time API in the root
+  // layout's metadata makes every route dynamic and uncacheable, and the
+  // cached HTML must not bake one host's answer in anyway.
   return {
     metadataBase: new URL("https://norr3.fi"),
     applicationName: "NØRR3",
@@ -73,12 +91,12 @@ export async function generateMetadata({ params }: LayoutProps<"/[locale]">) {
       apple: [{ url: "/icon-180.png", sizes: "180x180", type: "image/png" }],
     },
     manifest: "/manifest.webmanifest",
-    robots: prod ? robotsDirective(seo.robots) : { index: false, follow: false },
+    robots: robotsDirective(seo.robots),
     title: seo.title,
     description: seo.description,
     alternates: {
       canonical: seo.canonical || linkTo(locale),
-      languages: { "fi-FI": "/", "en-US": "/en" },
+      languages: { "fi-FI": "/", en: "/en", "x-default": "/" },
     },
     openGraph: {
       // Metadata is merged shallowly, so this object replaces the root

@@ -580,7 +580,7 @@ const fi = {
     },
     application: {
       heading: "Avoin hakemus",
-      body: "Etkö löytänyt sopivaa paikkaa? Jätä avoin hakemus ja kerro kuka olet ja minkälaista työtä etsit.",
+      body: "Etkö löytänyt sopivaa roolia? Jätä avoin hakemus ja kerro, mitä etsit.",
       cta: "Jätä avoin hakemus",
       name: "Nimi",
       email: "Sähköposti",
@@ -1578,7 +1578,7 @@ const en: Dictionary = {
     },
     application: {
       heading: "Open application",
-      body: "Didn't find the right role? Leave an open application and tell us who you are and what kind of work you're looking for.",
+      body: "Didn't find the right role? Leave an open application and tell us what you are looking for.",
       cta: "Leave an open application",
       name: "Name",
       email: "Email",

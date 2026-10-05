@@ -1,0 +1,76 @@
+# NØRR3
+
+> NØRR3 is a Nordic insight and media agency in Helsinki, Finland (legal name NORR3 Oy). We turn media into a growth engine: audience research, marketing and media strategy, media planning and buying across every channel, performance marketing, and measurement that reaches all the way to sales. Our own continuous media study, NØRR3 Media Insights, and the NØRR3 Marketing Engine platform (multi-location campaigns built once from a feed) sit underneath the work.
+
+DRAFT — this file is a first pass for review and refinement by Geir before it is treated as the canonical AI-facing summary of the site.
+
+Site: https://norr3.fi (Finnish at the root, English under /en)
+Contact: info@norr3.fi · +358 46 8100 118 · https://norr3.fi/contact · https://norr3.fi/en/contact
+LinkedIn: https://www.linkedin.com/company/norr3
+
+## Main pages (English)
+
+- [Services](https://norr3.fi/en/services): Everything we do, from insight and strategy to media buying and measurement.
+- [NØRR3 Marketing Engine](https://norr3.fi/en/engine): Platform for chains and multi-location companies — every location gets its own campaign without repeated work.
+- [Cases](https://norr3.fi/en/caset): Client work with objectives, solution and measured results.
+- [Team](https://norr3.fi/en/tiimi): The people at NØRR3.
+- [About us](https://norr3.fi/en/meista): Who we are and how we work.
+- [Careers](https://norr3.fi/en/toihin-meille): Open roles.
+- [Insights](https://norr3.fi/en/insights): Articles on media, marketing and measurement.
+- [Contact](https://norr3.fi/en/contact)
+
+## Services (English)
+
+- [Insight & Strategy](https://norr3.fi/en/insight-strategia): Audience research, brand awareness tracking and a picture of the competition — measured evidence for marketing decisions.
+- [Marketing Strategy](https://norr3.fi/en/markkinointistrategia): Turning a business goal into a marketing task: audiences, the promise, the balance of brand and tactical advertising, budget frame and metrics.
+- [Media Strategy](https://norr3.fi/en/mediastrategia): Roles for the channels, a split for the budget and a rhythm for the year, built on measured audience data.
+- [Media Planning and Buying](https://norr3.fi/en/mediasuunnittelu): A media plan in numbers — audience, reach, frequency, budget and timing — with negotiated buys and verified reporting.
+- [NØRR3 Media Insights](https://norr3.fi/en/mediasuunnittelu/norr3-media-insights): Our own continuous study of how Finns use media: audience reach by channel and media house, fieldwork on the Norstat panel.
+- [Performance Marketing](https://norr3.fi/en/performance-markkinointi): Accountable advertising measured to sales: search, product feeds, dynamic advertising and retargeting.
+- [Search Engine Advertising](https://norr3.fi/en/hakukonemainonta): Google Ads account structure, keywords, local targeting and conversion tracking.
+- [Search Engine Optimisation](https://norr3.fi/en/hakukoneoptimointi): Technical optimisation, keyword research and content that answers the customer's question.
+- [Social Media Advertising](https://norr3.fi/en/somemarkkinointi): Meta, TikTok and LinkedIn — audiences, assets and daily optimisation.
+- [Display and Video Advertising](https://norr3.fi/en/display-ja-videomainonta): Formats, media selection, asset versioning and independent viewability measurement.
+- [Out-of-Home and pDOOH](https://norr3.fi/en/ulkomainonta): Digital screens chosen by how the audience moves, flexible buying and measurable reach.
+- [Programmatic Buying](https://norr3.fi/en/ohjelmallinen-ostaminen): Display, video, audio and out-of-home from one platform with transparent reporting.
+- [Dynamic Advertising](https://norr3.fi/en/dynaaminen-mainonta): Ad templates, DCO, product-level retargeting and feed monitoring, built from a product feed.
+- [Data & Measurement](https://norr3.fi/en/data-ja-mittaus): Measurement where every number has a definition and a source — events, data layer and tracking to sales.
+- [Research](https://norr3.fi/en/tutkimukset): Brand awareness, image and campaign impact measured on the Norstat panel before, during and after a campaign.
+- [AI Optimisation](https://norr3.fi/en/ai-optimointi): Show up in AI answers with the right information — baseline, source fixes and monthly tracking.
+- [AI Advertising](https://norr3.fi/en/tekoalymainonta): AI produces the ad versions and handles the repetition, people decide the message.
+
+## Pääsivut (suomeksi)
+
+- [Palvelut](https://norr3.fi/services): Kaikki mitä teemme insightista ja strategiasta mediaostoihin ja mittaukseen.
+- [NØRR3 Marketing Engine](https://norr3.fi/engine): Alusta ketjuille ja monitoimipaikkaisille yrityksille — jokainen toimipiste saa oman kampanjansa ilman toistotyötä.
+- [Caset](https://norr3.fi/caset): Asiakastyöt tavoitteineen, ratkaisuineen ja mitattuine tuloksineen.
+- [Tiimi](https://norr3.fi/tiimi): NØRR3:n ihmiset.
+- [Meistä](https://norr3.fi/meista): Keitä olemme ja miten työskentelemme.
+- [Töihin meille](https://norr3.fi/toihin-meille): Avoimet työpaikat.
+- [Insights](https://norr3.fi/insights): Artikkelit mediasta, markkinoinnista ja mittaamisesta.
+- [Yhteystiedot](https://norr3.fi/contact)
+
+## Palvelut (suomeksi)
+
+- [Insight & strategia](https://norr3.fi/insight-strategia): Kohderyhmätutkimus, brändin tunnettuus ja kilpailijoiden tilannekuva — mitattu tieto päätösten pohjaksi.
+- [Markkinointistrategia](https://norr3.fi/markkinointistrategia): Liiketoiminnan tavoite käännetään markkinoinnin tehtäväksi: kohderyhmät, lupaus, budjettiraami ja mittarit.
+- [Mediastrategia](https://norr3.fi/mediastrategia): Kanaville roolit, budjetille jako ja vuodelle rytmi mitatun kohderyhmätiedon pohjalta.
+- [Mediasuunnittelu ja -ostaminen](https://norr3.fi/mediasuunnittelu): Mediasuunnitelma numeroina — kohderyhmä, tavoittavuus, toisto, budjetti ja ajoitus — sekä neuvotellut ostot ja todennettu raportointi.
+- [NØRR3 Media Insights](https://norr3.fi/mediasuunnittelu/norr3-media-insights): Oma jatkuva tutkimuksemme suomalaisten mediankäytöstä: tavoittavuus kanavittain ja mediataloittain, toteutus Norstatin paneelissa.
+- [Performance-markkinointi](https://norr3.fi/performance-markkinointi): Tulosvastuinen mainonta, joka mitataan myyntiin asti: hakukone, tuotesyötteet, dynaaminen mainonta ja uudelleenkohdennus.
+- [Hakukonemainonta](https://norr3.fi/hakukonemainonta): Google Ads -tilin rakenne, hakusanat, paikallinen rajaus ja konversioseuranta.
+- [Hakukoneoptimointi](https://norr3.fi/hakukoneoptimointi): Tekninen optimointi, hakusanatutkimus ja sisällöt, jotka vastaavat asiakkaan kysymykseen.
+- [Somemainonta](https://norr3.fi/somemarkkinointi): Meta, TikTok ja LinkedIn — yleisöt, aineistot ja päivittäinen optimointi.
+- [Display- ja videomainonta](https://norr3.fi/display-ja-videomainonta): Formaatit, mediavalinnat, aineistojen versiointi ja riippumaton näkyvyyden mittaus.
+- [Ulkomainonta ja pDOOH](https://norr3.fi/ulkomainonta): Digitaaliset näytöt, ruutuvalinta kohderyhmän liikkeen mukaan ja mitattava tavoittavuus.
+- [Ohjelmallinen ostaminen](https://norr3.fi/ohjelmallinen-ostaminen): Display, video, audio ja ulkomainonta yhdestä alustasta läpinäkyvällä raportoinnilla.
+- [Dynaaminen mainonta](https://norr3.fi/dynaaminen-mainonta): Mainospohjat, DCO, tuotetason uudelleenkohdennus ja syötteen valvonta tuotesyötteestä.
+- [Data ja mittaus](https://norr3.fi/data-ja-mittaus): Mittaus, jossa jokaisella luvulla on määritelmä ja lähde — tapahtumat, data layer ja seuranta myyntiin asti.
+- [Tutkimukset](https://norr3.fi/tutkimukset): Brändin tunnettuus, mielikuva ja kampanjan vaikutus mitattuna Norstatin paneelissa ennen kampanjaa, sen aikana ja jälkeen.
+- [AI-optimointi](https://norr3.fi/ai-optimointi): Näy tekoälypalveluiden vastauksissa oikealla tiedolla — lähtötaso, lähteiden korjaus ja kuukausittainen seuranta.
+- [Tekoälymainonta](https://norr3.fi/tekoalymainonta): Tekoäly tuottaa mainosversiot ja hoitaa toiston, ihminen päättää viestin.
+
+## Optional
+
+- [Sitemap](https://norr3.fi/sitemap.xml)
+- [Privacy policy](https://norr3.fi/tietosuojaseloste) · [Terms](https://norr3.fi/kayttoehdot)

@@ -32,7 +32,7 @@ export async function generateMetadata({ params }: Props) {
   return {
     title,
     description,
-    alternates: { canonical: url, languages: { "fi-FI": `/feed/${slug}`, "en-US": `/en/feed/${slug}` } },
+    alternates: { canonical: url, languages: { "fi-FI": `/feed/${slug}`, en: `/en/feed/${slug}`, "x-default": `/feed/${slug}` } },
     openGraph: {
       type: "article" as const,
       siteName: "NØRR3",

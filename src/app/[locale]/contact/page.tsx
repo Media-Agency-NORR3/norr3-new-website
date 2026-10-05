@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getDictionary } from "@/lib/dictionary";
 import { pageSeo, robotsDirective } from "@/lib/pageSeo";
+import { JsonLd } from "@/components/JsonLd";
+import { ORGANIZATION_ID, absolute, homeCrumb, pageGraph, type Crumb } from "@/lib/jsonld";
 import { getSiteContent } from "@/lib/cms";
 import { imageSlot } from "@/content/imageSlots";
 import { Container, HeroPill } from "@/components/Container";
@@ -46,7 +48,7 @@ export async function generateMetadata({ params }: PageProps<"/[locale]/contact"
     robots: robotsDirective(seo.robots),
     alternates: {
       canonical: seo.canonical || linkTo(locale, "/contact"),
-      languages: { "fi-FI": "/contact", "en-US": "/en/contact" },
+      languages: { "fi-FI": "/contact", en: "/en/contact", "x-default": "/contact" },
     },
     openGraph: {
       type: "website" as const,
@@ -93,8 +95,20 @@ export default async function ContactPage({ params }: PageProps<"/[locale]/conta
     return LEAD_CONTACT_NAMES.map((name) => team.find((m) => m.name === name)).filter((m) => m !== undefined);
   })();
 
+  // Structured data: the same CMS-managed SEO the <head> uses, this page's
+  // WebPage node and its breadcrumb (Home › contact).
+  const seo = await pageSeo("contact", locale, {
+    title: dict.seo.contact.title,
+    description: dict.seo.contact.description,
+    image: ogImage("/images/brand/group.webp"),
+  });
+  const url = absolute(seo.canonical || linkTo(locale, "/contact"));
+  const crumbs: Crumb[] = [homeCrumb(locale), { name: dict.nav.contact }];
+  const jsonLd = pageGraph({ url, locale, name: seo.title, description: seo.description, image: seo.image, type: "ContactPage", extra: { about: { "@id": ORGANIZATION_ID }, mainEntity: { "@id": ORGANIZATION_ID } }, crumbs });
+
   return (
     <>
+      <JsonLd data={jsonLd} />
       {/* Yellow hero band, echoing the design's contact banner. The
           response-time promise sits here rather than under the Send button —
           the reassurance is worth more before someone starts typing. */}

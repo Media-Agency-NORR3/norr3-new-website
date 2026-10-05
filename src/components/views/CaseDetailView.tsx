@@ -4,6 +4,8 @@ import type { CaseStudy } from "@/content/cases";
 import { getCases, getSiteContent } from "@/lib/cms";
 import { linkTo } from "@/lib/links";
 import { proseHtml } from "@/lib/prose";
+import { JsonLd } from "@/components/JsonLd";
+import { ORGANIZATION_ID, absolute, breadcrumbList, homeCrumb, inLanguage, pageUrl, publisherRef, webPage } from "@/lib/jsonld";
 import { Container } from "@/components/Container";
 import { PillButton } from "@/components/PillButton";
 import { Reveal } from "@/components/Reveal";
@@ -40,6 +42,7 @@ export async function CaseDetailView({
       ? (locale === "en" ? study.creatives!.en : study.creatives!.fi)
       : study.creatives?.fi ?? [];
   const products = study.products ?? [];
+  const url = pageUrl(locale, `/${study.slug}`);
 
   // Narrative blocks share one editorial layout: the numbered heading holds a
   // column of its own, the prose sits beside it. Titles keep their Figma
@@ -51,21 +54,37 @@ export async function CaseDetailView({
 
   return (
     <>
-      {/* Breadcrumb structured data — lets Google show Home › Cases › Client
-          under the result instead of a bare URL. */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "BreadcrumbList",
-            itemListElement: [
-              { "@type": "ListItem", position: 1, name: "NØRR3", item: `https://norr3.fi${linkTo(locale)}` },
-              { "@type": "ListItem", position: 2, name: dict.cases.heading, item: `https://norr3.fi${linkTo(locale, "/caset")}` },
-              { "@type": "ListItem", position: 3, name: study.client },
-            ],
+      {/* Structured data: the case as a CreativeWork by NØRR3 about the
+          client, its WebPage, and Home › Cases › Client so Google can show
+          the path under the result instead of a bare URL. */}
+      <JsonLd
+        data={[
+          {
+            "@type": "CreativeWork",
+            "@id": `${url}#case`,
+            name: `${study.client} — ${study.tagline[locale]}`,
+            headline: study.tagline[locale],
+            description: study.summary[locale],
+            url,
+            inLanguage: inLanguage(locale),
+            image: absolute(study.image),
+            about: { "@type": "Organization", name: study.client },
+            author: { "@id": ORGANIZATION_ID },
+            creator: { "@id": ORGANIZATION_ID },
+            publisher: publisherRef(),
+            ...(study.products?.length ? { keywords: study.products.join(", ") } : {}),
+            mainEntityOfPage: { "@id": url },
+          },
+          webPage({
+            url,
+            locale,
+            name: locale === "fi" ? `${study.client} — NØRR3-case` : `${study.client} — NØRR3 case`,
+            description: study.tagline[locale],
+            image: study.image,
+            extra: { mainEntity: { "@id": `${url}#case` } },
           }),
-        }}
+          breadcrumbList(url, [homeCrumb(locale), { name: dict.cases.heading, url: pageUrl(locale, "/caset") }, { name: study.client }]),
+        ]}
       />
 
       {/* Editorial hero — magazine opener */}

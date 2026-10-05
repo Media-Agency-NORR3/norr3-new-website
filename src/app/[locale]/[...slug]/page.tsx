@@ -10,7 +10,9 @@ import { servicePageLocalised } from "@/content/servicePages";
 import { linkTo } from "@/lib/links";
 import { ogImage } from "@/lib/ogImage";
 import { pageSeo } from "@/lib/pageSeo";
-import { railEnabled } from "@/lib/rail";
+import { railEnabled, splitRailPreview } from "@/lib/rail";
+import { JsonLd } from "@/components/JsonLd";
+import { absolute, faqItemsFromBlocks, faqPage, homeCrumb, pageGraph, pageUrl, serviceGraph, type Crumb } from "@/lib/jsonld";
 
 /**
  * Serves everything that lives at a short, root-level slug:
@@ -26,9 +28,14 @@ import { railEnabled } from "@/lib/rail";
  * The section URLs (`/cases/st1`, `/insights/…`) 301 to these root slugs, so
  * there is exactly one canonical URL per piece of content.
  */
+/**
+ * No `searchParams` here on purpose: awaiting them makes the route dynamic
+ * (rendered per request, `Cache-Control: no-store`). Every page below is
+ * ISR-cached instead; the one query-driven feature — the `?rail=1` staging
+ * preview — arrives as the `__rail` path segment the proxy rewrites to.
+ */
 type Params = {
   params: Promise<{ locale: string; slug: string[] }>;
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
 /** Pre-render the content we know at build time; anything else renders on demand. */
@@ -42,8 +49,11 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: Params) {
-  const { locale, slug } = await params;
+  const { locale, slug: rawSlug } = await params;
   if (!isLocale(locale)) return {};
+  // The staging rail preview renders the real page's metadata (canonical
+  // included) — the `__rail` segment is an internal detail, never a URL.
+  const { slug } = splitRailPreview(rawSlug);
   const path = slug.join("/");
 
   // Case study at the root slug.
@@ -56,7 +66,7 @@ export async function generateMetadata({ params }: Params) {
       description,
       alternates: {
         canonical: linkTo(locale, `/${slug[0]}`),
-        languages: { "fi-FI": `/${slug[0]}`, "en-US": `/en/${slug[0]}` },
+        languages: { "fi-FI": `/${slug[0]}`, en: `/en/${slug[0]}`, "x-default": `/${slug[0]}` },
       },
       openGraph: {
         type: "article" as const,
@@ -81,7 +91,7 @@ export async function generateMetadata({ params }: Params) {
       description: post.seo[locale].description || content.excerpt,
       alternates: {
         canonical: linkTo(locale, `/${slug[0]}`),
-        languages: { "fi-FI": `/${slug[0]}`, "en-US": `/en/${slug[0]}` },
+        languages: { "fi-FI": `/${slug[0]}`, en: `/en/${slug[0]}`, "x-default": `/${slug[0]}` },
       },
       openGraph: {
         type: "article" as const,
@@ -116,13 +126,15 @@ export async function generateMetadata({ params }: Params) {
       title: seo.title,
       description: seo.description,
       alternates: {
-        canonical: linkTo(locale, `/${slug[0]}`),
-        languages: { "fi-FI": `/${slug[0]}`, "en-US": `/en/${slug[0]}` },
+        // The full path, not slug[0]: nested service pages (mediasuunnittelu/radio)
+        // must point at themselves, not at their parent.
+        canonical: linkTo(locale, `/${path}`),
+        languages: { "fi-FI": `/${path}`, en: `/en/${path}`, "x-default": `/${path}` },
       },
       openGraph: {
         type: "website" as const,
         siteName: "NØRR3",
-        url: `https://norr3.fi${linkTo(locale, `/${slug[0]}`)}`,
+        url: `https://norr3.fi${linkTo(locale, `/${path}`)}`,
         locale: locale === "fi" ? "fi_FI" : "en_US",
         title: seo.title,
         description: seo.description,
@@ -146,7 +158,7 @@ export async function generateMetadata({ params }: Params) {
     description,
     alternates: {
       canonical: linkTo(locale, `/${path}`),
-      languages: { "fi-FI": `/${path}`, "en-US": `/en/${path}` },
+      languages: { "fi-FI": `/${path}`, en: `/en/${path}`, "x-default": `/${path}` },
     },
     openGraph: {
       type: "website" as const,
@@ -166,9 +178,10 @@ export async function generateMetadata({ params }: Params) {
   };
 }
 
-export default async function RootSlugPage({ params, searchParams }: Params) {
-  const { locale, slug } = await params;
+export default async function RootSlugPage({ params }: Params) {
+  const { locale, slug: rawSlug } = await params;
   if (!isLocale(locale)) notFound();
+  const { preview: railPreview, slug } = splitRailPreview(rawSlug);
 
   // Case study at the root slug.
   if (slug.length === 1) {
@@ -187,24 +200,67 @@ export default async function RootSlugPage({ params, searchParams }: Params) {
   }
 
   // Service landing pages can be nested (e.g. /mediasuunnittelu/radio).
-  // Awaiting searchParams + headers (rail flag) makes this route dynamic —
-  // deliberate, so the rail kill-switch works without a rebuild (see rail.ts).
-  const sp = await searchParams;
-  const railParam = typeof sp.rail === "string" ? sp.rail : null;
-  const rail = await railEnabled(railParam);
-  const servicePage = (await getSiteContent()).servicePages.find((p) => p.slug === slug.join("/"));
+  // The rail switch rides in on the cached CMS bundle (see rail.ts), so this
+  // stays an ISR page: a flip shows up at the next revalidation or publish.
+  const rail = await railEnabled(railPreview);
+  const content = await getSiteContent();
+  const dict = content.dictionaries[locale];
+  const path = slug.join("/");
+  const servicePage = content.servicePages.find((p) => p.slug === path);
   if (servicePage) {
-    return <ServiceLandingView page={servicePage} locale={locale} railEnabled={rail} />;
+    const t = servicePageLocalised(servicePage, locale);
+    // The same CMS-managed SEO generateMetadata reads, so the structured data
+    // and the <head> never disagree.
+    const seo = await pageSeo(path, locale, {
+      title: t.metaTitle,
+      description: t.metaDescription,
+      image: "/images/brand/services-planning.webp",
+    });
+    const url = absolute(seo.canonical || linkTo(locale, `/${path}`));
+    // Home › Services › (parent service, when nested) › this page.
+    const parent = slug.length > 1 ? content.servicePages.find((p) => p.slug === slug.slice(0, -1).join("/")) : undefined;
+    const crumbs: Crumb[] = [
+      homeCrumb(locale),
+      { name: dict.nav.services, url: pageUrl(locale, "/services") },
+      ...(parent ? [{ name: servicePageLocalised(parent, locale).title, url: pageUrl(locale, `/${parent.slug}`) }] : []),
+      { name: t.title },
+    ];
+    return (
+      <>
+        <JsonLd data={serviceGraph({ url, locale, name: t.title, pageTitle: seo.title, description: seo.description, image: seo.image, crumbs })} />
+        <ServiceLandingView page={servicePage} locale={locale} railEnabled={rail} />
+      </>
+    );
   }
 
   // A page composed in the CMS page editor.
-  const page = await getCmsPage(slug.join("/"));
+  const page = await getCmsPage(path);
   // 'coded' pages are owned by a real route in this repo; if one reaches here
   // the route is missing, and a 404 is more honest than an empty shell.
   if (!page || page.kind !== "blocks" || page.blocks.length === 0) notFound();
 
-  const content = await getSiteContent();
   const context = buildBlockContext(content, locale);
+  const pageTitle = page.title[locale] || page.title.fi;
+  const pageHref = pageUrl(locale, `/${path}`);
 
-  return <BlockRenderer blocks={page.blocks} context={context} />;
+  return (
+    <>
+      {/* WebPage + breadcrumb, and a FAQPage when the editor placed an
+          accordion (question / answer) block on the page. */}
+      <JsonLd
+        data={[
+          ...pageGraph({
+            url: pageHref,
+            locale,
+            name: page.seo[locale].title || pageTitle,
+            description: page.seo[locale].description || undefined,
+            image: page.ogImage || undefined,
+            crumbs: [homeCrumb(locale), { name: pageTitle }],
+          }),
+          faqPage(pageHref, faqItemsFromBlocks(page.blocks, locale)),
+        ]}
+      />
+      <BlockRenderer blocks={page.blocks} context={context} />
+    </>
+  );
 }

@@ -1,15 +1,31 @@
-import { headers } from "next/headers";
-import { isProductionHost } from "@/lib/host";
-import { normalizeInsightPath } from "@/content/mediaInsights";
+import { insightSource, normalizeInsightPath } from "@/content/mediaInsights";
 import { getSiteContent, type CmsMediaInsight, type CmsRailItem } from "@/lib/cms";
 import type { Locale } from "@/i18n/config";
 
 /**
  * The right rail on the service pages: feature flag + card selection.
  *
- * Server-side only — this module reads `next/headers` and must never be
+ * Server-side only — this module reads the CMS bundle and must never be
  * imported from a client component.
  */
+
+/**
+ * Internal path segment the proxy prefixes when a reviewer on a non-production
+ * host asks for `?rail=1`: `/hakukonemainonta?rail=1` is rewritten to
+ * `/fi/__rail/hakukonemainonta`. The catch-all page strips it again with
+ * `splitRailPreview`. A separate *path* (rather than a query string or a
+ * header read) keeps the preview and the real page as two distinct ISR cache
+ * entries, so neither the page nor this module has to touch a Request-time API
+ * — `headers()` / `searchParams` here used to make every service, case and
+ * insight page dynamic and uncacheable.
+ */
+export const RAIL_PREVIEW_SEGMENT = "__rail";
+
+/** Strip the rail-preview segment off a catch-all slug: `[preview, realSlug]`. */
+export function splitRailPreview(slug: string[]): { preview: boolean; slug: string[] } {
+  if (slug.length > 1 && slug[0] === RAIL_PREVIEW_SEGMENT) return { preview: true, slug: slug.slice(1) };
+  return { preview: false, slug };
+}
 
 /**
  * Whether the right rail renders — a layered switch, first match wins:
@@ -19,25 +35,23 @@ import type { Locale } from "@/i18n/config";
  *     still means `.env.local` + restart.
  *  2. the CMS flag `rail_enabled`: the everyday switch, flipped in the CMS
  *     (Settings → flags, or the MCP `cms_flags` tool). It rides in on the
- *     fetched bundle, so a flip takes effect within seconds — no rebuild,
- *     no restart, no env edit. CMS unreachable → `flags` is `{}` → off.
- *  3. `?rail=1` on a non-production host: a staging-only preview (ignored
- *     on norr3.fi) so reviewers can see the rail before it is switched on.
+ *     fetched bundle (revalidated every 300 s and expired by the publish
+ *     hook), so a flip takes effect without a rebuild, restart or env edit.
+ *     CMS unreachable → `flags` is `{}` → off.
+ *  3. `preview`: the `?rail=1` staging-only preview. The host check lives in
+ *     the proxy (production never rewrites, so norr3.fi ignores the param).
  *
- * Reads `headers()`, which makes every route calling it render dynamically —
- * deliberate: the flag must take effect without a rebuild, and stale
- * prerendered HTML must never pin the rail on or off.
+ * Deliberately free of `headers()` / `cookies()`: the pages that call this are
+ * ISR-cached, and the flag reaches them through the cached bundle instead.
  */
-export async function railEnabled(railParam?: string | null): Promise<boolean> {
-  // Read the host unconditionally so the dynamic render can't be skipped.
-  const host = (await headers()).get("host");
+export async function railEnabled(preview = false): Promise<boolean> {
   const env = (process.env.RIGHT_RAIL_ENABLED ?? "").trim().toLowerCase();
   if (env === "true" || env === "1") return true;
   // The flag lives in the CMS bundle, so consult it (cached like every other
   // getSiteContent read, and deduped with the page's own fetch).
   const flags = (await getSiteContent()).flags;
   if (flags.rail_enabled) return true;
-  return railParam === "1" && !isProductionHost(host);
+  return preview;
 }
 
 /** One rail card: either a Media Insights box or a CMS-composed rail item. */
@@ -125,10 +139,12 @@ export function buildRail(opts: {
     .filter((insight) => normalizeInsightPath(insight.url) === target)
     .sort((a, b) => a.priority - b.priority)
     // Locale gate — on EN, never fall back to Finnish: a row without English
-    // text or source is hidden rather than half-translated.
+    // text is hidden rather than half-translated. The source line counts when
+    // `insightSource` can say it in English (an editor's `source_en`, or the
+    // boilerplate Finnish line rendered in English — see mediaInsights.ts).
     .filter((insight) =>
       locale === "en"
-        ? Boolean(insight.text?.en?.trim()) && Boolean(insight.source?.en?.trim())
+        ? Boolean(insight.text?.en?.trim()) && Boolean(insightSource(insight, "en"))
         : Boolean(insight.text?.fi?.trim())
     )
     .slice(0, 2)

@@ -1,8 +1,9 @@
 import { isLocale } from "@/i18n/config";
 import { notFound } from "next/navigation";
-import Link from "next/link";
 import { getDictionary } from "@/lib/dictionary";
 import { pageSeo, robotsDirective } from "@/lib/pageSeo";
+import { JsonLd } from "@/components/JsonLd";
+import { ORGANIZATION_ID, personRef, absolute, homeCrumb, pageGraph, type Crumb } from "@/lib/jsonld";
 import { getSiteContent } from "@/lib/cms";
 import { imageSlot } from "@/content/imageSlots";
 import { companyStats, dataset } from "@/content/datasets";
@@ -13,6 +14,7 @@ import { StaggerGrid } from "@/components/StaggerGrid";
 import { SectionHeader } from "@/components/SectionHeader";
 import { TeamMarquee } from "@/components/TeamMarquee";
 import { CultureCard } from "@/components/cards/CultureCard";
+import { OpenRoleCard } from "@/components/cards/OpenRoleCard";
 import { TeamMemberCard } from "@/components/cards/TeamMemberCard";
 import { PhotoInterstitial } from "@/components/PhotoInterstitial";
 import { ContactBanner } from "@/components/ContactBanner";
@@ -37,7 +39,7 @@ export async function generateMetadata({ params }: PageProps<"/[locale]/tiimi">)
     title: seo.title,
     description: seo.description,
     robots: robotsDirective(seo.robots),
-    alternates: { canonical: seo.canonical || linkTo(locale, "/tiimi"), languages: { "fi-FI": "/team", "en-US": "/en/team" } },
+    alternates: { canonical: seo.canonical || linkTo(locale, "/tiimi"), languages: { "fi-FI": "/tiimi", en: "/en/tiimi", "x-default": "/tiimi" } },
     openGraph: {
       type: "website" as const,
       siteName: "NØRR3",
@@ -88,8 +90,39 @@ export default async function TeamPage({ params }: PageProps<"/[locale]/tiimi">)
         "NØRR3 team laughing together on the studio lounge sofa",
       ];
 
+  // Structured data: the same CMS-managed SEO the <head> uses, this page's
+  // WebPage node and its breadcrumb (Home › team).
+  const seo = await pageSeo("team", locale, {
+    title: dict.seo.team.title,
+    description: dict.seo.team.description,
+    image: ogImage("/images/brand/group.webp"),
+  });
+  const url = absolute(seo.canonical || linkTo(locale, "/tiimi"));
+  const crumbs: Crumb[] = [homeCrumb(locale), { name: dict.social.teamHeading }];
+  const jsonLd = pageGraph({
+    url,
+    locale,
+    name: seo.title,
+    description: seo.description,
+    image: seo.image,
+    type: "CollectionPage",
+    extra: {
+      about: { "@id": ORGANIZATION_ID },
+      // Every member by their profile's Person @id, so this list, the home
+      // page's Organization.employee and the profile pages all agree.
+      mainEntity: {
+        "@type": "ItemList",
+        "@id": `${url}#list`,
+        numberOfItems: team.length,
+        itemListElement: team.map((m, i) => ({ "@type": "ListItem", position: i + 1, item: personRef(m, locale) })),
+      },
+    },
+    crumbs,
+  });
+
   return (
     <>
+      <JsonLd data={jsonLd} />
       {/*
         Section rhythm shared with Home / Services / Engine / Cases: a run of
         base-background sections opens with `pt-24 lg:pt-32` and every member
@@ -119,7 +152,7 @@ export default async function TeamPage({ params }: PageProps<"/[locale]/tiimi">)
             <PillButton href={linkTo(locale, "/contact")}>{dict.common.contactUs}</PillButton>
             {/* The roles section is the second reason people open this page —
                 give it a route in from the fold instead of a long scroll. */}
-            <PillButton href={linkTo(locale, "/team#open-roles")} variant="secondary">
+            <PillButton href={linkTo(locale, "/tiimi#open-roles")} variant="secondary">
               {dict.common.openJobs}
             </PillButton>
             {/* Team Social: the same people, posting — profiles hang off the cards below. */}
@@ -243,20 +276,7 @@ export default async function TeamPage({ params }: PageProps<"/[locale]/tiimi">)
           </Reveal>
           <StaggerGrid className="mt-14 grid gap-card-gap sm:grid-cols-3 lg:mt-16">
             {openRoles.map((role) => (
-              <Link
-                key={role.id}
-                href={linkTo(locale, "/contact")}
-                className="group flex h-full flex-col rounded-card bg-yellow p-8 transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple dark:focus-visible:outline-light-purple"
-              >
-                <span className="flex h-[64px] w-[64px] items-center justify-center rounded-[5px] bg-white/60 text-ink">
-                  <Icon name="work" style={{ fontSize: "28px" }} />
-                </span>
-                <h3 className="mt-8 text-lg font-medium leading-snug text-ink">{role.title[locale]}</h3>
-                <p className="mt-1.5 text-sm text-ink/70">{role.location[locale]}</p>
-                <span className="mt-auto inline-flex items-center gap-1 pt-8 text-xs font-medium uppercase tracking-[0.08em] text-ink transition-transform group-hover:translate-x-0.5">
-                  {t.openRoles.apply} <span aria-hidden>→</span>
-                </span>
-              </Link>
+              <OpenRoleCard key={role.id} role={role} locale={locale} applyLabel={t.openRoles.apply} />
             ))}
           </StaggerGrid>
         </Container>

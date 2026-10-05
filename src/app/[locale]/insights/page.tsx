@@ -4,6 +4,8 @@ import Link from "next/link";
 import { getDictionary } from "@/lib/dictionary";
 import { getSiteContent } from "@/lib/cms";
 import { pageSeo, robotsDirective } from "@/lib/pageSeo";
+import { JsonLd } from "@/components/JsonLd";
+import { itemList, absolute, homeCrumb, pageGraph, pageUrl, type Crumb } from "@/lib/jsonld";
 import { Container, HeroPill } from "@/components/Container";
 import { SplitHeadline } from "@/components/SplitHeadline";
 import { Reveal } from "@/components/Reveal";
@@ -32,7 +34,7 @@ export async function generateMetadata({ params }: PageProps<"/[locale]/insights
     robots: robotsDirective(seo.robots),
     alternates: {
       canonical: seo.canonical || linkTo(locale, "/insights"),
-      languages: { "fi-FI": "/insights", "en-US": "/en/insights" },
+      languages: { "fi-FI": "/insights", en: "/en/insights", "x-default": "/insights" },
     },
     openGraph: {
       type: "website" as const,
@@ -67,8 +69,20 @@ export default async function InsightsPage({ params }: PageProps<"/[locale]/insi
   const fc = featured?.[locale];
   const rest = posts.filter((post) => post.slug !== featured?.slug);
 
+  // Structured data: the same CMS-managed SEO the <head> uses, this page's
+  // WebPage node and its breadcrumb (Home › insights).
+  const seo = await pageSeo("insights", locale, {
+    title: dict.seo.insights.title,
+    description: dict.seo.insights.description,
+    image: ogImage("/images/brand/space-arch.webp"),
+  });
+  const url = absolute(seo.canonical || linkTo(locale, "/insights"));
+  const crumbs: Crumb[] = [homeCrumb(locale), { name: dict.nav.insights }];
+  const jsonLd = pageGraph({ url, locale, name: seo.title, description: seo.description, image: seo.image, type: "CollectionPage", extra: { mainEntity: itemList(`${url}#list`, posts.map((post) => ({ url: pageUrl(locale, `/${post.slug}`), name: post[locale].title }))) }, crumbs });
+
   return (
     <>
+      <JsonLd data={jsonLd} />
       {/* Hero — the same rhythm as the other index pages: pill, display
           headline, one paragraph, then straight into the editorial feature. */}
       <Container className="pt-12 lg:pt-20">

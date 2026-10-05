@@ -72,7 +72,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       alternates: {
         languages: {
           "fi-FI": `${BASE}${linkTo("fi", path || "")}`,
-          "en-US": `${BASE}${linkTo("en", path || "")}`,
+          en: `${BASE}${linkTo("en", path || "")}`,
+          // Finnish is the default for anyone we have no better match for.
+          "x-default": `${BASE}${linkTo("fi", path || "")}`,
         },
       },
     }));

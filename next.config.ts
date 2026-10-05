@@ -11,6 +11,16 @@ const nextConfig: NextConfig = {
   allowedDevOrigins: ["127.0.0.1", "localhost", "194.31.55.65", "norr3.fi", "*.norr3.fi"],
 
   /**
+   * ISR pages answer `Cache-Control: s-maxage=<revalidate>, stale-while-
+   * revalidate=<expireTime - revalidate>`. The content routes revalidate every
+   * 300 s (`src/app/[locale]/layout.tsx`), and without this the SWR window
+   * defaults to a year — a CDN could keep handing out a stale page for that
+   * long while it re-fetched. One hour bounds it: Cloudflare (or any cache in
+   * front) gets `s-maxage=300, stale-while-revalidate=3300`.
+   */
+  expireTime: 3600,
+
+  /**
    * Permanent redirects — one canonical URL per piece of content.
    *
    * `statusCode: 301` rather than `permanent: true`: the latter answers 308,
@@ -24,6 +34,17 @@ const nextConfig: NextConfig = {
    * all; only the ones whose slug changed, the section-prefixed variants, and
    * the collapsed service hierarchy need an entry here.
    */
+  /**
+   * Trailing slashes are stripped in `src/proxy.ts` (301) instead of by Next's
+   * built-in `/:path+/` → `/:path+` rule. That built-in rule runs *before* the
+   * custom redirects below and answers 308, so every old WordPress URL with a
+   * trailing slash (`/flow-festivaali/`) used to take two hops: 308 to the
+   * slash-less path, then the 301 below. With it disabled, the custom rules
+   * match both forms directly (their patterns end in `(?:/)?$`) and any other
+   * slashed URL gets one 301 from the proxy.
+   */
+  skipTrailingSlashRedirect: true,
+
   async redirects() {
     return [
       // ── Section-prefixed detail URLs → the root slug ────────────────────────
@@ -79,23 +100,61 @@ const nextConfig: NextConfig = {
       { source: "/norr3-marketing-engine", destination: "/engine", statusCode: 301 },
       { source: "/privacy-policy", destination: "/tietosuojaseloste", statusCode: 301 },
       { source: "/sample-page", destination: "/", statusCode: 301 },
+      { source: "/yhteystiedot", destination: "/contact", statusCode: 301 },
+      { source: "/ota-yhteytta", destination: "/contact", statusCode: 301 },
+      { source: "/rekry", destination: "/toihin-meille", statusCode: 301 },
+      { source: "/partners", destination: "/meista", statusCode: 301 },
+      // The WordPress blog. Team and partner author archives → the team page;
+      // everything else that lived under /blog → the insights index.
+      { source: "/blog/employee/:path*", destination: "/tiimi", statusCode: 301 },
+      { source: "/blog/partner/:path*", destination: "/tiimi", statusCode: 301 },
+      { source: "/blog/:path*", destination: "/insights", statusCode: 301 },
+      { source: "/blogi/:path*", destination: "/insights", statusCode: 301 },
+      // WordPress media library. The old logo URL is still referenced from
+      // outside (and by the Organization JSON-LD on the home page), so it
+      // lands on the current logo file; every other upload → the home page.
+      { source: "/wp-content/uploads/2025/02/Logo-01.png", destination: "/logo-wordmark.svg", statusCode: 301 },
+      { source: "/wp-content/uploads/:path*", destination: "/", statusCode: 301 },
+      { source: "/services/content/content-creation-services", destination: "/services", statusCode: 301 },
 
       // ── Old English pages ───────────────────────────────────────────────────
       { source: "/en/home", destination: "/en", statusCode: 301 },
       { source: "/en/norr3", destination: "/en", statusCode: 301 },
-      // The old Media Insights landing page — superseded by the services
-      // page's Media Insights section.
-      { source: "/media-insights", destination: "/services", statusCode: 301 },
-      { source: "/en/media-insights", destination: "/en/services", statusCode: 301 },
+      // The old Media Insights landing page → its service landing page.
+      { source: "/media-insights", destination: "/mediasuunnittelu/norr3-media-insights", statusCode: 301 },
+      { source: "/en/media-insights", destination: "/en/mediasuunnittelu/norr3-media-insights", statusCode: 301 },
+      { source: "/about-us", destination: "/en/meista", statusCode: 301 },
+      { source: "/en/contact-us", destination: "/en/contact", statusCode: 301 },
 
       // ── Slugs that changed between the old site and this one ────────────────
       // (cases and posts whose slug matches resolve directly at the root.)
-      { source: "/terveystalo", destination: "/suun-terveystalo", statusCode: 301 },
-      { source: "/flow-festivaali", destination: "/flow-festival", statusCode: 301 },
       { source: "/voittava-mediamixia-vuodelle-2024", destination: "/voittava-mediamix-2024", statusCode: 301 },
       { source: "/trekronormedia_norr3", destination: "/tre-kronor-media", statusCode: 301 },
-      { source: "/norr3-on-vuoden-toimisto-2023", destination: "/norr3-vuoden-toimisto-2023", statusCode: 301 },
-      // Grandone's content is no longer reachable on the old site; land on the cases index.
+      { source: "/nelja-pohjoismaata-yhdistavat-voimansa-uudessa-mediatoimistoverkostossa", destination: "/tre-kronor-media", statusCode: 301 },
+
+      // ── Old case URLs whose case is not published in the CMS ────────────────
+      // `website_cases` rows flow-festival, suun-terveystalo, st1 and esperi are
+      // all `visible = 0` / draft, so their pages 404. Until they are
+      // published, the old URLs land on the cases index. When one of them goes
+      // live: delete its line here (and for /st1 and /esperi that is a must —
+      // the rule would otherwise shadow the real page at the same path) and
+      // point the renamed ones at the case (/terveystalo → /suun-terveystalo,
+      // /flow-festivaali → /flow-festival).
+      { source: "/terveystalo", destination: "/caset", statusCode: 301 },
+      { source: "/flow-festivaali", destination: "/caset", statusCode: 301 },
+      { source: "/st1", destination: "/caset", statusCode: 301 },
+      { source: "/esperi", destination: "/caset", statusCode: 301 },
+
+      // ── Old news / blog posts that are drafts in the CMS ────────────────────
+      // `posts` rows norr3-vuoden-toimisto-2023 and ai-and-the-creative-future
+      // are unpublished; the agency-of-the-year story belongs with the company
+      // page, the AI essay with the rest of the insights. Repoint when published.
+      { source: "/norr3-on-vuoden-toimisto-2023", destination: "/meista", statusCode: 301 },
+      { source: "/ai-and-the-creative-future", destination: "/insights", statusCode: 301 },
+
+      // Grandone's content is no longer reachable on the old site; the Marketing
+      // Engine page it sold lives at /engine, everything else → the cases index.
+      { source: "/grandone/norr3marketingengine", destination: "/engine", statusCode: 301 },
       { source: "/grandone", destination: "/caset", statusCode: 301 },
     ];
   },

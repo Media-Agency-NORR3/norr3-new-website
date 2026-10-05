@@ -5,7 +5,9 @@ import { isLocale, type Locale } from "@/i18n/config";
 import { getSiteContent } from "@/lib/dictionary";
 import { getSocialMember, getSocialMembers, profileFromRoster, socialOgImage, type MemberPage } from "@/lib/social";
 import { linkTo } from "@/lib/links";
-import { absoluteUrl, excerpt, fill, jsonLd, loc, paragraphs, safeHttpUrl, type MemberSummary } from "@/lib/socialFormat";
+import { absoluteUrl, excerpt, fill, loc, paragraphs, safeHttpUrl, type MemberSummary } from "@/lib/socialFormat";
+import { JsonLd } from "@/components/JsonLd";
+import { ORGANIZATION_ID, WEBSITE_ID, breadcrumbList, homeCrumb, inLanguage, organizationRef, pageUrl, personId } from "@/lib/jsonld";
 import { Container } from "@/components/Container";
 import { PillButton } from "@/components/PillButton";
 import { ProfileHeader } from "@/components/social/ProfileHeader";
@@ -56,7 +58,7 @@ export async function generateMetadata({ params }: Props) {
   return {
     title,
     description,
-    alternates: { canonical: url, languages: { "fi-FI": `/tiimi/${slug}`, "en-US": `/en/tiimi/${slug}` } },
+    alternates: { canonical: url, languages: { "fi-FI": `/tiimi/${slug}`, en: `/en/tiimi/${slug}`, "x-default": `/tiimi/${slug}` } },
     openGraph: {
       type: "profile" as const,
       siteName: "NØRR3",
@@ -97,39 +99,49 @@ export default async function ProfilePage({ params }: Props) {
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: jsonLd({
-            "@context": "https://schema.org",
+      {/* ProfilePage whose main entity is the member's Person node. The
+          Person @id is locale-independent (…/tiimi/<slug>#person) so the
+          home page's Organization.employee list and article authors resolve
+          to it from either language. */}
+      <JsonLd
+        data={[
+          {
             "@type": "ProfilePage",
+            "@id": url,
             url,
-            inLanguage: locale === "fi" ? "fi-FI" : "en-US",
+            name: `${member.name}${role ? ` — ${role}` : ""} | NØRR3`,
+            inLanguage: inLanguage(locale),
+            isPartOf: { "@id": WEBSITE_ID },
+            breadcrumb: { "@id": `${url}#breadcrumb` },
             ...(posts[0]?.updatedAt ? { dateModified: posts[0].updatedAt } : {}),
-            mainEntity: {
-              "@type": "Person",
-              "@id": `${url}#person`,
-              name: member.name,
-              url,
-              ...(role ? { jobTitle: role } : {}),
-              ...(photo ? { image: photo } : {}),
-              ...(about || loc(member.headline, locale) ? { description: excerpt(loc(member.headline, locale) || about, 300) } : {}),
-              ...(linkedin ? { sameAs: [linkedin] } : {}),
-              ...(member.skills.length ? { knowsAbout: member.skills } : {}),
-              ...(member.location ? { homeLocation: { "@type": "Place", name: member.location } } : {}),
-              worksFor: { "@type": "Organization", name: "NØRR3", url: "https://norr3.fi" },
-              ...(member.postCount || posts.length
-                ? {
-                    agentInteractionStatistic: {
-                      "@type": "InteractionCounter",
-                      interactionType: "https://schema.org/WriteAction",
-                      userInteractionCount: member.postCount || posts.length,
-                    },
-                  }
-                : {}),
-            },
-          }),
-        }}
+            mainEntity: { "@id": personId(slug) },
+          },
+          {
+            "@type": "Person",
+            "@id": personId(slug),
+            name: member.name,
+            url,
+            ...(role ? { jobTitle: role } : {}),
+            ...(photo ? { image: photo } : {}),
+            ...(about || loc(member.headline, locale) ? { description: excerpt(loc(member.headline, locale) || about, 300) } : {}),
+            ...(linkedin ? { sameAs: [linkedin] } : {}),
+            ...(member.email ? { email: member.email } : {}),
+            ...(member.skills.length ? { knowsAbout: member.skills } : {}),
+            ...(member.location ? { homeLocation: { "@type": "Place", name: member.location } } : {}),
+            worksFor: organizationRef(),
+            memberOf: { "@id": ORGANIZATION_ID },
+            ...(member.postCount || posts.length
+              ? {
+                  agentInteractionStatistic: {
+                    "@type": "InteractionCounter",
+                    interactionType: "https://schema.org/WriteAction",
+                    userInteractionCount: member.postCount || posts.length,
+                  },
+                }
+              : {}),
+          },
+          breadcrumbList(url, [homeCrumb(locale), { name: t.teamHeading, url: pageUrl(locale, "/tiimi") }, { name: member.name }]),
+        ]}
       />
 
       <Container className="pb-24 pt-8 lg:pb-32 lg:pt-12">

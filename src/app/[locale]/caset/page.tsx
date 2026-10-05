@@ -2,6 +2,8 @@ import { isLocale } from "@/i18n/config";
 import { notFound } from "next/navigation";
 import { getDictionary } from "@/lib/dictionary";
 import { pageSeo, robotsDirective } from "@/lib/pageSeo";
+import { JsonLd } from "@/components/JsonLd";
+import { itemList, absolute, homeCrumb, pageGraph, pageUrl, type Crumb } from "@/lib/jsonld";
 import { getSiteContent } from "@/lib/cms";
 import { Container, HeroPill } from "@/components/Container";
 import { SplitHeadline } from "@/components/SplitHeadline";
@@ -38,7 +40,7 @@ export async function generateMetadata({ params }: PageProps<"/[locale]/caset">)
     title: seo.title,
     description: seo.description,
     robots: robotsDirective(seo.robots),
-    alternates: { canonical: seo.canonical || linkTo(locale, "/caset"), languages: { "fi-FI": "/cases", "en-US": "/en/cases" } },
+    alternates: { canonical: seo.canonical || linkTo(locale, "/caset"), languages: { "fi-FI": "/caset", en: "/en/caset", "x-default": "/caset" } },
     openGraph: {
       type: "website" as const,
       siteName: "NØRR3",
@@ -89,8 +91,20 @@ export default async function CasesPage({ params }: PageProps<"/[locale]/caset">
   // decorative number, read off the case itself so the two can never disagree.
   const statCase = cases.find((x) => x.slug === "suun-terveystalo") ?? featured;
 
+  // Structured data: the same CMS-managed SEO the <head> uses, this page's
+  // WebPage node and its breadcrumb (Home › cases).
+  const seo = await pageSeo("cases", locale, {
+    title: dict.seo.cases.title,
+    description: dict.seo.cases.description,
+    image: ogImage("/images/cases/flow-festival.webp"),
+  });
+  const url = absolute(seo.canonical || linkTo(locale, "/caset"));
+  const crumbs: Crumb[] = [homeCrumb(locale), { name: dict.nav.cases }];
+  const jsonLd = pageGraph({ url, locale, name: seo.title, description: seo.description, image: seo.image, type: "CollectionPage", extra: { mainEntity: itemList(`${url}#list`, cases.map((study) => ({ url: pageUrl(locale, `/${study.slug}`), name: study.client }))) }, crumbs });
+
   return (
     <>
+      <JsonLd data={jsonLd} />
       {/*
         Section rhythm shared with Home / Services / Engine: a run of
         base-background sections opens with `pt-24 lg:pt-32` and every member

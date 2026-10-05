@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { isProductionHost } from "@/lib/host";
 
 /**
  * CMS-managed redirects. The CMS exposes them in its public bundle; the
@@ -81,6 +82,43 @@ function isPreviewRequest(request: NextRequest): boolean {
 }
 
 /**
+ * Non-production hosts (the raw VPS IP, the staging alias, a preview URL) are
+ * noindexed with a response header. This used to be a `headers()` read in the
+ * root layout's metadata, but a Request-time API there made every route
+ * dynamic — no ISR, `Cache-Control: no-store`, a full render per request. A
+ * header set here costs nothing, is applied per request even when the HTML
+ * comes from the ISR cache, and (unlike a `<meta>` tag) can never be baked
+ * into a cached page for the wrong host. Google treats a header and a meta
+ * tag alike and applies the more restrictive one, so production keeps its
+ * CMS-owned meta robots. robots.txt keeps its own host check (a route
+ * handler, dynamic by nature).
+ */
+function withHostRobots(response: NextResponse, request: NextRequest): NextResponse {
+  if (!isProductionHost(request.headers.get("host"))) {
+    response.headers.set("X-Robots-Tag", "noindex, nofollow");
+  }
+  return response;
+}
+
+/**
+ * The right-rail staging preview: `?rail=1` on a non-production host renders a
+ * service page with the rail regardless of the CMS flag. The page takes it as
+ * an internal path segment (`/fi/__rail/<slug>`) rather than reading the query
+ * string — `searchParams` would make the whole catch-all route dynamic; a
+ * distinct path is just a second ISR cache entry. Mirrors
+ * `RAIL_PREVIEW_SEGMENT` in src/lib/rail.ts (not imported: that module pulls
+ * the CMS layer into the proxy bundle). Production never rewrites, so
+ * norr3.fi ignores the param.
+ */
+const RAIL_PREVIEW_SEGMENT = "__rail";
+
+function railPreviewRequested(request: NextRequest): boolean {
+  return (
+    request.nextUrl.searchParams.get("rail") === "1" && !isProductionHost(request.headers.get("host"))
+  );
+}
+
+/**
  * Finnish lives at the domain root; English under `/en`.
  *
  *  - CMS-managed redirects are applied first, before any locale rewrite.
@@ -96,21 +134,29 @@ function isPreviewRequest(request: NextRequest): boolean {
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // Canonical form of the requested path: no trailing slash, no legacy `/fi`
+  // prefix. Next's own trailing-slash redirect is disabled
+  // (`skipTrailingSlashRedirect` in next.config.ts) because it ran before the
+  // 301 table there and answered 308, so an old `/foo/` URL took two hops.
+  // The next.config.ts rules match the slashed form themselves; everything
+  // else is normalised here — and the CMS-managed redirects are looked up on
+  // the normalised path so `/old/` reaches its target in a single 301.
+  const slashless = pathname.length > 1 ? pathname.replace(/\/+$/, "") : pathname;
+  const canonical =
+    slashless === "/fi" || slashless.startsWith("/fi/") ? slashless.replace(/^\/fi(?=\/|$)/, "") || "/" : slashless;
+
+  // A plain URL, not `nextUrl.clone()`: NextURL remembers the request's
+  // trailing slash and would put it straight back on the redirect target.
+  const redirectTo = (target: string, status: 301 | 302 | 307 | 308) =>
+    NextResponse.redirect(new URL(target + request.nextUrl.search, request.nextUrl.href), status);
+
   // CMS-managed redirects first.
   const bundle = await siteBundle();
-  const match = bundle.redirects.get(pathname);
-  if (match) {
-    const url = request.nextUrl.clone();
-    url.pathname = match.to;
-    return NextResponse.redirect(url, match.status as 301 | 302 | 307 | 308);
-  }
+  const match = bundle.redirects.get(canonical);
+  if (match) return redirectTo(match.to, match.status as 301 | 302 | 307 | 308);
 
-  // Legacy Finnish prefix → root, permanently.
-  if (pathname === "/fi" || pathname.startsWith("/fi/")) {
-    const url = request.nextUrl.clone();
-    url.pathname = pathname.replace(/^\/fi(?=\/|$)/, "") || "/";
-    return NextResponse.redirect(url, 301);
-  }
+  // Trailing slash and the legacy Finnish prefix → the canonical URL, permanently.
+  if (canonical !== pathname) return redirectTo(canonical, 301);
 
   // CMS publish control: a page switched to draft in the CMS 404s on the live
   // site even though its route is code-rendered. Previews bypass the gate.
@@ -121,8 +167,10 @@ export async function proxy(request: NextRequest) {
     url.pathname = isEn ? "/en/__unpublished" : "/fi/__unpublished";
     const headers = new Headers(request.headers);
     headers.set("x-norr3-locale", isEn ? "en" : "fi");
-    return NextResponse.rewrite(url, { request: { headers } });
+    return withHostRobots(NextResponse.rewrite(url, { request: { headers } }), request);
   }
+
+  const railPreview = railPreviewRequested(request);
 
   // English already carries its prefix — but the English URLs keep their
   // English names while the route folders are Finnish, so alias them invisibly.
@@ -141,19 +189,24 @@ export async function proxy(request: NextRequest) {
       url.pathname = aliased;
       const headers = new Headers(request.headers);
       headers.set("x-norr3-locale", "en");
-      return NextResponse.rewrite(url, { request: { headers } });
+      return withHostRobots(NextResponse.rewrite(url, { request: { headers } }), request);
     }
     const headers = new Headers(request.headers);
     headers.set("x-norr3-locale", "en");
-    return NextResponse.next({ request: { headers } });
+    if (railPreview && pathname !== "/en") {
+      const url = request.nextUrl.clone();
+      url.pathname = pathname.replace(/^\/en/, `/en/${RAIL_PREVIEW_SEGMENT}`);
+      return withHostRobots(NextResponse.rewrite(url, { request: { headers } }), request);
+    }
+    return withHostRobots(NextResponse.next({ request: { headers } }), request);
   }
 
   // Everything else is Finnish — serve the internal /fi route.
   const url = request.nextUrl.clone();
-  url.pathname = `/fi${pathname}`;
+  url.pathname = railPreview && pathname !== "/" ? `/fi/${RAIL_PREVIEW_SEGMENT}${pathname}` : `/fi${pathname}`;
   const headers = new Headers(request.headers);
   headers.set("x-norr3-locale", "fi");
-  return NextResponse.rewrite(url, { request: { headers } });
+  return withHostRobots(NextResponse.rewrite(url, { request: { headers } }), request);
 }
 
 export const config = {

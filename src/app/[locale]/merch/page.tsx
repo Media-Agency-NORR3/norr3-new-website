@@ -30,7 +30,7 @@ export async function generateMetadata({ params }: PageProps<"/[locale]/merch">)
     robots: robotsDirective(seo.robots),
     alternates: {
       canonical: seo.canonical || linkTo(locale, "/merch"),
-      languages: { "fi-FI": "/merch", "en-US": "/en/merch" },
+      languages: { "fi-FI": "/merch", en: "/en/merch", "x-default": "/merch" },
     },
     openGraph: {
       type: "website" as const,

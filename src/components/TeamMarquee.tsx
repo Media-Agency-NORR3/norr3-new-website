@@ -122,6 +122,14 @@ export function TeamMarquee({
               // The button's aria-label already names the member — a non-empty
               // alt here would make AT announce the name twice.
               alt=""
+              // The strip sits near the bottom of the home page, and the loop
+              // copy doubles every photo. Without `lazy`, React's SSR treats
+              // each eager <img> as a preload candidate: 19 × 2 team photos
+              // (~1 MB) went out as <link rel="preload"> and Link headers ahead
+              // of the hero image. Lazy images are neither preloaded nor
+              // fetched until the strip scrolls near the viewport.
+              loading="lazy"
+              decoding="async"
               className={`h-full w-full object-cover transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
                 isActive ? "scale-105 grayscale-0" : "grayscale-[0.2]"
               }`}

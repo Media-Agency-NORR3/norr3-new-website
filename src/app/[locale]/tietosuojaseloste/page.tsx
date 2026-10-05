@@ -13,7 +13,7 @@ export async function generateMetadata({ params }: PageProps<"/[locale]/tietosuo
     description: dict.seo.privacy.description,
     alternates: {
       canonical: linkTo(locale, "/tietosuojaseloste"),
-      languages: { "fi-FI": "/privacy", "en-US": "/en/privacy" },
+      languages: { "fi-FI": "/tietosuojaseloste", en: "/en/tietosuojaseloste", "x-default": "/tietosuojaseloste" },
     },
     openGraph: {
       type: "website" as const,

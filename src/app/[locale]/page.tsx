@@ -25,6 +25,9 @@ import { StatGrid } from "@/components/StatGrid";
 import { TeamMarquee } from "@/components/TeamMarquee";
 import { MediaAsset } from "@/components/MediaAsset";
 import { linkTo } from "@/lib/links";
+import { pageSeo } from "@/lib/pageSeo";
+import { JsonLd } from "@/components/JsonLd";
+import { ORGANIZATION_ID, breadcrumbList, homeCrumb, organizationNode, pageUrl, webPage, webSiteNode } from "@/lib/jsonld";
 
 export default async function HomePage({ params }: PageProps<"/[locale]">) {
   const { locale } = await params;
@@ -105,46 +108,20 @@ export default async function HomePage({ params }: PageProps<"/[locale]">) {
   // of these figures and could disagree.
   const inNumbers = dataset(content.datasets, "companyStats", locale, companyStats[locale]);
 
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@graph": [
-      {
-        "@type": "Organization",
-        "@id": "https://norr3.fi/#organization",
-        name: "NØRR3",
-        legalName: "NORR3 Oy",
-        url: "https://norr3.fi",
-        logo: "https://norr3.fi/wp-content/uploads/2025/02/Logo-01.png",
-        description: dict.meta.description,
-        foundingDate: "2019",
-        email: "info@norr3.fi",
-        telephone: "+358 46 8100 118",
-        address: {
-          "@type": "PostalAddress",
-          streetAddress: "Pursimiehenkatu 26 C",
-          postalCode: "00150",
-          addressLocality: "Helsinki",
-          addressCountry: "FI",
-        },
-      },
-      {
-        "@type": "WebSite",
-        "@id": "https://norr3.fi/#website",
-        url: "https://norr3.fi",
-        name: "NØRR3",
-        description: dict.meta.description,
-        publisher: { "@id": "https://norr3.fi/#organization" },
-        inLanguage: ["fi", "en"],
-      },
-    ],
-  };
+  // Structured data: the Organization is declared in full here (every other
+  // page references it by @id), plus the WebSite and this page's WebPage.
+  const seo = await pageSeo("home", locale, { title: dict.meta.title, description: dict.meta.description, image: "/images/brand/og-image.jpg" });
+  const homeUrl = pageUrl(locale, "/");
+  const jsonLd = [
+    organizationNode(content, locale, dict.meta.description),
+    webSiteNode(dict.meta.description),
+    webPage({ url: homeUrl, locale, name: seo.title, description: seo.description, image: seo.image, extra: { about: { "@id": ORGANIZATION_ID } } }),
+    breadcrumbList(homeUrl, [homeCrumb(locale)]),
+  ];
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+      <JsonLd data={jsonLd} />
 
       {/* Hero — randomizes between the original HomeHero and the CityHero
           (dark Helsinki cityscape parallax) on each page load. The CityHero

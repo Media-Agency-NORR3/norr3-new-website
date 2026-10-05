@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Logo } from "./Logo";
 import { ThemeToggle } from "./ThemeToggle";
 import { Icon } from "./Icon";
-import { linkTo, otherLocaleHref } from "@/lib/links";
+import { linkTo, otherLocaleHref, publicPath } from "@/lib/links";
 import { servicePages as bundledServicePages, servicePageLocalised, type ServicePage } from "@/content/servicePages";
 import type { Dictionary } from "@/content/dictionary";
 import type { Locale } from "@/i18n/config";
@@ -192,13 +192,16 @@ export function Nav({
     menu && menu.length > 0
       ? menu
           // The CMS menu also feeds the footer; keep the header to real sections.
-          .filter((entry) => !["/tietosuojaseloste", "/kayttoehdot"].includes(entry.href))
+          .filter((entry) => !["/tietosuojaseloste", "/kayttoehdot", "/privacy", "/terms"].includes(entry.href))
           .map((entry) => {
+            // The key stays the CMS name (`cases`, `about`) — the sub-menu map
+            // above is keyed by it — while the href becomes the public route
+            // (`/caset`, `/meista`) so no nav link lands on a 301.
             const key = entry.href.replace(/^\//, "") || "home";
             return {
               key,
               label: entry.label[locale] || entry.label.fi,
-              href: linkTo(locale, entry.href.startsWith("/") ? entry.href : `/${entry.href}`),
+              href: linkTo(locale, publicPath(entry.href)),
               children: sub[key] ?? [],
             };
           })

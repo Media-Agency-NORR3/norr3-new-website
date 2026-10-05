@@ -4,7 +4,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import type { Dictionary } from "@/content/dictionary";
 import type { Locale } from "@/i18n/config";
-import { linkTo } from "@/lib/links";
+import { linkTo, publicPath } from "@/lib/links";
 import { CookieSettingsButton } from "@/components/CookieSettingsButton";
 
 
@@ -127,7 +127,7 @@ export function Footer({
             {dict.footer.joinLinks.map((item) => (
               <Link
                 key={item.key}
-                href={linkTo(locale, `/${item.path}`)}
+                href={linkTo(locale, publicPath(item.path))}
                 className="block w-fit rounded-sm transition-colors hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white lg:ml-auto"
               >
                 {item.label}

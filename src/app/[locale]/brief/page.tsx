@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     description: dict.brief.metaDescription,
     alternates: {
       canonical: linkTo(locale, "/brief"),
-      languages: { "fi-FI": "/brief", "en-US": "/en/brief" },
+      languages: { "fi-FI": "/brief", en: "/en/brief", "x-default": "/brief" },
     },
     openGraph: {
       type: "website" as const,

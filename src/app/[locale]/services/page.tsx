@@ -2,6 +2,8 @@ import { isLocale } from "@/i18n/config";
 import { notFound } from "next/navigation";
 import { getDictionary } from "@/lib/dictionary";
 import { pageSeo, robotsDirective } from "@/lib/pageSeo";
+import { JsonLd } from "@/components/JsonLd";
+import { itemList, absolute, homeCrumb, pageGraph, pageUrl, type Crumb } from "@/lib/jsonld";
 import { getSiteContent } from "@/lib/cms";
 import { Container, HeroPill } from "@/components/Container";
 import { SplitHeadline } from "@/components/SplitHeadline";
@@ -36,7 +38,7 @@ export async function generateMetadata({ params }: PageProps<"/[locale]/services
     title: seo.title,
     description: seo.description,
     robots: robotsDirective(seo.robots),
-    alternates: { canonical: seo.canonical || linkTo(locale, "/services"), languages: { "fi-FI": "/services", "en-US": "/en/services" } },
+    alternates: { canonical: seo.canonical || linkTo(locale, "/services"), languages: { "fi-FI": "/services", en: "/en/services", "x-default": "/services" } },
     openGraph: {
       type: "website" as const,
       siteName: "NØRR3",
@@ -65,8 +67,20 @@ export default async function ServicesPage({ params }: PageProps<"/[locale]/serv
   const pills = mediaPills.map((p) => ({ id: p.id, icon: p.icon, label: p[locale] }));
   const relatedCases = cases.filter((c) => c.slug !== "suun-terveystalo").slice(0, 3);
 
+  // Structured data: the same CMS-managed SEO the <head> uses, this page's
+  // WebPage node and its breadcrumb (Home › services).
+  const seo = await pageSeo("services", locale, {
+    title: dict.seo.services.title,
+    description: dict.seo.services.description,
+    image: ogImage("/images/brand/services-planning.webp"),
+  });
+  const url = absolute(seo.canonical || linkTo(locale, "/services"));
+  const crumbs: Crumb[] = [homeCrumb(locale), { name: dict.nav.services }];
+  const jsonLd = pageGraph({ url, locale, name: seo.title, description: seo.description, image: seo.image, type: "CollectionPage", extra: { mainEntity: itemList(`${url}#list`, content.servicePages.map((p) => ({ url: pageUrl(locale, `/${p.slug}`), name: servicePageLocalised(p, locale).title }))) }, crumbs });
+
   return (
     <>
+      <JsonLd data={jsonLd} />
       {/* Hero — cycling headline ("Our services include _…"), two CTAs, no
           chips: the grid below is the navigation. */}
       <Container className="pt-12 lg:pt-20">

@@ -13,7 +13,7 @@ export async function generateMetadata({ params }: PageProps<"/[locale]/kayttoeh
     description: dict.seo.terms.description,
     alternates: {
       canonical: linkTo(locale, "/kayttoehdot"),
-      languages: { "fi-FI": "/terms", "en-US": "/en/terms" },
+      languages: { "fi-FI": "/kayttoehdot", en: "/en/kayttoehdot", "x-default": "/kayttoehdot" },
     },
     openGraph: {
       type: "website" as const,

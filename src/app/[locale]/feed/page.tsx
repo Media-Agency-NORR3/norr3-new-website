@@ -36,7 +36,7 @@ export async function generateMetadata({ params }: Props) {
     description: seo.description,
     robots: robotsDirective(seo.robots),
     // Hashtag filters (?tag=) are views of this page, not pages of their own.
-    alternates: { canonical: seo.canonical || url, languages: { "fi-FI": "/feed", "en-US": "/en/feed" } },
+    alternates: { canonical: seo.canonical || url, languages: { "fi-FI": "/feed", en: "/en/feed", "x-default": "/feed" } },
     openGraph: {
       type: "website" as const,
       siteName: "NØRR3",

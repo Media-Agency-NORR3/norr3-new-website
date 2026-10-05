@@ -10,7 +10,11 @@ import type { ReactNode } from "react";
  *
  * `stat` is the optional yellow result badge over the photo — the Figma case
  * card carries its headline number, so a case grid reads as proof at a glance
- * instead of as four summaries.
+ * instead of as four summaries. From `md` up it sits bottom-left over the
+ * photo; below that it drops into the flow between the photo and the title.
+ * On a phone the badge is a third of the card's width, and several case
+ * photos carry their own typography in that corner (Sambla's Rahalaitos
+ * wordmark, for one) — a badge over the picture there covered the words.
  */
 export function PhotoLinkCard({
   href,
@@ -38,15 +42,17 @@ export function PhotoLinkCard({
       href={href}
       className="group flex h-full flex-col rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-purple dark:focus-visible:outline-light-purple"
     >
-      <div className="relative aspect-[4/3] overflow-hidden">
-        <img
-          src={image}
-          alt={alt}
-          className="h-full w-full object-cover transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.04]"
-          loading="lazy"
-        />
+      <div className="relative">
+        <div className="aspect-[4/3] overflow-hidden">
+          <img
+            src={image}
+            alt={alt}
+            className="h-full w-full object-cover transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.04]"
+            loading="lazy"
+          />
+        </div>
         {stat && (
-          <span className="absolute bottom-3 left-3 inline-flex items-baseline gap-1.5 rounded-full bg-yellow px-3.5 py-1.5 text-ink">
+          <span className="mt-4 flex w-fit items-baseline gap-1.5 rounded-full bg-yellow px-3.5 py-1.5 text-ink md:absolute md:bottom-3 md:left-3 md:mt-0">
             {stat}
           </span>
         )}
