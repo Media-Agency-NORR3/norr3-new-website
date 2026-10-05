@@ -126,6 +126,14 @@ export type OpenRole = {
   id: string;
   title: { fi: string; en: string };
   location: { fi: string; en: string };
+  /**
+   * Where this role is actually advertised for applications (the recruitment
+   * system page, e.g. Eilakaisla/Talentadore). The role card links straight
+   * here — without it every posting dumped the candidate on the contact page.
+   * Owned by the CMS (`careers.apply_url`); absent for the committed fallback
+   * roles, which then fall back to the open-roles list.
+   */
+  applyUrl?: string;
 };
 
 export const openRoles: OpenRole[] = [

@@ -1,6 +1,5 @@
 import { isLocale } from "@/i18n/config";
 import { notFound } from "next/navigation";
-import Link from "next/link";
 import { getDictionary } from "@/lib/dictionary";
 import { pageSeo, robotsDirective } from "@/lib/pageSeo";
 import { JsonLd } from "@/components/JsonLd";
@@ -16,6 +15,7 @@ import { StaggerGrid } from "@/components/StaggerGrid";
 import { SectionHeader } from "@/components/SectionHeader";
 import { BenefitCard } from "@/components/cards/BenefitCard";
 import { CultureCard } from "@/components/cards/CultureCard";
+import { OpenRoleCard } from "@/components/cards/OpenRoleCard";
 import { PhotoInterstitial } from "@/components/PhotoInterstitial";
 import { ContactBanner } from "@/components/ContactBanner";
 import { OpenApplicationCta } from "@/components/OpenApplicationCta";
@@ -123,20 +123,7 @@ export default async function CareersPage({ params }: PageProps<"/[locale]/toihi
           </Reveal>
           <StaggerGrid className="mt-14 grid gap-card-gap sm:grid-cols-3 lg:mt-16">
             {openRoles.map((role) => (
-              <Link
-                key={role.id}
-                href={linkTo(locale, "/contact")}
-                className="group flex h-full flex-col rounded-card bg-yellow p-8 transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple dark:focus-visible:outline-light-purple"
-              >
-                <span className="flex h-[64px] w-[64px] items-center justify-center rounded-[5px] bg-white/60 text-ink">
-                  <Icon name="work" style={{ fontSize: "28px" }} />
-                </span>
-                <h3 className="mt-8 text-lg font-medium leading-snug text-ink">{role.title[locale]}</h3>
-                <p className="mt-1.5 text-sm text-ink/70">{role.location[locale]}</p>
-                <span className="mt-auto inline-flex items-center gap-1 pt-8 text-xs font-medium uppercase tracking-[0.08em] text-ink transition-transform group-hover:translate-x-0.5">
-                  {c.roles.apply} <span aria-hidden>→</span>
-                </span>
-              </Link>
+              <OpenRoleCard key={role.id} role={role} locale={locale} applyLabel={c.roles.apply} />
             ))}
           </StaggerGrid>
         </Container>
