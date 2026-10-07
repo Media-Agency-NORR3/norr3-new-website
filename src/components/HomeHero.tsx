@@ -254,11 +254,20 @@ export function HomeHero({
       className="relative flex w-full flex-wrap items-center justify-center gap-x-1 gap-y-1 font-medium leading-none tracking-tight text-ink lg:flex-nowrap lg:justify-start lg:gap-2 dark:text-white"
     >
       {/* Left word — types itself in, with the blinking caret trailing it.
-          When not typing the caret collapses to zero width so it doesn't add a
-          phantom gap before the accent word on mobile. */}
-      <span aria-hidden className="relative z-10 block whitespace-nowrap text-[7.5vw] lg:text-[6.5vw]">
-        {motion ? left.slice(0, typed) : left}
-        <span className={typing ? "caret-blink" : "inline-block w-0 overflow-hidden opacity-0"}>_</span>
+          The visible text lives inside an inline-grid that ALSO holds an
+          invisible copy of the finished word, so the box always reserves the
+          final width: the row never reflows as the word types out. That reflow
+          was the single largest layout shift on the home page (PSI, Oct 2026:
+          CLS 0.125, of which 0.119 was this span). */}
+      <span aria-hidden className="relative z-10 inline-grid justify-items-start whitespace-nowrap text-[7.5vw] lg:text-[6.5vw]">
+        <span className="invisible col-start-1 row-start-1">
+          <span className="inline-block w-0 overflow-hidden">_</span>
+          {left}
+        </span>
+        <span className="col-start-1 row-start-1">
+          {motion ? left.slice(0, typed) : left}
+          <span className={typing ? "caret-blink" : "inline-block w-0 overflow-hidden opacity-0"}>_</span>
+        </span>
       </span>
 
       {/* The rotating portrait stack. Sits behind the text (z-0, its own
@@ -314,14 +323,13 @@ export function HomeHero({
                       <MediaAsset
                         src={card.src}
                         alt={altText(index)}
-                        // Every card in the deck is above the fold and the LCP
-                        // element is whichever card holds the FRONT slot (the
-                        // largest, scale 0.94) — slot index 2. All three load
-                        // eagerly; only the front one is hinted high priority,
-                        // and the intrinsic 9:16 size reserves the box so the
-                        // card cannot shift layout as the file arrives.
+                        // The cards pop in back → mid → front, so the BACK card
+                        // (slot index 0) is the first one visible and is the LCP
+                        // element PSI reports. It gets the high-priority hint;
+                        // all three load eagerly. The intrinsic 9:16 size
+                        // reserves the box so the card cannot shift layout.
                         loading="eager"
-                        fetchPriority={slotIndex === 2 ? "high" : undefined}
+                        fetchPriority={slotIndex === 0 ? "high" : undefined}
                         width={900}
                         height={1600}
                         className="absolute inset-0 h-full w-full object-cover"

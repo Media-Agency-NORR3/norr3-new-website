@@ -1,38 +1,54 @@
 {
   "$schema": "https://ai.google.dev/static/ai-catalog/ai-catalog.schema.json",
   "specVersion": "1.0",
-  "name": "NØRR3 — Marketing Engine",
-  "description": "NØRR3 Marketing Engine is a multi-location marketing automation platform. Chains and multi-location businesses define a campaign once; the Engine generates every location's own campaign — creatives, copy, budget and schedule — from a single feed, then reports performance per location. Managed as a service by NØRR3, a Nordic insight and media agency in Helsinki.",
-  "url": "https://norr3.fi/engine",
-  "provider": {
-    "name": "NORR3 Oy",
-    "url": "https://norr3.fi",
-    "email": "info@norr3.fi",
-    "legalName": "NORR3 Oy",
-    "vatID": "FI29620748"
-  },
-  "documentation": "https://norr3.fi/llms.txt",
-  "api": {
-    "type": "openapi",
-    "url": "https://norr3.fi/api/social/feed"
-  },
-  "contact": {
-    "url": "https://norr3.fi/contact",
-    "email": "info@norr3.fi",
-    "telephone": "+358468100118"
-  },
-  "capabilities": [
-    "Multi-location campaign automation",
-    "Creative automation across formats (Meta, Display, DOOH)",
-    "Programmatic media buying and optimisation",
-    "Per-location performance reporting",
-    "Audience and media research (NØRR3 Media Insights)"
-  ],
-  "industries": [
-    "Dental and healthcare chains",
-    "Real estate and estate agency",
-    "Retail chains",
-    "Automotive dealerships",
-    "Franchising"
+  "@context": "https://agenticresourcediscovery.org/context/v1",
+  "entries": [
+    {
+      "@context": "https://agenticresourcediscovery.org/context/v1",
+      "identifier": "urn:air:norr3.fi:marketing-engine:norr3-marketing-engine",
+      "displayName": "NØRR3 Marketing Engine",
+      "type": "text/html",
+      "url": "https://norr3.fi/engine",
+      "description": "Multi-location marketing automation platform. A chain or multi-location business defines a campaign once; the Engine generates each location's own campaign — creatives, copy, budget and schedule — from a single feed, then reports performance per location. Delivered as a managed service by NØRR3, a Nordic insight and media agency in Helsinki.",
+      "publisher": {
+        "displayName": "NORR3 Oy",
+        "url": "https://norr3.fi"
+      },
+      "capabilities": [
+        "multi-location campaign automation",
+        "creative automation across formats",
+        "programmatic media buying",
+        "per-location performance reporting",
+        "audience and media research"
+      ],
+      "representativeQueries": [
+        "multi-location marketing automation for chains",
+        "automate advertising for many locations in Finland",
+        "local marketing engine for franchising",
+        "media agency that automates campaign production"
+      ]
+    },
+    {
+      "@context": "https://agenticresourcediscovery.org/context/v1",
+      "identifier": "urn:air:norr3.fi:media-insights:norr3-media-insights",
+      "displayName": "NØRR3 Media Insights",
+      "type": "text/html",
+      "url": "https://norr3.fi/mediasuunnittelu/norr3-media-insights",
+      "description": "NØRR3's own continuous study of how Finns use media: audience reach by channel and media house, with fieldwork on the Norstat panel. Published as a reference source for media planning.",
+      "publisher": {
+        "displayName": "NORR3 Oy",
+        "url": "https://norr3.fi"
+      },
+      "capabilities": [
+        "Finnish media audience research",
+        "channel reach measurement",
+        "media consumption trends"
+      ],
+      "representativeQueries": [
+        "how do Finns use media audience research",
+        "Finnish media reach by channel",
+        "media consumption study Finland"
+      ]
+    }
   ]
 }
