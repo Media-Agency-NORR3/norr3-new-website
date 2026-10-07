@@ -26,7 +26,11 @@ export function MemberList({ members, locale, current }: { members: MemberSummar
   return (
     <ul className="-mx-2 space-y-0.5">
       {shown.map((m) => {
-        const subline = loc(m.headline, locale) || loc(m.role, locale);
+        // The subline shows the person's TITLE first — a member's optional
+        // headline is a personal statement/quote (e.g. "If you must blink, do
+        // it now!"), which reads wrong in a team roster list. Headline is only
+        // a last resort for a member the CMS gives no role.
+        const subline = loc(m.role, locale) || loc(m.headline, locale);
         return (
           <li key={m.slug}>
             <Link
