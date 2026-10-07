@@ -9,6 +9,7 @@ import { Container, HeroPill } from "@/components/Container";
 import { SplitHeadline } from "@/components/SplitHeadline";
 import { PillButton } from "@/components/PillButton";
 import { Reveal } from "@/components/Reveal";
+import { FurtherReading } from "@/components/FurtherReading";
 import { SectionHeader } from "@/components/SectionHeader";
 import { ContactBanner } from "@/components/ContactBanner";
 import { Icon } from "@/components/Icon";
@@ -113,6 +114,13 @@ export async function ServiceLandingView({ page, locale, railEnabled }: { page: 
                   </p>
                 </Reveal>
               ) : null}
+
+              {/* Outbound links to the industry bodies, measurement houses and
+                  platform docs the page's work rests on (more external links —
+                  SEO audit, Oct 2026). */}
+              <Reveal delay={0.15}>
+                <FurtherReading slug={page.slug} locale={locale} />
+              </Reveal>
             </div>
 
             {/* Photo + checklist column — sticky, never taller than the viewport */}

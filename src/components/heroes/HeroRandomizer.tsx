@@ -1,9 +1,9 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useState, useEffect } from "react";
 import { HomeHero } from "@/components/HomeHero";
-import { CityHero, type CityLayer } from "@/components/heroes/CityHero";
-import { StickerHero } from "@/components/heroes/StickerHero";
+import type { CityLayer } from "@/components/heroes/CityHero";
 import { HeroCardStack } from "@/components/heroes/HeroCardStack";
 import { DotGrid } from "@/components/DotGrid";
 import { Container } from "@/components/Container";
@@ -29,6 +29,18 @@ import { linkTo } from "@/lib/links";
  */
 
 const DARK_VARIANTS = new Set(["city", "sticker"]);
+
+/**
+ * The two heavyweight hero variants are loaded on demand.
+ *
+ * Only ONE hero is shown per visit, but a static import put every variant in the
+ * initial JS — including Matter.js (~120 KB) for the sticker hero and the whole
+ * cityscape parallax — whether or not it was picked. The hero is chosen after
+ * hydration anyway (pre-hydration renders a placeholder), so code-splitting the
+ * variants costs nothing at render time and takes them off the critical path.
+ */
+const CityHero = dynamic(() => import("@/components/heroes/CityHero").then((m) => m.CityHero), { ssr: false });
+const StickerHero = dynamic(() => import("@/components/heroes/StickerHero").then((m) => m.StickerHero), { ssr: false });
 
 export function HeroRandomizer({
   locale,
