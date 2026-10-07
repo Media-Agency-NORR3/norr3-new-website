@@ -1,7 +1,5 @@
 {
-  "$schema": "https://ai.google.dev/static/ai-catalog/ai-catalog.schema.json",
   "specVersion": "1.0",
-  "@context": "https://agenticresourcediscovery.org/context/v1",
   "entries": [
     {
       "@context": "https://agenticresourcediscovery.org/context/v1",
