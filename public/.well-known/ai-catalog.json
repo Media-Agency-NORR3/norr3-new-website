@@ -1,6 +1,6 @@
 {
   "$schema": "https://ai.google.dev/static/ai-catalog/ai-catalog.schema.json",
-  "version": "1.0",
+  "specVersion": "1.0",
   "name": "NØRR3 — Marketing Engine",
   "description": "NØRR3 Marketing Engine is a multi-location marketing automation platform. Chains and multi-location businesses define a campaign once; the Engine generates every location's own campaign — creatives, copy, budget and schedule — from a single feed, then reports performance per location. Managed as a service by NØRR3, a Nordic insight and media agency in Helsinki.",
   "url": "https://norr3.fi/engine",
