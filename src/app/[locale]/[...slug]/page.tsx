@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
-import { isLocale } from "@/i18n/config";
+import { isLocale, type Locale } from "@/i18n/config";
+import type { CaseStudy } from "@/content/cases";
 import { getCase, getCmsPage, getPost, getSiteContent } from "@/lib/cms";
 import { buildBlockContext } from "@/components/blocks/context";
 import { BlockRenderer } from "@/components/blocks/BlockRenderer";
@@ -38,6 +39,35 @@ type Params = {
   params: Promise<{ locale: string; slug: string[] }>;
 };
 
+/**
+ * A real meta description for a case page.
+ *
+ * The CMS stores a short `tagline` (the headline on the card) and a `summary`
+ * (one proper sentence). The tagline alone was being used as the description —
+ * on the visible cases that produced 16–47 character descriptions, and where an
+ * editor had not written an EN tagline the page shipped with NO description at
+ * all. Both are what made Google fall back to footer boilerplate (the address
+ * and business ID) for the sitelinks on a brand query (Geir, Oct 2026).
+ *
+ * This composes the two, in that order, and trims to a search-snippet-safe
+ * length on a word boundary. It never invents copy: every part comes from the
+ * case itself.
+ */
+function caseDescription(caseStudy: CaseStudy, locale: Locale): string {
+  const parts = [caseStudy.tagline?.[locale], caseStudy.summary?.[locale]]
+    .map((part) => (part ?? "").replace(/\s+/g, " ").trim())
+    .filter(Boolean);
+  // Drop a repeated prefix (some summaries open with the tagline's words).
+  let text = parts.join(" — ");
+  if (parts.length === 2 && parts[1].toLowerCase().startsWith(parts[0].toLowerCase().slice(0, 24))) {
+    text = parts[1];
+  }
+  if (text.length <= 155) return text;
+  const cut = text.slice(0, 155);
+  const lastSpace = cut.lastIndexOf(" ");
+  return (lastSpace > 100 ? cut.slice(0, lastSpace) : cut).replace(/[,;:\-–—]$/, "") + "…";
+}
+
 /** Pre-render the content we know at build time; anything else renders on demand. */
 export async function generateStaticParams() {
   const content = await getSiteContent();
@@ -60,7 +90,7 @@ export async function generateMetadata({ params }: Params) {
   const study = slug.length === 1 ? await getCase(slug[0]) : undefined;
   if (study) {
     const title = locale === "fi" ? `${study.client} — NØRR3-case` : `${study.client} — NØRR3 case`;
-    const description = study.tagline[locale];
+    const description = caseDescription(study, locale) || `${study.client} — NØRR3 case study.`;
     return {
       title,
       description,
