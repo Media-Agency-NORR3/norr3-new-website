@@ -35,6 +35,29 @@ function mimeFor(src: string): string | undefined {
   return MIME[extension];
 }
 
+/**
+ * The sibling MP4 for a WebM/MOV source — a universal fallback track.
+ *
+ * WebM/VP9 is the format this site standardises on (smaller files), but it is
+ * NOT universally playable: iOS Safari only gained WebM/VP9 support recently, so
+ * on an older iPhone a WebM-only `<video>` simply never starts. That is exactly
+ * what happened when the hero loop was converted MP4 -> WebM with a single
+ * source: the attributes were all correct (autoplay/muted/playsInline/loop) and
+ * the file served fine, but the phone could not decode it — "the video in the
+ * hero is not played by default anymore" (Wael, 2026-10-07).
+ *
+ * The fix keeps WebM as the first choice (browsers that can play it do, and get
+ * the smaller file) and offers the same-named `.mp4` next. A `<source>` the
+ * browser cannot use — because of the codec or because the file is absent — is
+ * skipped and the next one is tried, so emitting this unconditionally is safe.
+ */
+export function videoFallbackSrc(src: string): string | null {
+  const clean = src.split(/[?#]/)[0];
+  const extension = clean.split(".").pop()?.toLowerCase() ?? "";
+  if (extension !== "webm" && extension !== "mov") return null;
+  return clean.replace(/\.[^.]+$/, ".mp4");
+}
+
 export function MediaAsset({
   src,
   alt = "",
@@ -94,6 +117,10 @@ export function MediaAsset({
     );
   }
 
+  // WebM first (smaller, the site standard), then the sibling MP4 for browsers
+  // that cannot decode VP9 — see videoFallbackSrc().
+  const fallbackSrc = videoFallbackSrc(src);
+
   return (
     <video
       ref={ref as React.Ref<HTMLVideoElement>}
@@ -130,6 +157,9 @@ export function MediaAsset({
       aria-label={alt || undefined}
     >
       <source src={src} type={mimeFor(src)} />
+      {/* Universal fallback: skipped automatically if the browser can already
+          play WebM, or if the MP4 sibling does not exist. */}
+      {fallbackSrc && <source src={fallbackSrc} type={mimeFor(fallbackSrc)} />}
     </video>
   );
 }
