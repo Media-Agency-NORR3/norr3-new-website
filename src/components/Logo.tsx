@@ -28,6 +28,13 @@ export function Logo({
     <img
       src={customWordmark || WORDMARK_SRC}
       alt="NØRR3"
+      // Explicit intrinsic size: the wordmark is an SVG rendered at h-6, and
+      // without width/height the nav shifts horizontally the moment the file
+      // resolves (PSI flagged it under "image elements do not have explicit
+      // dimensions"). 26px tall keeps the h-6 height; the ratio matches the
+      // wordmark's viewBox, and `w-auto` still lets it scale.
+      width={140}
+      height={26}
       className={`h-6 w-auto select-none ${className}`}
       draggable={false}
     />

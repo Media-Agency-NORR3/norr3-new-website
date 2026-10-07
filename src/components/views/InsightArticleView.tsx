@@ -13,6 +13,7 @@ import { Reveal } from "@/components/Reveal";
 import { StaggerGrid } from "@/components/StaggerGrid";
 import { SectionHeader } from "@/components/SectionHeader";
 import { ShareRow } from "@/components/ShareRow";
+import { AuthorByline, AuthorCard } from "@/components/AuthorCard";
 import { BlogCard } from "@/components/cards/BlogCard";
 import { ContactBanner } from "@/components/ContactBanner";
 
@@ -87,8 +88,12 @@ export async function InsightArticleView({
           <h1 className="mt-6 text-3xl font-medium leading-[1.1] tracking-tight text-ink sm:text-4xl lg:text-5xl dark:text-white">
             {content.title}
           </h1>
-          <p className="mt-5 text-xs font-medium uppercase tracking-[0.14em] text-ink/50 dark:text-white/50">
-            {post.date} · {minutes} {dict.insights.minRead}
+          <p className="mt-5 flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-xs font-medium uppercase tracking-[0.14em] text-ink/50 dark:text-white/50">
+            <AuthorByline authorName={post.author} team={site.team} locale={locale} />
+            <span aria-hidden>·</span>
+            <span>
+              {post.date} · {minutes} {dict.insights.minRead}
+            </span>
           </p>
         </Reveal>
       </Container>
@@ -133,6 +138,12 @@ export async function InsightArticleView({
               className="article-prose"
               dangerouslySetInnerHTML={{ __html: content.html }}
             />
+          </Reveal>
+
+          {/* Author section — the post's byline as a card with the author's
+              portrait from the team images and a link to their profile. */}
+          <Reveal delay={0.05}>
+            <AuthorCard authorName={post.author} team={site.team} locale={locale} />
           </Reveal>
 
           <Reveal delay={0.05} className="mt-12 flex flex-col items-start gap-6 border-t border-black/10 pt-8 dark:border-white/10">

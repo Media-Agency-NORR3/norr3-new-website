@@ -123,6 +123,14 @@ export default async function HomePage({ params }: PageProps<"/[locale]">) {
     <>
       <JsonLd data={jsonLd} />
 
+      {/* Preload the hero card photograph the hero renders first (back slot).
+          The randomising hero is client-only — pre-hydration the page holds a
+          placeholder — so without this the LCP image is only discovered after
+          the JS runs and the 4.5 s LCP PSI reported (Oct 2026) is unavoidable.
+          React 19 hoists this into <head>. If the CMS repoints the hero's first
+          card image, update this href to match. */}
+      <link rel="preload" as="image" href="/images/brand/services-planning.webp" fetchPriority="high" />
+
       {/* Hero — randomizes between the original HomeHero and the CityHero
           (dark Helsinki cityscape parallax) on each page load. The CityHero
           forces the nav into dark-mode styling via data-city-hero-active. */}

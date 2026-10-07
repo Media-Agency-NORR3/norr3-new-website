@@ -10,8 +10,12 @@ import { PillMarquee } from "./marquee/PillMarquee";
  * degradation.
  *
  * The caption is centred; the pill marquee runs edge-to-edge with no gutter so
- * it is a true full-bleed strip. `role="img"` + `aria-label` carry the alt text
- * a CSS background cannot hold.
+ * it is a true full-bleed strip. The band carries the photograph as a CSS
+ * background, so it has no `<img>` to hold alt text — the accessible name lives
+ * on an inner `role="img"` wrapper instead of on the `<section>` itself.
+ * (Lighthouse's agentic-browsing audit flags `role="img"` on a `<section>`:
+ * ARIA-in-HTML does not allow that role on a sectioning element, which breaks
+ * the accessibility tree agents read.)
  */
 export function ParallaxBand({
   image,
@@ -26,11 +30,13 @@ export function ParallaxBand({
 }) {
   return (
     <section
-      role="img"
-      aria-label={alt}
       className="relative flex min-h-[100svh] w-full flex-col justify-end bg-cover bg-center bg-scroll md:bg-fixed"
       style={{ backgroundImage: `url(${image})` }}
     >
+      {/* The photograph as an accessible image: a div (not the section) carries
+          role="img" + the label, since role="img" is invalid on <section>. */}
+      <div role="img" aria-label={alt} className="absolute inset-0" />
+
       {/* Legibility gradient over the photograph. */}
       <div aria-hidden className="pointer-events-none absolute inset-0 bg-gradient-to-b from-ink/45 via-ink/10 to-ink/60" />
 
