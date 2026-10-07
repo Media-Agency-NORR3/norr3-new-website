@@ -261,6 +261,11 @@ export function HomeHero({
           CLS 0.125, of which 0.119 was this span). */}
       <span aria-hidden className="relative z-10 inline-grid justify-items-start whitespace-nowrap text-[7.5vw] lg:text-[6.5vw]">
         <span className="invisible col-start-1 row-start-1">
+          {/* Caret collapsed to zero width here on purpose. A real-width caret
+              in the ghost widens this box ~10px, which on mobile is enough to
+              change where the headline wraps — and that moved the whole card
+              stack, costing 0.12 CLS (measured). The zero-width ghost keeps the
+              box exactly as wide as the finished word. */}
           <span className="inline-block w-0 overflow-hidden">_</span>
           {left}
         </span>
