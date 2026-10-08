@@ -35,6 +35,44 @@ function mimeFor(src: string): string | undefined {
   return MIME[extension];
 }
 
+/**
+ * The universally-decodable MP4 sibling of a WebM/MOV source — the track that
+ * must go FIRST in the `<video>`.
+ *
+ * WebM/VP9 files are smaller, but WebM is not safe as the primary source:
+ * WebKit answers `canPlayType("video/webm")` with "maybe" even when it cannot
+ * actually decode the file, so Safari picks the WebM `<source>` — and per the
+ * HTML spec a source that is selected and then fails to decode is NOT retried
+ * against the next one. The visitor gets a hero video that never starts, with
+ * no fallback and no error. (This is the classic "Safari doesn't support webm
+ * but still selects it and the video fails" trap, and it is why shipping the
+ * MP4 *second* did not fix autoplay on phones — see the source order below.)
+ *
+ * The MP4 sibling is emitted first and the WebM/MOV second, so every engine
+ * takes a track it can genuinely play.
+ */
+export function videoFallbackSrc(src: string): string | null {
+  const clean = src.split(/[?#]/)[0];
+  const extension = clean.split(".").pop()?.toLowerCase() ?? "";
+  if (extension !== "webm" && extension !== "mov") return null;
+  return clean.replace(/\.[^.]+$/, ".mp4");
+}
+
+/**
+ * A still frame for a video, used as `poster`.
+ *
+ * iOS refuses to autoplay at all in Low Power Mode (and under Safari's stricter
+ * Auto-Play setting), and the poster is what keeps the slot looking deliberate
+ * rather than empty until the visitor interacts. Stills are generated beside
+ * the video at the same basename with a `.webp` extension; when one is absent
+ * the attribute simply 404s and the browser falls back to painting the video's
+ * own first frame — the previous behaviour, so this is safe to emit always.
+ */
+export function videoPosterSrc(src: string): string | null {
+  if (!isVideo(src)) return null;
+  return src.split(/[?#]/)[0].replace(/\.[^.]+$/, ".webp");
+}
+
 export function MediaAsset({
   src,
   alt = "",
@@ -94,6 +132,12 @@ export function MediaAsset({
     );
   }
 
+  // MP4 first, then the WebM/MOV original. The ORDER is load-bearing: WebKit
+  // says it can play video/webm and then fails to decode it, and a selected
+  // <source> is never retried against the next one — see videoFallbackSrc().
+  const universalSrc = videoFallbackSrc(src);
+  const sources = universalSrc ? [universalSrc, src] : [src];
+
   return (
     <video
       ref={ref as React.Ref<HTMLVideoElement>}
@@ -122,14 +166,18 @@ export function MediaAsset({
        * and a page of card-stack videos should not pull every full file on load.
        */
       preload="metadata"
-      poster={poster}
+      // Still frame for the slot while the video is banned from autoplaying
+      // (iOS Low Power Mode) or is still fetching — see videoPosterSrc().
+      poster={poster ?? videoPosterSrc(src) ?? undefined}
       // Nothing here is a video the viewer chose to watch, so keep it out of the
       // way of AirPlay and the OS media controls.
       disableRemotePlayback
       aria-hidden={alt === "" ? true : undefined}
       aria-label={alt || undefined}
     >
-      <source src={src} type={mimeFor(src)} />
+      {sources.map((source) => (
+        <source key={source} src={source} type={mimeFor(source)} />
+      ))}
     </video>
   );
 }

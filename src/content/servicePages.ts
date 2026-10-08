@@ -694,7 +694,7 @@ export const servicePages: ServicePage[] = [
     icon: "share",
     fi: {
       title: "Somemarkkinointi",
-      metaTitle: "Somemarkkinointi — Facebook, Instagram, LinkedIn, TikTok | NØRR3",
+      metaTitle: "Somemarkkinointi — Facebook, Instagram, TikTok | NØRR3",
       metaDescription: "Somemarkkinointi kaikilla kanavilla: Facebook, Instagram, LinkedIn ja TikTok — suunnittelu, ostot ja mittaus NØRR3:ltä.",
       heroLeft: "Ole",
       heroAccent: "siellä missä yleisösi",
@@ -704,7 +704,7 @@ export const servicePages: ServicePage[] = [
     },
     en: {
       title: "Social Media Marketing",
-      metaTitle: "Social Media Marketing — Facebook, Instagram, LinkedIn, TikTok | NØRR3",
+      metaTitle: "Social Media Marketing — Facebook, Instagram, TikTok | NØRR3",
       metaDescription: "Social media marketing across channels: Facebook, Instagram, LinkedIn and TikTok — planning, buying and measurement from NØRR3.",
       heroLeft: "Be",
       heroAccent: "where your audience is",

@@ -6,6 +6,8 @@ import { briefChannels, dataset } from "@/content/datasets";
 import { Container } from "@/components/Container";
 import { Reveal } from "@/components/Reveal";
 import { BriefForm } from "@/components/BriefForm";
+import { JsonLd } from "@/components/JsonLd";
+import { homeCrumb, pageGraph, pageUrl } from "@/lib/jsonld";
 import { linkTo } from "@/lib/links";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
@@ -46,6 +48,16 @@ export default async function BriefPage({ params }: { params: Promise<{ locale: 
 
   return (
     <>
+      <JsonLd
+        data={pageGraph({
+          url: pageUrl(locale, "/brief"),
+          locale,
+          name: dict.brief.metaTitle,
+          description: dict.brief.metaDescription,
+          image: "/images/brand/og-image.jpg",
+          crumbs: [homeCrumb(locale), { name: dict.brief.pill }],
+        })}
+      />
       {/* Hero */}
       <Container className="pt-12 lg:pt-20">
         <Reveal>

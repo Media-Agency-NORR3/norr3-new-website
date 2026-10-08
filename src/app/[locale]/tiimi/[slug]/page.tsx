@@ -50,9 +50,23 @@ export async function generateMetadata({ params }: Props) {
   const role = loc(member.role, locale);
   const headline = loc(member.headline, locale);
   const about = await aboutText(page, locale);
-  const title = `${member.name}${role ? ` — ${role}` : ""} | NØRR3`;
-  const description = excerpt([headline, about].filter(Boolean).join(" — ") || `${member.name}${role ? `, ${role}` : ""} — NØRR3`, 160);
-  const image = member.cover || member.photo || "/images/brand/group.webp";
+  const ogTitle = `${member.name}${role ? ` — ${role}` : ""} | NØRR3`;
+  // Multi-part roles ("…, Team Lead, Partner") push the <title> past the ~60
+  // characters Google renders. Keep the first role only for the SERP title; the
+  // full role stays in og:title and on the page itself.
+  const firstRole = role.split(",")[0].trim();
+  const title = ogTitle.length <= 60 || !firstRole ? ogTitle : `${member.name} — ${firstRole} | NØRR3`;
+  const description = excerpt([headline, about].filter(Boolean).join(" — ") || `${member.name}${role ? `, ${role}` : ""} — NØRR3`, 155);
+  // The member's own portrait leads: it is what identifies them in a share card
+  // (a CMS cover is a wide banner, not a face). `socialOgImage` swaps in the
+  // JPG twin under /images/og/ when one exists, because social scrapers do not
+  // reliably render the WebP the page itself shows.
+  const image = member.photo || member.cover || "/images/brand/group.webp";
+  const imageUrl = absoluteUrl(socialOgImage(image));
+  const imageAlt = `${member.name}${role ? `, ${role}` : ""}, NØRR3`;
+  // Only the /images/og/team/ twins are guaranteed to be exactly 1200x630 —
+  // declare dimensions just for those so scrapers can reserve the card.
+  const imageSize = imageUrl.includes("/images/og/team/") ? { width: 1200, height: 630 } : {};
   const url = linkTo(locale, `/tiimi/${slug}`);
   const [firstName, ...rest] = member.name.split(" ");
   return {
@@ -64,14 +78,14 @@ export async function generateMetadata({ params }: Props) {
       siteName: "NØRR3",
       url: absoluteUrl(url),
       locale: locale === "fi" ? "fi_FI" : "en_US",
-      title,
+      title: ogTitle,
       description,
       firstName,
       lastName: rest.join(" ") || undefined,
       username: slug,
-      images: [{ url: socialOgImage(image), alt: member.name }],
+      images: [{ url: imageUrl, alt: imageAlt, ...imageSize }],
     },
-    twitter: { card: "summary_large_image" as const, title, description, images: [socialOgImage(image)] },
+    twitter: { card: "summary_large_image" as const, title: ogTitle, description, images: [{ url: imageUrl, alt: imageAlt, ...imageSize }] },
   };
 }
 

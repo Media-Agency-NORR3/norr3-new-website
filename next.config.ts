@@ -134,14 +134,25 @@ const nextConfig: NextConfig = {
 
       // ── Old case URLs whose case is not published in the CMS ────────────────
       // `website_cases` rows flow-festival, suun-terveystalo, st1 and esperi are
-      // all `visible = 0` / draft, so their pages 404. Until they are
-      // published, the old URLs land on the cases index. When one of them goes
-      // live: delete its line here (and for /st1 and /esperi that is a must —
-      // the rule would otherwise shadow the real page at the same path) and
-      // point the renamed ones at the case (/terveystalo → /suun-terveystalo,
-      // /flow-festivaali → /flow-festival).
-      { source: "/terveystalo", destination: "/caset", statusCode: 301 },
-      { source: "/flow-festivaali", destination: "/caset", statusCode: 301 },
+      // all `visible = 0` / draft, so their pages 404. The SEO audit (Oct 2026)
+      // found the OLD WordPress slugs for the renamed cases still indexed:
+      // `/flow-festival` and `/suun-terveystalo` 404'd, and `/flow-festivaali`
+      // and `/terveystalo` were pointing at them. Every one of these now lands
+      // on the front page (Wael, 2026-10-07) — a valid 200 that keeps the link
+      // equity instead of leaking it into a 404. When a case is published,
+      // repoint its rule at the case URL and delete the stale variant.
+      { source: "/terveystalo", destination: "/", statusCode: 301 },
+      { source: "/terveystalo/", destination: "/", statusCode: 301 },
+      { source: "/suun-terveystalo", destination: "/", statusCode: 301 },
+      { source: "/suun-terveystalo/", destination: "/", statusCode: 301 },
+      { source: "/flow-festivaali", destination: "/", statusCode: 301 },
+      { source: "/flow-festivaali/", destination: "/", statusCode: 301 },
+      { source: "/flow-festival", destination: "/", statusCode: 301 },
+      { source: "/flow-festival/", destination: "/", statusCode: 301 },
+      { source: "/en/terveystalo", destination: "/en", statusCode: 301 },
+      { source: "/en/suun-terveystalo", destination: "/en", statusCode: 301 },
+      { source: "/en/flow-festivaali", destination: "/en", statusCode: 301 },
+      { source: "/en/flow-festival", destination: "/en", statusCode: 301 },
       { source: "/st1", destination: "/caset", statusCode: 301 },
       { source: "/esperi", destination: "/caset", statusCode: 301 },
 
@@ -156,6 +167,27 @@ const nextConfig: NextConfig = {
       // Engine page it sold lives at /engine, everything else → the cases index.
       { source: "/grandone/norr3marketingengine", destination: "/engine", statusCode: 301 },
       { source: "/grandone", destination: "/caset", statusCode: 301 },
+    ];
+  },
+
+  /**
+   * Long-lived, immutable caching for the static asset trees.
+   *
+   * The Oct-2026 PageSpeed audit flagged ~419 KiB of assets served with only a
+   * 1-day lifetime (`max-age=86400`) — every repeat visit re-validated the
+   * brand photography, the office media and the subset font. These files are
+   * content-addressed by name (a change ships under a new file), so a year +
+   * `immutable` is safe and removes the revalidation round-trips. `/uploads/*`
+   * is excluded: the CMS overwrites those paths in place, so they must stay
+   * revalidatable.
+   */
+  async headers() {
+    const immutable = [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }];
+    return [
+      { source: "/images/:path*", headers: immutable },
+      { source: "/fonts/:path*", headers: immutable },
+      { source: "/heroes/:path*", headers: immutable },
+      { source: "/:file(.*\\.(?:webp|avif|png|jpg|jpeg|svg|gif|ico|woff2?|mp4|webm))", headers: immutable },
     ];
   },
 };

@@ -315,11 +315,15 @@ export function HomeHero({
                         src={card.src}
                         alt={altText(index)}
                         // Every card in the deck is above the fold and the LCP
-                        // element is whichever card is largest at that moment —
-                        // so all three load eagerly and the front one is hinted
-                        // high priority (Lighthouse flagged a lazy LCP).
+                        // element is whichever card holds the FRONT slot (the
+                        // largest, scale 0.94) — slot index 2. All three load
+                        // eagerly; only the front one is hinted high priority,
+                        // and the intrinsic 9:16 size reserves the box so the
+                        // card cannot shift layout as the file arrives.
                         loading="eager"
-                        fetchPriority={slotIndex === 0 ? "high" : undefined}
+                        fetchPriority={slotIndex === 2 ? "high" : undefined}
+                        width={900}
+                        height={1600}
                         className="absolute inset-0 h-full w-full object-cover"
                       />
                       <span className="absolute inset-0 bg-gradient-to-b from-violet/15 to-ink/50" />
