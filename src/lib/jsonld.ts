@@ -287,6 +287,12 @@ export function organizationNode(content: SiteContent, locale: Locale, descripti
   const sameAs = Object.values(facts.sameAs).filter(Boolean);
   const email = content.site.email || "info@norr3.fi";
   const telephone = (content.site.phone || dict.footer.phone || "").trim();
+  // The service catalogue as structured data: an answer engine reading one page
+  // then knows what this agency actually sells, without crawling all of them.
+  const serviceList = content.servicePages.map((page) => ({
+    name: page[locale].title,
+    url: pageUrl(locale, `/${page.slug}`),
+  }));
 
   return compact({
     "@type": "Organization",
@@ -320,6 +326,19 @@ export function organizationNode(content: SiteContent, locale: Locale, descripti
     },
     areaServed: { "@type": "Country", name: "FI" },
     knowsLanguage: ["fi", "en"],
+    ...(serviceList.length
+      ? {
+          knowsAbout: serviceList.map((s) => s.name),
+          hasOfferCatalog: {
+            "@type": "OfferCatalog",
+            name: locale === "fi" ? "Palvelut" : "Services",
+            itemListElement: serviceList.map((s) => ({
+              "@type": "Offer",
+              itemOffered: { "@type": "Service", name: s.name, url: s.url },
+            })),
+          },
+        }
+      : {}),
     sameAs: sameAs.length ? sameAs : undefined,
     award: facts.awards,
     numberOfEmployees: team.length ? { "@type": "QuantitativeValue", value: team.length } : undefined,

@@ -2,6 +2,8 @@ import { isLocale } from "@/i18n/config";
 import { notFound } from "next/navigation";
 import { getDictionary } from "@/lib/dictionary";
 import { LegalArticle } from "@/components/LegalArticle";
+import { JsonLd } from "@/components/JsonLd";
+import { homeCrumb, pageGraph, pageUrl } from "@/lib/jsonld";
 import { linkTo } from "@/lib/links";
 
 export async function generateMetadata({ params }: PageProps<"/[locale]/kayttoehdot">) {
@@ -52,20 +54,32 @@ export default async function TermsPage({ params }: PageProps<"/[locale]/kayttoe
   const legal = dict.legal;
 
   return (
-    <LegalArticle
-      pill={legal.terms.pill}
-      heading={legal.terms.heading}
-      intro={legal.terms.intro}
-      updatedLabel={legal.updatedLabel}
-      updated={legal.terms.updated}
-      tocLabel={legal.tocLabel}
-      sections={legal.terms.sections}
-      relatedLabel={legal.relatedLabel}
-      relatedLinks={[
-        { href: linkTo(locale, "/tietosuojaseloste"), label: dict.footer.privacy },
-        { href: linkTo(locale, "/contact"), label: dict.common.contactUs },
-      ]}
-      reviewNote={legal.reviewNote}
-    />
+    <>
+      <JsonLd
+        data={pageGraph({
+          url: pageUrl(locale, "/kayttoehdot"),
+          locale,
+          name: dict.seo.terms.title,
+          description: dict.seo.terms.description,
+          image: "/images/brand/og-image.jpg",
+          crumbs: [homeCrumb(locale), { name: legal.terms.heading }],
+        })}
+      />
+      <LegalArticle
+        pill={legal.terms.pill}
+        heading={legal.terms.heading}
+        intro={legal.terms.intro}
+        updatedLabel={legal.updatedLabel}
+        updated={legal.terms.updated}
+        tocLabel={legal.tocLabel}
+        sections={legal.terms.sections}
+        relatedLabel={legal.relatedLabel}
+        relatedLinks={[
+          { href: linkTo(locale, "/tietosuojaseloste"), label: dict.footer.privacy },
+          { href: linkTo(locale, "/contact"), label: dict.common.contactUs },
+        ]}
+        reviewNote={legal.reviewNote}
+      />
+    </>
   );
 }

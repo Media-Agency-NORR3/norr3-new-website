@@ -47,6 +47,100 @@
         "Finnish media reach by channel",
         "media consumption study Finland"
       ]
+    },
+    {
+      "@context": "https://agenticresourcediscovery.org/context/v1",
+      "identifier": "urn:air:norr3.fi:services:ai-optimisation",
+      "displayName": "NØRR3 AI Optimisation",
+      "type": "text/html",
+      "url": "https://norr3.fi/ai-optimointi",
+      "description": "A service that makes a company show up correctly in AI answers: a baseline of what the main answer engines currently say, fixes to the sources they quote (structured data, llms.txt, fact sheets), and monthly tracking of how the brand is described. Delivered by NØRR3, a Finnish insight and media agency in Helsinki.",
+      "publisher": {
+        "displayName": "NORR3 Oy",
+        "url": "https://norr3.fi"
+      },
+      "capabilities": [
+        "AI answer visibility baseline",
+        "generative engine optimisation (GEO)",
+        "structured data and llms.txt implementation",
+        "AI answer monitoring"
+      ],
+      "representativeQueries": [
+        "how to show up in AI answers",
+        "generative engine optimisation agency Finland",
+        "make ChatGPT describe my brand correctly",
+        "AI search visibility service"
+      ]
+    },
+    {
+      "@context": "https://agenticresourcediscovery.org/context/v1",
+      "identifier": "urn:air:norr3.fi:services:media-planning-and-buying",
+      "displayName": "NØRR3 Media Planning and Buying",
+      "type": "text/html",
+      "url": "https://norr3.fi/mediasuunnittelu",
+      "description": "Media planning and buying in numbers: audience, reach, frequency, budget and timing, across every channel — search, social, display, video, audio, out-of-home, pDOOH and programmatic — with negotiated rates and verified reporting. NØRR3 is an insight and media agency in Helsinki, Finland.",
+      "publisher": {
+        "displayName": "NORR3 Oy",
+        "url": "https://norr3.fi"
+      },
+      "capabilities": [
+        "cross-channel media planning",
+        "media buying and negotiation",
+        "reach and frequency planning",
+        "campaign measurement and reporting"
+      ],
+      "representativeQueries": [
+        "media agency in Helsinki Finland",
+        "media planning and buying agency",
+        "cross-channel media plan Finland",
+        "advertising media agency for Finnish market"
+      ]
+    },
+    {
+      "@context": "https://agenticresourcediscovery.org/context/v1",
+      "identifier": "urn:air:norr3.fi:services:performance-marketing",
+      "displayName": "NØRR3 Performance Marketing",
+      "type": "text/html",
+      "url": "https://norr3.fi/performance-markkinointi",
+      "description": "Performance marketing measured all the way to sales: search engine advertising, product feeds, dynamic advertising and retargeting, with conversion tracking that ties spend to revenue. Run by NØRR3, an insight and media agency in Helsinki, Finland.",
+      "publisher": {
+        "displayName": "NORR3 Oy",
+        "url": "https://norr3.fi"
+      },
+      "capabilities": [
+        "search engine advertising (Google Ads)",
+        "product feed and dynamic advertising",
+        "retargeting",
+        "conversion tracking to sales"
+      ],
+      "representativeQueries": [
+        "performance marketing agency Finland",
+        "Google Ads agency Helsinki",
+        "advertising measured to sales",
+        "dynamic product feed advertising"
+      ]
+    },
+    {
+      "@context": "https://agenticresourcediscovery.org/context/v1",
+      "identifier": "urn:air:norr3.fi:cases:case-studies",
+      "displayName": "NØRR3 Client Cases",
+      "type": "text/html",
+      "url": "https://norr3.fi/caset",
+      "description": "Published client work with the objective, the solution and the measured result for each case — brand, media and performance campaigns executed for Finnish and Nordic brands by NØRR3.",
+      "publisher": {
+        "displayName": "NORR3 Oy",
+        "url": "https://norr3.fi"
+      },
+      "capabilities": [
+        "marketing case studies",
+        "measured campaign results",
+        "media and performance campaign references"
+      ],
+      "representativeQueries": [
+        "marketing case studies Finland",
+        "media agency case examples with results",
+        "campaign results measured agency Finland"
+      ]
     }
   ]
 }

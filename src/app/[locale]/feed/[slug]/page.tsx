@@ -23,8 +23,12 @@ export async function generateMetadata({ params }: Props) {
   if (!page) return {};
   const { post } = page;
   const text = post.body || post.shared?.body || "";
-  const snippet = excerpt(text, 70);
-  const title = snippet ? `${post.author.name}: “${snippet}” | NØRR3` : `${post.author.name} | NØRR3`;
+  // Keep the whole <title> inside the ~60 chars Google renders: budget the
+  // quoted body snippet against the author prefix and the brand suffix.
+  const prefix = `${post.author.name}: “`;
+  const suffix = `” | NØRR3`;
+  const snippet = excerpt(text, Math.max(20, 60 - prefix.length - suffix.length));
+  const title = snippet ? `${prefix}${snippet}${suffix}` : `${post.author.name} | NØRR3`;
   const description = excerpt(text, 160) || loc(post.author.headline, locale) || `${post.author.name} — NØRR3`;
   const image = postImage(post) || post.author.photo || "/images/brand/group.webp";
   const imageUrl = socialOgImage(image);
