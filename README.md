@@ -257,8 +257,7 @@ and labels that only exist in one page can be inlined there with a
 
 ## Legal pages
 
-`/[locale]/privacy` and `/[locale]/terms` render from `legal` in `dictionary.ts`
-through the shared `LegalArticle` component. **The wording is a structured
-placeholder** for a Finnish marketing agency (data collection, cookies, retention,
-GDPR rights, IP, liability, governing law) and is marked as such in the page
-source. It needs a review by legal counsel before launch.
+`/[locale]/tietosuojaseloste` and `/[locale]/kayttoehdot` render from `legal`
+through the shared `LegalArticle` component. The published wording is edited in
+the CMS; `dictionary.ts` holds the shipped fallback. When the privacy policy
+changes in the CMS, update the fallback in the same way so the two stay in sync.

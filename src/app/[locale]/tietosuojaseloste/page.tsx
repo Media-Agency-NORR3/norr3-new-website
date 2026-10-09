@@ -43,9 +43,8 @@ export async function generateMetadata({ params }: PageProps<"/[locale]/tietosuo
 }
 
 /*
- * TEMPLATE COPY — the wording lives in dictionary.ts under `legal.privacy` and
- * is a structured placeholder for a Finnish marketing agency. It must be
- * reviewed by legal counsel before this page goes live.
+ * The wording is edited in the CMS (`legal.privacy`); dictionary.ts holds the
+ * shipped fallback, kept in sync with the published version.
  */
 export default async function PrivacyPage({ params }: PageProps<"/[locale]/tietosuojaseloste">) {
   const { locale } = await params;
@@ -78,7 +77,6 @@ export default async function PrivacyPage({ params }: PageProps<"/[locale]/tieto
           { href: linkTo(locale, "/kayttoehdot"), label: dict.footer.terms },
           { href: linkTo(locale, "/contact"), label: dict.common.contactUs },
         ]}
-        reviewNote={legal.reviewNote}
       />
     </>
   );
