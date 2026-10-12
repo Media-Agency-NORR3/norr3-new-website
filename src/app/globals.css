@@ -447,3 +447,34 @@ html[data-city-hero-active] .site-nav .bg-ink {
 .social-story-bar {
   transform-origin: left center;
 }
+
+/*
+ * Route-transition wipe — see components/RouteWipe.tsx.
+ *
+ * A full-viewport overlay, so the wipe MUST be able to finish with no
+ * JavaScript: a failed/hydration-blocked load used to freeze it at full cover
+ * and the visitor saw a solid violet page instead of the site. The animation
+ * lives here, not in framer-motion, so it runs and completes on its own.
+ */
+.route-wipe {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  pointer-events: none;
+  background-color: var(--color-violet);
+  transform-origin: top;
+  transform: scaleY(1);
+  animation: route-wipe-out 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes route-wipe-out {
+  from { transform: scaleY(1); }
+  to { transform: scaleY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .route-wipe {
+    animation: none;
+    transform: scaleY(0);
+  }
+}

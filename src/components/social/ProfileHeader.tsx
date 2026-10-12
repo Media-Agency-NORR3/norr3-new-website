@@ -70,11 +70,11 @@ export function ProfileHeader({
               aria-label={fill(t.viewStories, { name: member.name })}
               className="rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple dark:focus-visible:outline-light-purple"
             >
-              <Avatar name={member.name} photo={member.photo} size={132} ring={allSeen ? "seen" : "unseen"} alt={member.name} />
+              <Avatar name={member.name} photo={member.photo} size={132} ring={allSeen ? "seen" : "unseen"} alt={`${member.name}${role ? `, ${role}` : ""}`} priority />
             </button>
           ) : (
             <span className="inline-block rounded-full bg-white p-1.5 dark:bg-[#16131e]">
-              <Avatar name={member.name} photo={member.photo} size={132} alt={member.name} />
+              <Avatar name={member.name} photo={member.photo} size={132} alt={`${member.name}${role ? `, ${role}` : ""}`} priority />
             </span>
           )}
         </div>

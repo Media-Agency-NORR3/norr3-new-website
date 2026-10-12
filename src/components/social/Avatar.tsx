@@ -17,6 +17,7 @@ export function Avatar({
   ring = "none",
   className = "",
   alt,
+  priority = false,
 }: {
   name: string;
   photo: string;
@@ -25,6 +26,8 @@ export function Avatar({
   className?: string;
   /** Decorative by default: every avatar sits next to the member's name. */
   alt?: string;
+  /** The member's own portrait on their profile page is the LCP: load it eagerly. */
+  priority?: boolean;
 }) {
   const src = mediaSrc(photo);
   const stroke = size >= 96 ? 3 : 2;
@@ -39,7 +42,8 @@ export function Avatar({
           alt={alt ?? ""}
           width={size}
           height={size}
-          loading="lazy"
+          loading={priority ? "eager" : "lazy"}
+          fetchPriority={priority ? "high" : undefined}
           decoding="async"
           className="h-full w-full object-cover"
         />

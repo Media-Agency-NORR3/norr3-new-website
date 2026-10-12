@@ -2,6 +2,8 @@ import { isLocale } from "@/i18n/config";
 import { notFound } from "next/navigation";
 import { getDictionary } from "@/lib/dictionary";
 import { LegalArticle } from "@/components/LegalArticle";
+import { JsonLd } from "@/components/JsonLd";
+import { homeCrumb, pageGraph, pageUrl } from "@/lib/jsonld";
 import { linkTo } from "@/lib/links";
 
 export async function generateMetadata({ params }: PageProps<"/[locale]/tietosuojaseloste">) {
@@ -41,9 +43,8 @@ export async function generateMetadata({ params }: PageProps<"/[locale]/tietosuo
 }
 
 /*
- * TEMPLATE COPY — the wording lives in dictionary.ts under `legal.privacy` and
- * is a structured placeholder for a Finnish marketing agency. It must be
- * reviewed by legal counsel before this page goes live.
+ * The wording is edited in the CMS (`legal.privacy`); dictionary.ts holds the
+ * shipped fallback, kept in sync with the published version.
  */
 export default async function PrivacyPage({ params }: PageProps<"/[locale]/tietosuojaseloste">) {
   const { locale } = await params;
@@ -52,20 +53,31 @@ export default async function PrivacyPage({ params }: PageProps<"/[locale]/tieto
   const legal = dict.legal;
 
   return (
-    <LegalArticle
-      pill={legal.privacy.pill}
-      heading={legal.privacy.heading}
-      intro={legal.privacy.intro}
-      updatedLabel={legal.updatedLabel}
-      updated={legal.privacy.updated}
-      tocLabel={legal.tocLabel}
-      sections={legal.privacy.sections}
-      relatedLabel={legal.relatedLabel}
-      relatedLinks={[
-        { href: linkTo(locale, "/kayttoehdot"), label: dict.footer.terms },
-        { href: linkTo(locale, "/contact"), label: dict.common.contactUs },
-      ]}
-      reviewNote={legal.reviewNote}
-    />
+    <>
+      <JsonLd
+        data={pageGraph({
+          url: pageUrl(locale, "/tietosuojaseloste"),
+          locale,
+          name: dict.seo.privacy.title,
+          description: dict.seo.privacy.description,
+          image: "/images/brand/og-image.jpg",
+          crumbs: [homeCrumb(locale), { name: legal.privacy.heading }],
+        })}
+      />
+      <LegalArticle
+        pill={legal.privacy.pill}
+        heading={legal.privacy.heading}
+        intro={legal.privacy.intro}
+        updatedLabel={legal.updatedLabel}
+        updated={legal.privacy.updated}
+        tocLabel={legal.tocLabel}
+        sections={legal.privacy.sections}
+        relatedLabel={legal.relatedLabel}
+        relatedLinks={[
+          { href: linkTo(locale, "/kayttoehdot"), label: dict.footer.terms },
+          { href: linkTo(locale, "/contact"), label: dict.common.contactUs },
+        ]}
+      />
+    </>
   );
 }

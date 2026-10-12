@@ -3,8 +3,19 @@
 import { useMotionSettings } from "./MotionSettingsProvider";
 
 import { usePathname } from "next/navigation";
-import { motion } from "framer-motion";
 
+/**
+ * Full-viewport violet wipe, played on first paint and on every client-side
+ * route change (the `key` remounts it per pathname).
+ *
+ * The animation is deliberately CSS-only (`.route-wipe` in globals.css) and NOT
+ * framer-motion. This overlay covers the entire viewport, so anything that stops
+ * it clearing leaves a dead violet page: with a JS-driven wipe, a chunk that
+ * failed to load, a hydration error or JS being blocked outright all froze the
+ * wipe at full cover and the visitor saw "the site is down — only a violet
+ * screen". Driven by CSS it always completes on its own, with no JavaScript
+ * involved at all.
+ */
 export function RouteWipe() {
   const pathname = usePathname();
   const { enabled, routeWipe } = useMotionSettings();
@@ -13,14 +24,5 @@ export function RouteWipe() {
   // zero-duration overlay in the tree would still cover the page for a frame.
   if (!enabled || !routeWipe) return null;
 
-  return (
-    <motion.div
-      key={pathname}
-      initial={{ scaleY: 1 }}
-      animate={{ scaleY: 0 }}
-      transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-      style={{ transformOrigin: "top" }}
-      className="pointer-events-none fixed inset-0 z-[100] bg-violet"
-    />
-  );
+  return <div key={pathname} aria-hidden className="route-wipe" />;
 }

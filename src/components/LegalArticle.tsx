@@ -23,7 +23,6 @@ export function LegalArticle({
   sections,
   relatedLabel,
   relatedLinks,
-  reviewNote,
 }: {
   pill: string;
   heading: string;
@@ -34,17 +33,11 @@ export function LegalArticle({
   sections: LegalSection[];
   relatedLabel: string;
   relatedLinks: { href: string; label: string }[];
-  reviewNote: string;
 }) {
   const anchor = (i: number) => `section-${i + 1}`;
 
   return (
     <>
-      {/* Emitted as a real HTML comment (a JSX comment would vanish at build
-          time) so the placeholder status is visible in the page source until
-          counsel signs the wording off. */}
-      <div hidden dangerouslySetInnerHTML={{ __html: `<!-- ${reviewNote} -->` }} />
-
       {/* Hero — one h1 per page, restrained scale: legal copy shouldn't shout. */}
       <section className="border-b border-black/10 dark:border-white/10">
         <Container className="py-16 lg:py-24">

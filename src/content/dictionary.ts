@@ -697,23 +697,16 @@ const fi = {
       fullTeam: "Katso koko tiimi",
     },
   },
-  /*
-   * LEGAL TEMPLATE — reviewed by NØRR3, not yet by counsel.
-   * The wording below is a professionally structured placeholder for a Finnish
-   * marketing agency and must be checked by legal before launch.
-   */
   legal: {
     updatedLabel: "Päivitetty",
     tocLabel: "Sisältö",
     relatedLabel: "Katso myös",
-    reviewNote:
-      "Tämä on mallipohja, joka on tarkistettava juridisesti ennen julkaisua.",
     privacy: {
       pill: "TIETOSUOJA",
       heading: "Tietosuojaseloste",
       intro:
-        "Tämä seloste kertoo, mitä henkilötietoja käsittelemme norr3.fi-sivustolla, markkinointikanavissamme ja asiakastyössämme, miksi käsittelemme niitä ja mitä oikeuksia sinulla on. Käsittelemme henkilötietoja EU:n yleisen tietosuoja-asetuksen (GDPR) ja Suomen tietosuojalain mukaisesti. Seloste kattaa myös markkinointikanavista ja sähköpostiohjelmista kerättävät tiedot.",
-      updated: "17.9.2026",
+        "Tämä seloste kertoo, mitä henkilötietoja käsittelemme norr3.fi-sivustolla, markkinointikanavissamme, asiakastyössämme ja tutkimuksissamme, miksi käsittelemme niitä ja mitä oikeuksia sinulla on. Käsittelemme henkilötietoja EU:n yleisen tietosuoja-asetuksen (GDPR) ja Suomen tietosuojalain mukaisesti. Seloste kattaa myös markkinointikanavista ja sähköpostiohjelmista kerättävät tiedot sekä tutkimuskumppanimme Norstatin paneelin kautta kerättävät tutkimustiedot.",
+      updated: "9.10.2026",
       sections: [
         {
           title: "Rekisterinpitäjä",
@@ -725,19 +718,21 @@ const fi = {
         {
           title: "Mitä tietoja keräämme",
           body: [
-            "Yhteydenottolomakkeen tiedot: nimi, sähköpostiosoite, yritys ja viestin sisältö.",
+            "Lomakkeiden tiedot: yhteydenotto-, kampanjabrief- ja ajanvarauslomakkeisiin antamasi nimi, sähköpostiosoite, puhelinnumero, yritys ja viestin sisältö sekä briefin ja ajanvarauksen tiedot.",
+            "Työnhakijoiden tiedot: nimi, sähköpostiosoite, puhelinnumero, hakemuksen sisältö ja liittämäsi CV.",
             "Asiakas- ja yhteyshenkilötiedot: nimi, rooli, työsähköposti ja -puhelinnumero sekä toimeksiantoon liittyvä viestintä.",
             "Tekniset tiedot: IP-osoite, selain- ja laitetiedot, sivuston käyttöä koskevat tapahtumat sekä evästeillä kerätty analytiikkatieto.",
             "Markkinointikanavien tiedot: sosiaalisen median ja hakukonemainonnan kanavista (esim. Meta, LinkedIn, TikTok ja Google) saatavat yhteydenotot, kampanjatapahtumat ja niiden kautta tulleet liidit.",
             "Sähköpostiohjelmien tiedot: uutiskirjeiden ja sähköpostikampanjoiden vastaanottajatiedot sekä avaus- ja klikkaustapahtumat.",
+            "Tutkimustiedot: tutkimuskumppanimme Norstatin paneelin kautta kerätyt kyselyvastaukset ja taustatiedot sekä suostumuksellasi tieto mainosaltistumisesta. Näitä kuvataan tarkemmin kohdassa Tutkimukset ja paneelivastaajat.",
           ],
         },
         {
           title: "Käsittelyn tarkoitus ja peruste",
           body: [
-            "Käsittelemme tietoja yhteydenottoihin vastaamiseen, asiakassuhteen hoitamiseen, palveluidemme toimittamiseen ja kehittämiseen sekä viestintään ja markkinointiin.",
-            "Keräämme sivuston, markkinointikanavien ja sähköpostiohjelmien tiedot yhteen asiakasrekisteriin (CRM), jotta markkinointi, analytiikka ja myynti näkevät saman asiakaskuvan.",
-            "Käsittelyn oikeusperusteina ovat sopimus tai sen valmistelu, oikeutettu etu (asiakas- ja sidosryhmäviestintä sekä sivuston kehittäminen), lakisääteiset velvoitteet sekä suostumus silloin, kun kyse on ei-välttämättömistä evästeistä.",
+            "Käsittelemme tietoja yhteydenottoihin vastaamiseen, asiakassuhteen hoitamiseen, palveluidemme toimittamiseen ja kehittämiseen, viestintään ja markkinointiin, rekrytointiin sekä media- ja mainontatutkimukseen.",
+            "Käsittelyn oikeusperusteina ovat sopimus tai sen valmistelu (myös työhakemuksen käsittely), oikeutettu etu (asiakas- ja sidosryhmäviestintä sekä sivuston kehittäminen), lakisääteiset velvoitteet sekä suostumus. Suostumukseen perustuvat ei-välttämättömät evästeet sekä tutkimustietojen käsittely ja niiden yhdistäminen mainosaltistumiseen.",
+            "Keräämme sivuston, markkinointikanavien ja sähköpostiohjelmien tiedot yhteen asiakasrekisteriin (CRM), jotta markkinointi, analytiikka ja myynti näkevät saman asiakaskuvan. Tutkimustietoja emme vie asiakasrekisteriin.",
           ],
         },
         {
@@ -746,36 +741,57 @@ const fi = {
           body: [
             "Käytämme sivustolla evästeitä ja vastaavia tekniikoita. Välttämättömät evästeet pitävät sivuston toiminnassa (esimerkiksi kielivalinta ja evästesuostumus), eikä niitä voi kytkeä pois.",
             "Analytiikkaevästeet auttavat meitä ymmärtämään, miten sivustoa käytetään. Käytämme Google Tag Manageria ja Google Analytics 4:ää (evästeet _ga ja _gid).",
-            "Markkinointievästeitä käytetään vain suostumuksellasi mainonnan kohdentamiseen ja mittaamiseen. Käytössä voivat olla esimerkiksi LinkedIn Insight Tag, Meta-pikseli ja Adformin seurantapikseli sen mukaan, mitä kanavia asiakastyössä käytetään.",
-            "Valitset itse, mitkä evästeet sallit. Evästeilmoituksessa on kolme yhtä helppoa vaihtoehtoa: hyväksy kaikki, hylkää kaikki tai muokkaa valintoja (välttämättömät, mittaus, markkinointi ja kokemus). Mitään ei ole valittu puolestasi valmiiksi.",
+            "Markkinointievästeitä käytetään vain suostumuksellasi mainonnan kohdentamiseen ja mittaamiseen. Sivustolla niitä asettavat Google Adsin konversioseuranta, LinkedIn Insight Tag, Meta-pikseli ja Adformin seurantapikseli.",
+            "Sivuston upotetut videot ja julkaisut (esimerkiksi YouTube ja LinkedIn) latautuvat vasta, kun painat niitä. Silloin kyseinen palvelu voi asettaa omia evästeitään.",
             "Ei-välttämättömät evästeet asetetaan vain, kun hyväksyt ne evästeilmoituksessa. Voit muuttaa tai peruuttaa suostumuksesi milloin tahansa sivuston alaosassa olevasta Evästeasetukset-painikkeesta tai tyhjentämällä selaimesi evästeet.",
+            "Valitset itse, mitkä evästeet sallit. Evästeilmoituksessa on kolme yhtä helppoa vaihtoehtoa: hyväksy kaikki, hylkää kaikki tai muokkaa valintoja (välttämättömät, mittaus, markkinointi ja kokemus). Mitään ei ole valittu puolestasi valmiiksi.",
             "Evästeiden käytöstä ja tietojen käsittelystä voit kysyä lisää osoitteesta info(at)norr3.fi.",
+          ],
+        },
+        {
+          title: "Tutkimukset ja paneelivastaajat",
+          anchor: "tutkimukset",
+          body: [
+            "Teetämme kyselytutkimuksia, kuten NØRR3 Media Insights, brändi- ja kuluttajatutkimukset sekä kampanjatutkimukset, tutkimusyhtiö Norstat Finland Oy:n verkkopaneelissa. Norstat kerää vastaukset. Paneelin jäsenyyttä koskee Norstatin oma tietosuojaseloste.",
+            "Saamme Norstatilta kyselyvastaukset ja taustatiedot, kuten ikäryhmän, sukupuolen, asuinalueen ja ammattiaseman, pysyvän pseudonyymin vastaajatunnuksen kanssa. Emme saa nimeäsi tai yhteystietojasi emmekä pysty tunnistamaan sinua.",
+            "Jos olet antanut Norstatin paneelissa suostumuksen evästeiden jakamiseen NØRR3:lle, yhdistämme vastaajatunnukseesi evästeisiin ja laitetunnisteisiin perustuvan tiedon siitä, oletko nähnyt hallinnoimiamme verkkomainoksia. Mainokset toimitetaan esimerkiksi Adformin, Google Display & Video 360:n ja BidTheatren kautta.",
+            "Yhdistämme saman vastaajatunnuksen avulla myös eri tutkimuksiimme antamasi vastaukset. Käytämme tietoja mediankäytön, brändien ja mainonnan vaikuttavuuden tutkimiseen. Emme käytä tutkimustietoja mainonnan kohdentamiseen sinulle.",
+            "Asiakkaillemme raportoimme vain yhteenvetotason tuloksia, joista yksittäistä vastaajaa ei voi tunnistaa.",
+            "Kyselyvastausten käsittely perustuu suostumukseen, jonka annat Norstatille paneeliin liittyessäsi ja kyselyyn vastatessasi. Mainosaltistumisen yhdistäminen perustuu erilliseen evästesuostumukseesi Norstatin paneelissa. Voit perua suostumuksen milloin tahansa Norstatin paneelissa, minkä jälkeen emme yhdistä sinusta uusia tietoja.",
+            "Säilytämme tutkimusaineistoa pseudonyymissä muodossa viisi vuotta keruusta, minkä jälkeen poistamme sen. Yhteenvetotason tuloksia, joista ketään ei voi tunnistaa, voimme säilyttää pidempään.",
+            "Koska emme pysty tunnistamaan vastaajia, oikeuksiasi koskevat pyynnöt kannattaa osoittaa Norstatille, joka välittää ne meille vastaajatunnuksesi avulla. Voit olla yhteydessä myös suoraan meihin osoitteeseen info(at)norr3.fi.",
           ],
         },
         {
           title: "Tietojen luovuttaminen ja käsittelijät",
           body: [
-            "Emme myy henkilötietoja. Käytämme luotettavia palveluntarjoajia esimerkiksi sivuston ylläpitoon, sähköpostiin, analytiikkaan ja mediaostamiseen. Ne käsittelevät tietoja puolestamme ja vain ohjeidemme mukaisesti.",
+            "Emme myy henkilötietoja. Käytämme luotettavia palveluntarjoajia esimerkiksi sivuston ylläpitoon, sähköpostiin, asiakasrekisteriin, analytiikkaan, tietojen tallentamiseen ja mediaostamiseen. Ne käsittelevät tietoja puolestamme ja vain ohjeidemme mukaisesti.",
+            "Tutkimuskumppanimme on Norstat Finland Oy, joka kerää kyselyvastaukset paneelistaan ja toimittaa ne meille.",
+            "Sivuston kampanjabrief-avustin ja ideakenttä lähettävät kirjoittamasi tekstin tekoälypalveluun ehdotuksen muodostamista varten. Ideakenttään kirjoittamasi teksti ja saamasi vastaus tallentuvat myös meille. Älä kirjoita niihin henkilötietoja.",
             "Tietoja voidaan siirtää EU:n tai ETA:n ulkopuolelle vain, jos siirrolle on asianmukainen suojamekanismi, kuten Euroopan komission vakiosopimuslausekkeet.",
           ],
         },
         {
           title: "Säilytysaika",
           body: [
-            "Säilytämme tietoja vain niin kauan kuin se on käyttötarkoituksen kannalta tarpeen tai kuin laki edellyttää. Yhteydenottolomakkeen tiedot poistetaan pääsääntöisesti 24 kuukauden kuluessa, jos yhteydenotto ei johda asiakassuhteeseen.",
+            "Säilytämme tietoja vain niin kauan kuin se on käyttötarkoituksen kannalta tarpeen tai kuin laki edellyttää.",
+            "Yhteydenotto-, brief- ja ajanvarauslomakkeiden tiedot poistetaan pääsääntöisesti 24 kuukauden kuluessa, jos yhteydenotto ei johda asiakassuhteeseen.",
+            "Asiakas- ja yhteyshenkilötietoja säilytetään asiakassuhteen ajan ja sen jälkeen niin kauan kuin kirjanpito- ja muu lainsäädäntö edellyttää.",
+            "Työhakemukset ja CV:t poistetaan 12 kuukauden kuluessa haun päättymisestä, ellei hakija ole antanut lupaa säilyttää niitä pidempään.",
+            "Tutkimusaineistoa säilytetään viisi vuotta keruusta (ks. Tutkimukset ja paneelivastaajat).",
           ],
         },
         {
           title: "Oikeutesi",
           body: [
             "Sinulla on oikeus tarkastaa itseäsi koskevat tiedot, pyytää niiden oikaisua tai poistamista, rajoittaa tai vastustaa käsittelyä, siirtää tiedot järjestelmästä toiseen sekä peruuttaa antamasi suostumus.",
-            "Pyynnöt osoitetaan sähköpostilla osoitteeseen info(at)norr3.fi. Jos katsot, ettemme ole käsitelleet tietojasi lainmukaisesti, voit tehdä valituksen tietosuojavaltuutetun toimistolle (tietosuoja.fi).",
+            "Pyynnöt osoitetaan sähköpostilla osoitteeseen info(at)norr3.fi. Tutkimusvastaajien pyyntöjä koskee lisäksi kohta Tutkimukset ja paneelivastaajat. Jos katsot, ettemme ole käsitelleet tietojasi lainmukaisesti, voit tehdä valituksen tietosuojavaltuutetun toimistolle (tietosuoja.fi).",
           ],
         },
         {
           title: "Tietoturva",
           body: [
-            "Suojaamme tiedot asianmukaisin teknisin ja organisatorisin toimenpitein: pääsy on rajattu työtehtävän perusteella, yhteydet on salattu ja järjestelmien käyttöä valvotaan.",
+            "Suojaamme tiedot asianmukaisin teknisin ja organisatorisin toimenpitein: pääsy on rajattu työtehtävän perusteella, yhteydet on salattu ja järjestelmien käyttöä valvotaan. Tutkimusaineisto säilytetään erillään asiakasrekisteristä.",
           ],
         },
         {
@@ -1695,18 +1711,16 @@ const en: Dictionary = {
       fullTeam: "See the whole team",
     },
   },
-  /* LEGAL TEMPLATE — see the FI block above; needs a legal review before launch. */
   legal: {
     updatedLabel: "Updated",
     tocLabel: "Contents",
     relatedLabel: "See also",
-    reviewNote: "This is a template and must be reviewed by legal counsel before launch.",
     privacy: {
       pill: "PRIVACY",
       heading: "Privacy Policy",
       intro:
-        "This policy explains what personal data we process on norr3.fi, in our marketing channels and in our client work, why we process it, and what rights you have. We process personal data in accordance with the EU General Data Protection Regulation (GDPR) and the Finnish Data Protection Act. The policy also covers data collected from marketing channels and email programs.",
-      updated: "17 September 2026",
+        "This policy explains what personal data we process on norr3.fi, in our marketing channels, in our client work and in our research, why we process it, and what rights you have. We process personal data in accordance with the EU General Data Protection Regulation (GDPR) and the Finnish Data Protection Act. The policy also covers data collected from marketing channels and email programs, and research data collected through the panel of our research partner Norstat.",
+      updated: "9 October 2026",
       sections: [
         {
           title: "Controller",
@@ -1718,19 +1732,21 @@ const en: Dictionary = {
         {
           title: "What data we collect",
           body: [
-            "Contact form data: name, email address, company and the content of your message.",
+            "Form data: the name, email address, phone number, company and message you give in our contact, campaign brief and booking forms, plus the details of your brief or booking.",
+            "Job applicant data: name, email address, phone number, the content of your application and any CV you attach.",
             "Client and contact person data: name, role, work email and phone number, and correspondence relating to an engagement.",
             "Technical data: IP address, browser and device information, site usage events, and analytics data collected via cookies.",
             "Marketing channel data: enquiries, campaign events and leads coming from social media and search advertising channels (for example Meta, LinkedIn, TikTok and Google).",
             "Email program data: recipient details for newsletters and email campaigns, plus open and click events.",
+            "Research data: survey answers and background data collected through the panel of our research partner Norstat and, with your consent, data on ad exposure. See Research and panel respondents for details.",
           ],
         },
         {
           title: "Purpose and legal basis",
           body: [
-            "We process data to respond to enquiries, manage client relationships, deliver and develop our services, and for communication and marketing.",
-            "We gather data from the site, marketing channels and email programs into one customer register (CRM) so that marketing, insight and sales share the same view of the customer.",
-            "The legal bases are a contract or its preparation, legitimate interest (client and stakeholder communication, and improving the site), statutory obligations, and consent where non-essential cookies are concerned.",
+            "We process data to respond to enquiries, manage client relationships, deliver and develop our services, for communication and marketing, for recruitment, and for media and advertising research.",
+            "The legal bases are a contract or its preparation (including handling job applications), legitimate interest (client and stakeholder communication, and improving the site), statutory obligations, and consent. Non-essential cookies, research data and its linking to ad exposure are based on consent.",
+            "We gather data from the site, marketing channels and email programs into one customer register (CRM) so that marketing, insight and sales share the same view of the customer. Research data is not added to the customer register.",
           ],
         },
         {
@@ -1739,36 +1755,57 @@ const en: Dictionary = {
           body: [
             "We use cookies and similar technologies on the site. Necessary cookies keep the site running (for example your language choice and cookie consent), and they cannot be switched off.",
             "Analytics cookies help us understand how the site is used. We use Google Tag Manager and Google Analytics 4 (the _ga and _gid cookies).",
-            "Marketing cookies are used only with your consent to target and measure advertising. Depending on the channels we use in client work, these can include the LinkedIn Insight Tag, the Meta pixel and the Adform tracking pixel.",
-            "You choose which cookies you allow. The cookie notice offers three equally easy options: accept all, reject all, or customise your choices (necessary, measurement, marketing and experience). Nothing is pre-selected for you.",
+            "Marketing cookies are used only with your consent to target and measure advertising. On this site they are set by Google Ads conversion tracking, the LinkedIn Insight Tag, the Meta pixel and the Adform tracking pixel.",
+            "Embedded videos and posts on the site (for example YouTube and LinkedIn) load only when you click them. The service in question may then set its own cookies.",
             "Non-essential cookies are set only when you accept them in the cookie notice. You can change or withdraw your consent at any time via the Cookie settings button in the site footer or by clearing your browser cookies.",
+            "You choose which cookies you allow. The cookie notice offers three equally easy options: accept all, reject all, or customise your choices (necessary, measurement, marketing and experience). Nothing is pre-selected for you.",
             "For more about cookies and how we process data, contact info(at)norr3.fi.",
+          ],
+        },
+        {
+          title: "Research and panel respondents",
+          anchor: "research",
+          body: [
+            "We commission surveys, such as NØRR3 Media Insights, brand and consumer studies and campaign studies, in the online panel of the research company Norstat Finland Oy. Norstat collects the answers. Panel membership is covered by Norstat's own privacy policy.",
+            "Norstat gives us survey answers and background data, such as age group, gender, region and occupational status, with a permanent pseudonymous respondent ID. We do not receive your name or contact details and cannot identify you.",
+            "If you have consented in the Norstat panel to cookies being shared with NØRR3, we link to your respondent ID cookie- and device-identifier-based data on whether you have seen online ads we manage. The ads are served through, for example, Adform, Google Display & Video 360 and BidTheatre.",
+            "We also use the same respondent ID to link the answers you give in our different studies. We use the data to research media use, brands and advertising effectiveness. We do not use research data to target advertising at you.",
+            "We report only aggregate results to our clients, from which no individual respondent can be identified.",
+            "Processing of survey answers is based on the consent you give Norstat when you join the panel and answer a survey. Linking ad exposure is based on your separate cookie consent in the Norstat panel. You can withdraw consent at any time in the Norstat panel, after which we link no new data about you.",
+            "We keep research data in pseudonymous form for five years from collection and then delete it. Aggregate results from which no one can be identified may be kept longer.",
+            "Because we cannot identify respondents, requests about your rights are best sent to Norstat, which forwards them to us using your respondent ID. You can also contact us directly at info(at)norr3.fi.",
           ],
         },
         {
           title: "Disclosure and processors",
           body: [
-            "We do not sell personal data. We use trusted service providers for hosting, email, analytics and media buying, for example. They process data on our behalf and only under our instructions.",
+            "We do not sell personal data. We use trusted service providers for hosting, email, the customer register, analytics, data storage and media buying, for example. They process data on our behalf and only under our instructions.",
+            "Our research partner is Norstat Finland Oy, which collects survey answers from its panel and delivers them to us.",
+            "The site's campaign brief assistant and idea field send the text you type to an AI service to generate a suggestion. Text typed in the idea field and the reply are also stored by us. Please do not enter personal data in them.",
             "Data may be transferred outside the EU or EEA only where an appropriate safeguard is in place, such as the European Commission's Standard Contractual Clauses.",
           ],
         },
         {
           title: "Retention",
           body: [
-            "We keep data only for as long as the purpose requires or the law demands. Contact form data is generally deleted within 24 months if the enquiry does not lead to a client relationship.",
+            "We keep data only for as long as the purpose requires or the law demands.",
+            "Contact, brief and booking form data is generally deleted within 24 months if the enquiry does not lead to a client relationship.",
+            "Client and contact person data is kept for the duration of the client relationship and thereafter for as long as accounting and other legislation requires.",
+            "Job applications and CVs are deleted within 12 months of the end of the recruitment, unless the applicant has agreed to longer retention.",
+            "Research data is kept for five years from collection (see Research and panel respondents).",
           ],
         },
         {
           title: "Your rights",
           body: [
             "You have the right to access your data, request its rectification or erasure, restrict or object to processing, port your data to another system, and withdraw consent you have given.",
-            "Send requests to info(at)norr3.fi. If you believe we have processed your data unlawfully, you may lodge a complaint with the Finnish Data Protection Ombudsman (tietosuoja.fi).",
+            "Send requests to info(at)norr3.fi. For survey respondents, see also Research and panel respondents. If you believe we have processed your data unlawfully, you may lodge a complaint with the Finnish Data Protection Ombudsman (tietosuoja.fi).",
           ],
         },
         {
           title: "Security",
           body: [
-            "We protect data with appropriate technical and organisational measures: access is limited by role, connections are encrypted, and system use is monitored.",
+            "We protect data with appropriate technical and organisational measures: access is limited by role, connections are encrypted, and system use is monitored. Research data is stored separately from the customer register.",
           ],
         },
         {

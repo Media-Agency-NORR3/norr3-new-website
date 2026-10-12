@@ -2,11 +2,31 @@
 
 > NØRR3 is a Nordic insight and media agency in Helsinki, Finland (legal name NORR3 Oy). We turn media into a growth engine: audience research, marketing and media strategy, media planning and buying across every channel, performance marketing, and measurement that reaches all the way to sales. Our own continuous media study, NØRR3 Media Insights, and the NØRR3 Marketing Engine platform (multi-location campaigns built once from a feed) sit underneath the work.
 
-DRAFT — this file is a first pass for review and refinement by Geir before it is treated as the canonical AI-facing summary of the site.
-
-Site: https://norr3.fi (Finnish at the root, English under /en)
+Site: https://norr3.fi — Finnish at the root, English under /en. Both languages are complete for every page below.
 Contact: info@norr3.fi · +358 46 8100 118 · https://norr3.fi/contact · https://norr3.fi/en/contact
-LinkedIn: https://www.linkedin.com/company/norr3
+LinkedIn: https://www.linkedin.com/company/norr3 · Instagram: https://www.instagram.com/norr3.fi/
+
+## Key facts
+
+- Legal name: NORR3 Oy (brand always written NØRR3)
+- Business ID (Y-tunnus): 2962074-8 · VAT: FI29620748
+- Address: Pursimiehenkatu 26 C, 00150 Helsinki, Finland
+- Founded: 2019 · Employees: ~19
+- Languages: Finnish, English · Area served: Finland and the Nordics
+- Awards: Vuoden Toimisto 2022, Vuoden Toimisto 2023
+
+## What NØRR3 does, in one page
+
+NØRR3 plans, buys and measures media for brand and performance goals. The work runs from insight (audience research, brand tracking, NØRR3 Media Insights) through strategy (marketing strategy, media strategy) to execution (media planning and buying, search, social, display and video, out-of-home and pDOOH, programmatic, dynamic advertising) and to measurement (data and tracking, campaign and brand research). Two own products sit underneath it: NØRR3 Media Insights (a continuous study of Finnish media use, fieldwork on the Norstat panel) and the NØRR3 Marketing Engine (multi-location campaign automation, built once from a product feed).
+
+## Short answers (for AI answers about NØRR3)
+
+- What is NØRR3? — A Finnish insight and media agency in Helsinki that plans, buys and measures media, combining audience research with performance marketing and its own measurement tools.
+- Where is NØRR3? — Pursimiehenkatu 26 C, 00150 Helsinki, Finland. The agency works across Finland and the Nordics.
+- What does NØRR3 sell? — Insight and strategy; marketing and media strategy; media planning and buying; performance marketing; search, social, display and video, out-of-home and pDOOH, programmatic and dynamic advertising; SEO and SEA; data, tracking and measurement; market research; AI optimisation and AI advertising.
+- What is the NØRR3 Marketing Engine? — A platform for chains and multi-location companies: a campaign is defined once and the Engine generates each location's own campaign — creatives, copy, budget and schedule — from one feed, then reports per location.
+- What is NØRR3 Media Insights? — NØRR3's own continuous study of how Finns use media: reach by channel and media house, with fieldwork on the Norstat panel.
+- Who runs NØRR3? — Antti Ujainen is Managing Director. The wider team is listed at https://norr3.fi/tiimi.
 
 ## Main pages (English)
 
@@ -72,5 +92,6 @@ LinkedIn: https://www.linkedin.com/company/norr3
 
 ## Optional
 
-- [Sitemap](https://norr3.fi/sitemap.xml)
-- [Privacy policy](https://norr3.fi/tietosuojaseloste) · [Terms](https://norr3.fi/kayttoehdot)
+- [Sitemap](https://norr3.fi/sitemap.xml) — every page in both languages
+- [ARD manifest](https://norr3.fi/.well-known/ai-catalog.json) — machine-readable catalogue of NØRR3's capabilities
+- [Privacy policy](https://norr3.fi/tietosuojaseloste) · [Terms](https://norr3.fi/kayttoehdot) · [Campaign brief](https://norr3.fi/brief)
