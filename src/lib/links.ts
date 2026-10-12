@@ -66,5 +66,18 @@ export function publicPath(href: string): string {
 export function otherLocaleHref(pathname: string, current: Locale): string {
   const other: Locale = current === "fi" ? "en" : "fi";
   const stripped = pathname.replace(/^\/(?:en|fi)(?=\/|$)/, "");
+  // The legal pages use different slugs per locale; map either form to the
+  // other locale's slug so the language switch lands on the canonical URL,
+  // not a Finnish-slug English URL (or vice-versa).
+  const WITHOUT_PREFIX = stripped.replace(/^\/|\/$/g, "");
+  const LEGAL_TO_PAGE: Record<string, "privacy" | "terms"> = {
+    tietosuojaseloste: "privacy",
+    "privacy-policy": "privacy",
+    privacy: "privacy",
+    kayttoehdot: "terms",
+    terms: "terms",
+  };
+  const page = LEGAL_TO_PAGE[WITHOUT_PREFIX];
+  if (page) return legalPath(other, page);
   return linkTo(other, stripped || "/");
 }
