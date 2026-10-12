@@ -179,6 +179,7 @@ export async function proxy(request: NextRequest) {
       "/en/about": "/en/meista",
       "/en/team": "/en/tiimi",
       "/en/careers": "/en/toihin-meille",
+      "/en/privacy-policy": "/en/tietosuojaseloste",
       "/en/privacy": "/en/tietosuojaseloste",
       "/en/terms": "/en/kayttoehdot",
       "/en/cases": "/en/caset",

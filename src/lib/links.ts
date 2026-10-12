@@ -33,6 +33,25 @@ const PUBLIC_PATHS: Record<string, string> = {
   terms: "kayttoehdot",
 };
 
+/**
+ * The legal pages use distinct slugs per locale (hard-coded, 2026-10-12):
+ * Finnish keeps the descriptive names (`/tietosuojaseloste`, `/kayttoehdot`)
+ * while English uses the conventional English slugs (`/privacy-policy`,
+ * `/terms`). Add both to the mapping the proxy already aliases, so links,
+ * canonicals and hreflang all agree with the resolved routes.
+ */
+const LEGAL_PATHS: Record<Locale, { privacy: string; terms: string }> = {
+  fi: { privacy: "/tietosuojaseloste", terms: "/kayttoehdot" },
+  en: { privacy: "/privacy-policy", terms: "/terms" },
+};
+
+export { LEGAL_PATHS };
+
+/** The public URL for a legal page, locale-aware (English uses English slugs). */
+export function legalPath(locale: Locale, page: "privacy" | "terms"): string {
+  return linkTo(locale, LEGAL_PATHS[locale][page]);
+}
+
 /** A CMS-style href as the canonical public path (locale-relative, leading slash). */
 export function publicPath(href: string): string {
   const clean = href.startsWith("/") ? href : `/${href}`;

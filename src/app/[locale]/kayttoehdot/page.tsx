@@ -4,7 +4,7 @@ import { getDictionary } from "@/lib/dictionary";
 import { LegalArticle } from "@/components/LegalArticle";
 import { JsonLd } from "@/components/JsonLd";
 import { homeCrumb, pageGraph, pageUrl } from "@/lib/jsonld";
-import { linkTo } from "@/lib/links";
+import { linkTo, legalPath, LEGAL_PATHS } from "@/lib/links";
 
 export async function generateMetadata({ params }: PageProps<"/[locale]/kayttoehdot">) {
   const { locale } = await params;
@@ -14,13 +14,13 @@ export async function generateMetadata({ params }: PageProps<"/[locale]/kayttoeh
     title: dict.seo.terms.title,
     description: dict.seo.terms.description,
     alternates: {
-      canonical: linkTo(locale, "/kayttoehdot"),
-      languages: { "fi-FI": "/kayttoehdot", en: "/en/kayttoehdot", "x-default": "/kayttoehdot" },
+      canonical: legalPath(locale, "terms"),
+      languages: { "fi-FI": legalPath("fi", "terms"), en: legalPath("en", "terms"), "x-default": legalPath("fi", "terms") },
     },
     openGraph: {
       type: "website" as const,
       siteName: "NØRR3",
-      url: `https://norr3.fi${linkTo(locale, "/kayttoehdot")}`,
+      url: `https://norr3.fi${legalPath(locale, "terms")}`,
       locale: locale === "fi" ? "fi_FI" : "en_US",
       title: dict.seo.terms.title,
       description: dict.seo.terms.description,
@@ -57,7 +57,7 @@ export default async function TermsPage({ params }: PageProps<"/[locale]/kayttoe
     <>
       <JsonLd
         data={pageGraph({
-          url: pageUrl(locale, "/kayttoehdot"),
+          url: pageUrl(locale, LEGAL_PATHS[locale].terms),
           locale,
           name: dict.seo.terms.title,
           description: dict.seo.terms.description,
@@ -75,7 +75,7 @@ export default async function TermsPage({ params }: PageProps<"/[locale]/kayttoe
         sections={legal.terms.sections}
         relatedLabel={legal.relatedLabel}
         relatedLinks={[
-          { href: linkTo(locale, "/tietosuojaseloste"), label: dict.footer.privacy },
+          { href: legalPath(locale, "privacy"), label: dict.footer.privacy },
           { href: linkTo(locale, "/contact"), label: dict.common.contactUs },
         ]}
         reviewNote={legal.reviewNote}
