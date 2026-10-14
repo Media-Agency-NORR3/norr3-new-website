@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { getSiteContent } from "@/lib/cms";
 import { legalPath, linkTo } from "@/lib/links";
+import { helsinkiIso } from "@/lib/dates";
 import { getSocialSitemap } from "@/lib/social";
 
 const BASE = "https://norr3.fi";
@@ -107,7 +108,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...content.posts.flatMap((post) =>
       entry(post.slug, {
         priority: 0.5,
-        lastModified: post.isoDate ? new Date(post.isoDate) : undefined,
+        // <lastmod> = the newest human-written revision (autosaves excluded),
+        // falling back to the publish date. Same stamp the article's
+        // dateModified carries.
+        lastModified: validDate(helsinkiIso(post.updatedAt) ?? post.isoDate),
       })
     ),
     // Team Social: every member profile and every post has its own URL. Until

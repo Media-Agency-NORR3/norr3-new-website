@@ -58,6 +58,14 @@ export type CmsPost = Insight & {
   featured: boolean;
   readingMinutes: number;
   isoDate: string;
+  /**
+   * Raw CMS stamps ("YYYY-MM-DD" or "YYYY-MM-DD HH:MM:SS", the latter in UTC):
+   * `publishedAt` is the publish date the editor set, `updatedAt` the newest
+   * revision someone actually wrote (autosaves excluded). Turned into ISO 8601
+   * with the Helsinki offset by `src/lib/dates.ts`.
+   */
+  publishedAt?: string;
+  updatedAt?: string;
   seo: Record<Locale, { title: string; description: string }>;
   fi: Insight["fi"] & { html: string };
   en: Insight["en"] & { html: string };
