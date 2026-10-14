@@ -13,6 +13,7 @@ import { ogImage } from "@/lib/ogImage";
 import { pageSeo } from "@/lib/pageSeo";
 import { railEnabled, splitRailPreview } from "@/lib/rail";
 import { JsonLd } from "@/components/JsonLd";
+import { modificationIso, publicationIso } from "@/lib/dates";
 import { absolute, faqItemsFromBlocks, faqPage, homeCrumb, pageGraph, pageUrl, serviceGraph, type Crumb } from "@/lib/jsonld";
 
 /**
@@ -125,6 +126,14 @@ export async function generateMetadata({ params }: Params) {
         locale: locale === "fi" ? "fi_FI" : "en_US",
         title: content.title,
         description: content.excerpt,
+        // article:published_time / article:modified_time. Same ISO stamps as
+        // the JSON-LD, so the <head> and the structured data never disagree.
+        ...(publicationIso(post.publishedAt, post.updatedAt)
+          ? { publishedTime: publicationIso(post.publishedAt, post.updatedAt) }
+          : {}),
+        ...(modificationIso(post.publishedAt, post.updatedAt)
+          ? { modifiedTime: modificationIso(post.publishedAt, post.updatedAt) }
+          : {}),
         images: [{ url: image, width: 1600, height: 1066, alt: content.title }],
       },
       twitter: {

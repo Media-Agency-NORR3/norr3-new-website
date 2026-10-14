@@ -46,6 +46,8 @@ const REDIRECTS: { from: string; to: string; note?: string }[] = [
   { from: "/privacy", to: "/tietosuojaseloste", note: "Finnish URL" },
   { from: "/privacy-policy", to: "/tietosuojaseloste" },
   { from: "/terms", to: "/kayttoehdot", note: "Finnish URL" },
+  { from: "/en/tietosuojaseloste", to: "/en/privacy-policy", note: "English URL" },
+  { from: "/en/kayttoehdot", to: "/en/terms", note: "English URL" },
   { from: "/cases", to: "/caset", note: "Finnish URL" },
   { from: "/tarinat", to: "/insights" },
   { from: "/blog/:path*", to: "/insights", note: "old blog" },

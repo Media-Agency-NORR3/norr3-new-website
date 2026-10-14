@@ -18,7 +18,7 @@ import { PillButton } from "@/components/PillButton";
 import { BookingButton } from "@/components/BookingButton";
 import { Icon } from "@/components/Icon";
 import { MediaAsset } from "@/components/MediaAsset";
-import { linkTo } from "@/lib/links";
+import { legalPath, linkTo } from "@/lib/links";
 import { ogImage } from "@/lib/ogImage";
 
 /** The five people who take direct contact on this page. The rest of the
@@ -193,7 +193,7 @@ export default async function ContactPage({ params }: PageProps<"/[locale]/conta
               <span>
                 {dict.contact.privacyNote}{" "}
                 <Link
-                  href={linkTo(locale, "/tietosuojaseloste")}
+                  href={legalPath(locale, "privacy")}
                   className="rounded-sm font-medium text-purple underline-offset-2 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple dark:text-light-purple dark:focus-visible:outline-light-purple"
                 >
                   {dict.footer.privacy}

@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { getSiteContent } from "@/lib/cms";
-import { linkTo } from "@/lib/links";
+import { legalPath, linkTo } from "@/lib/links";
+import { helsinkiIso } from "@/lib/dates";
 import { getSocialSitemap } from "@/lib/social";
 
 const BASE = "https://norr3.fi";
@@ -40,6 +41,19 @@ const PAGE_SLUG: Record<string, string> = {
 
 const cmsPageSlug = (route: string) => PAGE_SLUG[route] ?? route;
 
+/**
+ * The two legal routes use Finnish slugs in `CODED_ROUTES` but English slugs
+ * in English URLs (`/en/privacy-policy`, `/en/terms`) — mirror the locale-aware
+ * mapping so the sitemap's `en` entries match the canonical English URLs.
+ */
+const LEGAL_PAGE: Record<string, "privacy" | "terms"> = {
+  tietosuojaseloste: "privacy",
+  kayttoehdot: "terms",
+};
+
+const legalAwareLink = (locale: (typeof LOCALES)[number], path: string) =>
+  locale === "en" && LEGAL_PAGE[path] ? legalPath(locale, LEGAL_PAGE[path]) : linkTo(locale, path);
+
 /** Undefined status = page not managed in the CMS → keep it (fail open). */
 const pageIsLive = (content: { pageStatus: Record<string, string> }, route: string) => {
   const status = content.pageStatus[cmsPageSlug(route)];
@@ -65,16 +79,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     options: { lastModified?: Date; changeFrequency?: "daily" | "weekly" | "monthly"; priority?: number } = {}
   ) =>
     LOCALES.map((locale) => ({
-      url: `${BASE}${linkTo(locale, path || "")}`,
+      url: `${BASE}${legalAwareLink(locale, path || "")}`,
       ...(options.lastModified ? { lastModified: options.lastModified } : {}),
       changeFrequency: options.changeFrequency ?? ("monthly" as const),
       priority: options.priority ?? 0.8,
       alternates: {
         languages: {
-          "fi-FI": `${BASE}${linkTo("fi", path || "")}`,
-          en: `${BASE}${linkTo("en", path || "")}`,
+          "fi-FI": `${BASE}${legalAwareLink("fi", path || "")}`,
+          en: `${BASE}${legalAwareLink("en", path || "")}`,
           // Finnish is the default for anyone we have no better match for.
-          "x-default": `${BASE}${linkTo("fi", path || "")}`,
+          "x-default": `${BASE}${legalAwareLink("fi", path || "")}`,
         },
       },
     }));
@@ -94,7 +108,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...content.posts.flatMap((post) =>
       entry(post.slug, {
         priority: 0.5,
-        lastModified: post.isoDate ? new Date(post.isoDate) : undefined,
+        // <lastmod> = the newest human-written revision (autosaves excluded),
+        // falling back to the publish date. Same stamp the article's
+        // dateModified carries.
+        lastModified: validDate(helsinkiIso(post.updatedAt) ?? post.isoDate),
       })
     ),
     // Team Social: every member profile and every post has its own URL. Until

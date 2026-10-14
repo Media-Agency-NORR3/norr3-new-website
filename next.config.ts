@@ -90,6 +90,13 @@ const nextConfig: NextConfig = {
       { source: "/team", destination: "/tiimi", statusCode: 301 },
       { source: "/careers", destination: "/toihin-meille", statusCode: 301 },
 
+      // ── Legal pages: English URLs use English slugs (2026-10-12) ──────────
+      // English canonicals are /en/privacy-policy and /en/terms; the older
+      // English Finnish-slug forms 301 to them. (/en/privacy is still aliased
+      // to the privacy page by src/proxy.ts, so it needs no rule here.)
+      { source: "/en/tietosuojaseloste", destination: "/en/privacy-policy", statusCode: 301 },
+      { source: "/en/kayttoehdot", destination: "/en/terms", statusCode: 301 },
+
       // ── Old service prefix → the root slug (services now live at /<slug>) ──
       { source: "/palvelut/:slug", destination: "/:slug", statusCode: 301 },
       { source: "/en/palvelut/:slug", destination: "/en/:slug", statusCode: 301 },
