@@ -310,6 +310,84 @@ html[data-city-hero-active] .site-nav .bg-ink {
   margin: 3rem 0;
 }
 
+/*
+ * Data tables in articles and rich-text blocks (the CMS allows plain tables;
+ * a total row is authored as <tfoot>). Brand treatment: first column left,
+ * figures centred, purple header row, thin grey rules, light-purple total row.
+ * The wrapper from `wrapTables` (src/lib/prose.ts) scrolls sideways on a phone
+ * so the table keeps its natural width and its table semantics.
+ */
+.prose-table {
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+}
+
+.prose-table:focus-visible {
+  outline: 2px solid var(--color-purple);
+  outline-offset: 2px;
+}
+
+.prose-table table {
+  width: 100%;
+  min-width: max-content;
+  border-collapse: collapse;
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.45;
+  font-variant-numeric: tabular-nums;
+  color: var(--foreground);
+}
+
+.prose-table caption {
+  caption-side: top;
+  padding-bottom: 0.75rem;
+  text-align: left;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.prose-table th,
+.prose-table td {
+  padding: 0.7rem 1rem;
+  border-bottom: 1px solid var(--color-grey);
+  text-align: center;
+  font-weight: 400;
+  white-space: nowrap;
+}
+
+.prose-table tr > :first-child {
+  text-align: left;
+}
+
+.prose-table thead th,
+.prose-table thead td {
+  background: var(--color-purple);
+  color: var(--color-white);
+  font-weight: 500;
+  border-bottom: 0;
+}
+
+.prose-table tfoot th,
+.prose-table tfoot td {
+  background: var(--color-light-purple);
+  color: var(--color-ink);
+  font-weight: 500;
+}
+
+.dark .prose-table th,
+.dark .prose-table td {
+  border-bottom-color: color-mix(in srgb, var(--foreground) 14%, transparent);
+}
+
+.dark .prose-table thead th,
+.dark .prose-table thead td,
+.dark .prose-table tfoot th,
+.dark .prose-table tfoot td {
+  border-bottom: 0;
+}
+
 /* Rich-text blocks inside a composed page use the same rules. */
 .cms-richtext {
   font-size: 16px;

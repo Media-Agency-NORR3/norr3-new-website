@@ -37,6 +37,7 @@ import { BLOCK_TONE, StyleScope, TONE_IS_DARK, TONE_IS_PALE, pad } from "./Block
 import { CodeEmbed } from "./CodeEmbed";
 import { cx } from "@/lib/cx";
 import { linkTo } from "@/lib/links";
+import { wrapTables } from "@/lib/prose";
 import type { BlockContext } from "./context";
 
 /**
@@ -266,7 +267,7 @@ function BlockSwitch({
             <article
               className={`cms-richtext ${width}`}
               // Sanitised on write by the CMS against a narrow tag allowlist.
-              dangerouslySetInnerHTML={{ __html: t("html") }}
+              dangerouslySetInnerHTML={{ __html: wrapTables(t("html"), locale) }}
             />
           </Reveal>
         </Container>
