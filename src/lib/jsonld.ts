@@ -272,6 +272,54 @@ export function faqItemsFromBlocks(blocks: Block[], locale: Locale): FaqItem[] {
   return items;
 }
 
+/* ------------------------------------------------------------ faq (article) */
+
+/** The heading text that opens a FAQ section in an article body. */
+const FAQ_SECTION_HEADING = /^(usein kysyttyä|faq|frequently asked questions)$/i;
+
+/** Visible text of an HTML fragment — tags dropped, entities resolved. */
+export function htmlToPlainText(value: string): string {
+  return value
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#0?39;/g, "'")
+    .replace(/&#8217;|&rsquo;/g, "’")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+/**
+ * FAQ content of an insight post. A post writes its FAQ as an `<h2>` reading
+ * "Usein kysyttyä" (FI) or "FAQ" (EN) — or the English spelling — with each
+ * `<h3>` under it a question and the blocks between the headings the answer.
+ * The answer text is the visible copy with tags stripped, so the structured
+ * data quotes what the page actually shows and nothing that was not written.
+ */
+export function faqItemsFromHtml(html: string): FaqItem[] {
+  if (!html) return [];
+  const sections = [...html.matchAll(/<h2[^>]*>([\s\S]*?)<\/h2>/gi)];
+  const items: FaqItem[] = [];
+  sections.forEach((section, index) => {
+    if (!FAQ_SECTION_HEADING.test(htmlToPlainText(section[1]))) return;
+    const bodyStart = (section.index ?? 0) + section[0].length;
+    const bodyEnd = index + 1 < sections.length ? (sections[index + 1].index ?? html.length) : html.length;
+    const block = html.slice(bodyStart, bodyEnd);
+    const questions = [...block.matchAll(/<h3[^>]*>([\s\S]*?)<\/h3>/gi)];
+    questions.forEach((question, qi) => {
+      const answerStart = (question.index ?? 0) + question[0].length;
+      const answerEnd = qi + 1 < questions.length ? (questions[qi + 1].index ?? block.length) : block.length;
+      const name = htmlToPlainText(question[1]);
+      const text = htmlToPlainText(block.slice(answerStart, answerEnd));
+      if (name && text) items.push({ question: name, answer: text });
+    });
+  });
+  return items;
+}
+
 /* ------------------------------------------------------------ organization */
 
 /**

@@ -7,7 +7,18 @@ import { linkTo } from "@/lib/links";
 import { wrapTables } from "@/lib/prose";
 import { ogImage } from "@/lib/ogImage";
 import { JsonLd } from "@/components/JsonLd";
-import { absolute, articleAuthor, breadcrumbList, homeCrumb, inLanguage, pageUrl, publisherRef, webPage } from "@/lib/jsonld";
+import { faqItemsFromHtml, faqPage } from "@/lib/jsonld";
+import { modificationIso, publicationIso } from "@/lib/dates";
+import {
+  absolute,
+  articleAuthor,
+  breadcrumbList,
+  homeCrumb,
+  inLanguage,
+  pageUrl,
+  publisherRef,
+  webPage,
+} from "@/lib/jsonld";
 import { Container, HeroPill } from "@/components/Container";
 import { PillButton } from "@/components/PillButton";
 import { Reveal } from "@/components/Reveal";
@@ -40,12 +51,33 @@ export async function InsightArticleView({
   ]);
   const minutes = post.readingMinutes;
   const url = pageUrl(locale, `/${post.slug}`);
+  // ISO 8601 with the Helsinki offset, from the CMS stamps. `dateModified` is
+  // the newest human-written revision and never predates `datePublished`.
+  const datePublished = publicationIso(post.publishedAt, post.updatedAt);
+  const dateModified = modificationIso(post.publishedAt, post.updatedAt);
+  // A visible "Updated" line only when the content changed more than a day
+  // after publication — a same-day tweak is not something a reader cares about.
+  const revisedLater =
+    !!datePublished &&
+    !!dateModified &&
+    new Date(dateModified).getTime() - new Date(datePublished).getTime() > 24 * 60 * 60 * 1000;
+  const updatedLabel = revisedLater
+    ? new Intl.DateTimeFormat(locale === "fi" ? "fi-FI" : "en-GB", {
+        day: "numeric",
+        month: "numeric",
+        year: "numeric",
+        timeZone: "Europe/Helsinki",
+      }).format(new Date(dateModified as string))
+    : "";
+  const faq = faqItemsFromHtml(content.html);
 
   return (
     <>
-      {/* Article structured data — the post's own facts (title, date, author,
+      {/* Article structured data — the post's own facts (title, dates, author,
           image), nothing invented. The author is the team member the CMS
-          names (linked to their profile by @id) or, failing that, NØRR3. */}
+          names (linked to their profile by @id) or, failing that, NØRR3.
+          A FAQ section in the body ("Usein kysyttyä" / "FAQ") becomes a
+          FAQPage in the same @graph, quoting the visible copy. */}
       <JsonLd
         data={[
           {
@@ -54,7 +86,8 @@ export async function InsightArticleView({
             headline: content.title,
             description: content.excerpt,
             inLanguage: inLanguage(locale),
-            ...(post.isoDate ? { datePublished: post.isoDate } : {}),
+            ...(datePublished ? { datePublished } : {}),
+            ...(dateModified ? { dateModified } : {}),
             image: absolute(ogImage(post.image ?? "/images/brand/space-arch.webp")),
             author: articleAuthor(post.author, site.team, locale),
             publisher: publisherRef(),
@@ -68,9 +101,10 @@ export async function InsightArticleView({
             name: post.seo[locale].title || content.title,
             description: post.seo[locale].description || content.excerpt,
             image: ogImage(post.image ?? "/images/brand/space-arch.webp"),
-            extra: { mainEntity: { "@id": `${url}#article` } },
+            extra: { ...(dateModified ? { dateModified } : {}), mainEntity: { "@id": `${url}#article` } },
           }),
           breadcrumbList(url, [homeCrumb(locale), { name: dict.nav.insights, url: pageUrl(locale, "/insights") }, { name: content.title }]),
+          faqPage(url, faq),
         ]}
       />
 
@@ -95,6 +129,14 @@ export async function InsightArticleView({
             <span>
               {post.date} · {minutes} {dict.insights.minRead}
             </span>
+            {updatedLabel ? (
+              <>
+                <span aria-hidden>·</span>
+                <span>
+                  {dict.insights.updated} {updatedLabel}
+                </span>
+              </>
+            ) : null}
           </p>
         </Reveal>
       </Container>

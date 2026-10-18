@@ -4,7 +4,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import type { Dictionary } from "@/content/dictionary";
 import type { Locale } from "@/i18n/config";
-import { linkTo, publicPath } from "@/lib/links";
+import { legalPath, linkTo, publicPath } from "@/lib/links";
 import { CookieSettingsButton } from "@/components/CookieSettingsButton";
 
 
@@ -142,13 +142,13 @@ export function Footer({
         <p>{dict.footer.copyright}</p>
         <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
           <Link
-            href={linkTo(locale, "/tietosuojaseloste")}
+            href={legalPath(locale, "privacy")}
             className="rounded-sm underline decoration-white/30 underline-offset-4 transition-colors hover:text-white hover:decoration-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
           >
             {dict.footer.privacy}
           </Link>
           <Link
-            href={linkTo(locale, "/kayttoehdot")}
+            href={legalPath(locale, "terms")}
             className="rounded-sm underline decoration-white/30 underline-offset-4 transition-colors hover:text-white hover:decoration-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
           >
             {dict.footer.terms}
