@@ -42,3 +42,6 @@ next-env.d.ts
 
 # media uploaded through the CMS at runtime — not source, and can be large
 /public/uploads/
+
+# Server logs stay on the host
+*.log
