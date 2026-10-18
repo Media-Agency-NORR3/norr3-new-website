@@ -4,6 +4,7 @@ import type { Dictionary } from "@/content/dictionary";
 import type { CmsPost } from "@/lib/cms";
 import { getPosts, getSiteContent } from "@/lib/cms";
 import { linkTo } from "@/lib/links";
+import { wrapTables } from "@/lib/prose";
 import { ogImage } from "@/lib/ogImage";
 import { JsonLd } from "@/components/JsonLd";
 import { absolute, articleAuthor, breadcrumbList, homeCrumb, inLanguage, pageUrl, publisherRef, webPage } from "@/lib/jsonld";
@@ -136,7 +137,7 @@ export async function InsightArticleView({
                 paragraph list used to apply inline. */}
             <div
               className="article-prose"
-              dangerouslySetInnerHTML={{ __html: content.html }}
+              dangerouslySetInnerHTML={{ __html: wrapTables(content.html, locale) }}
             />
           </Reveal>
 
