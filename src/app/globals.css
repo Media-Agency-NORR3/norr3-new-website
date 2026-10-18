@@ -324,6 +324,22 @@ html[data-city-hero-active] .site-nav .bg-ink {
   overscroll-behavior-x: contain;
 }
 
+/* In an article the prose column is narrower than most data tables, so on
+ * wider screens a table breaks out of the column: it stays centred on the
+ * article, takes the width its columns need and grows with the browser window
+ * up to 72rem, never past the page margins (6.25% each side from lg up). A
+ * small table stays the column width. Below lg it keeps the column width and
+ * scrolls sideways when it has to. */
+@media (min-width: 1024px) {
+  .article-prose > .prose-table {
+    width: max-content;
+    min-width: 100%;
+    max-width: min(72rem, calc(87.5vw - 1rem));
+    margin-left: 50%;
+    transform: translateX(-50%);
+  }
+}
+
 .prose-table:focus-visible {
   outline: 2px solid var(--color-purple);
   outline-offset: 2px;
@@ -386,6 +402,30 @@ html[data-city-hero-active] .site-nav .bg-ink {
 .dark .prose-table tfoot th,
 .dark .prose-table tfoot td {
   border-bottom: 0;
+}
+
+/* Tablets and phones: a tighter cell so more of the table fits before it
+ * scrolls. Wider screens give the table room instead (see the breakout rule). */
+@media (max-width: 1023px) {
+  .prose-table table {
+    font-size: 14px;
+  }
+
+  .prose-table th,
+  .prose-table td {
+    padding: 0.6rem 0.75rem;
+  }
+}
+
+@media (max-width: 639px) {
+  .prose-table table {
+    font-size: 13px;
+  }
+
+  .prose-table th,
+  .prose-table td {
+    padding: 0.55rem 0.7rem;
+  }
 }
 
 /* Rich-text blocks inside a composed page use the same rules. */
