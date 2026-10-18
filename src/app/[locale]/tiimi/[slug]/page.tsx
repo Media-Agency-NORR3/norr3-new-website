@@ -15,6 +15,8 @@ import { PostCard } from "@/components/social/PostCard";
 import { MemberList, PanelHeading, panelClass } from "@/components/social/ProfileParts";
 import { SkillChips } from "@/components/social/SkillChips";
 import { PortfolioGrid } from "@/components/social/PortfolioGrid";
+import { BlogCard } from "@/components/cards/BlogCard";
+import { getPosts, type CmsPost } from "@/lib/cms";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
@@ -31,6 +33,14 @@ const loadProfile = cache(async (slug: string): Promise<MemberPage | null> => {
   const rostered = content.team.find((m) => m.id === slug);
   return rostered ? { member: profileFromRoster(rostered), posts: [], highlights: [], stories: [] } : null;
 });
+
+/** Insights articles bylined to this member. Posts carry the author as a
+ *  name, so match on the normalised name rather than a slug. */
+function articlesBy(posts: CmsPost[], name: string): CmsPost[] {
+  const norm = (s: string) => s.normalize("NFKC").replace(/\s+/g, " ").trim().toLowerCase();
+  const target = norm(name);
+  return target ? posts.filter((post) => norm(post.author ?? "") === target) : [];
+}
 
 /** "About" falls back to the member's bio, but never to the shared house line. */
 async function aboutText(page: MemberPage, locale: Locale): Promise<string> {
@@ -95,11 +105,12 @@ export default async function ProfilePage({ params }: Props) {
   const page = await loadProfile(slug);
   if (!page) notFound();
 
-  const [content, socialMembers] = await Promise.all([getSiteContent(), getSocialMembers()]);
+  const [content, socialMembers, allPosts] = await Promise.all([getSiteContent(), getSocialMembers(), getPosts()]);
   const dict = content.dictionaries[locale];
   const t = dict.social;
   const { member, posts, highlights, stories } = page;
   const about = await aboutText(page, locale);
+  const articles = articlesBy(allPosts, member.name);
   const role = loc(member.role, locale);
   const url = absoluteUrl(linkTo(locale, `/tiimi/${slug}`));
   const linkedin = safeHttpUrl(member.linkedin);
@@ -218,6 +229,25 @@ export default async function ProfilePage({ params }: Props) {
                 </section>
               )}
 
+              {articles.length > 0 && (
+                <section aria-labelledby="profile-articles" className="pt-3">
+                  <h2 id="profile-articles" className="mb-4 px-1 text-[11px] font-medium uppercase tracking-[0.14em] text-purple dark:text-light-purple">
+                    {t.articles ?? (locale === "fi" ? "Artikkelit" : "Articles")}
+                  </h2>
+                  <ul className="grid gap-x-6 gap-y-10 sm:grid-cols-2">
+                    {articles.map((post) => (
+                      <li key={post.slug}>
+                        <BlogCard post={post} locale={locale} readMoreLabel={dict.common.readMore} minReadLabel={dict.insights.minRead} />
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              )}
+
+              {/* Team-feed posts. When the member has articles but no feed posts
+                  yet, the "hasn't posted anything" placeholder would contradict
+                  the list above, so the section is left out. */}
+              {(posts.length > 0 || articles.length === 0) && (
               <section aria-labelledby="profile-posts" className="pt-3">
                 <h2 id="profile-posts" className="mb-4 px-1 text-[11px] font-medium uppercase tracking-[0.14em] text-purple dark:text-light-purple">
                   {t.posts}
@@ -241,6 +271,7 @@ export default async function ProfilePage({ params }: Props) {
                   </div>
                 )}
               </section>
+              )}
             </div>
 
             <aside aria-labelledby="profile-others" className="lg:sticky lg:top-32">
