@@ -172,7 +172,7 @@ export async function InsightArticleView({
           The article closes on a share row and a way back to the index, so a
           finished read has somewhere to go besides the nav. */}
       <Container className="pb-24 pt-14 lg:pb-32 lg:pt-16">
-        <article className="mx-auto max-w-2xl">
+        <article className="mx-auto max-w-3xl">
           <Reveal>
             {/* Authored in the CMS and sanitised there against a narrow tag
                 allowlist; `.article-prose` carries the typography the hand-built
