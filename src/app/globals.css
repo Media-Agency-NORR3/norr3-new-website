@@ -258,6 +258,9 @@ html[data-city-hero-active] .site-nav .bg-ink {
 
 .article-prose a {
   color: var(--color-purple);
+  /* A bare URL as link text (source lists) is wider than a phone; let it
+     break anywhere instead of pushing the page sideways. */
+  overflow-wrap: anywhere;
   text-decoration: underline;
   text-decoration-color: color-mix(in srgb, var(--color-purple) 35%, transparent);
   text-underline-offset: 3px;
