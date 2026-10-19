@@ -24,7 +24,9 @@ export async function POST(req: NextRequest) {
 
   const password = String(form.get("password") ?? "");
   const locale = form.get("locale") === "en" ? "en" : "fi";
-  const back = `/${locale}/seo-report`;
+  // Finnish lives at the domain root, so the FI redirect goes straight to
+  // /seo-report rather than /fi/seo-report (which the proxy would only 301 on).
+  const back = locale === "en" ? "/en/seo-report" : "/seo-report";
 
   let ok = false;
   try {
