@@ -204,7 +204,7 @@ export function HeroRandomizer({
               icon: (image as { icon?: string }).icon || cardConfig[index]?.icon,
             }))}
           />
-          <Reveal delay={0.3} className="mt-7 flex flex-col items-start gap-5 lg:mt-8">
+          <Reveal immediate delay={0.3} className="mt-7 flex flex-col items-start gap-5 lg:mt-8">
             {/* An <h1> cannot sit inside a <p>, so the body is a div here: the
                 lead sentence is an inline <h1> and the rest of the intro stays
                 an inline <p>. Both inherit the wrapper's typography, so the

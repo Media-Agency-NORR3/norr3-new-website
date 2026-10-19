@@ -107,6 +107,25 @@ html {
   animation: accent-swap 0.28s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+/* Split headline (service landing pages): the same swap, but transform only.
+   The tagline is above the fold and its words must be painted at full opacity
+   in the first frame — the 0.28 s fade of `.accent-swap` would leave the LCP
+   text transparent while the mobile page is still settling. */
+@keyframes accent-swap-rise {
+  from { transform: translateY(14px); }
+  to { transform: translateY(0); }
+}
+
+.accent-swap-rise {
+  animation: accent-swap-rise 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .accent-swap-rise {
+    animation: none;
+  }
+}
+
 /* Seamless marquee: track holds two copies of the same content */
 @keyframes marquee {
   from { transform: translateX(0); }

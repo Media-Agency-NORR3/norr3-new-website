@@ -66,7 +66,19 @@ export async function generateMetadata({ params }: Props) {
   // full role stays in og:title and on the page itself.
   const firstRole = role.split(",")[0].trim();
   const title = ogTitle.length <= 60 || !firstRole ? ogTitle : `${member.name} — ${firstRole} | NØRR3`;
-  const description = excerpt([headline, about].filter(Boolean).join(" — ") || `${member.name}${role ? `, ${role}` : ""} — NØRR3`, 155);
+  // A profile with no bio yet produced a description barely longer than the
+  // job title (Nanna's was 21 characters), which Google pads with whatever it
+  // can scrape. Give those pages the house line instead — the member's name,
+  // their role and what NØRR3 is. Composed descriptions that already say
+  // something (≥ 60 chars) are left exactly as they were.
+  const composed = excerpt([headline, about].filter(Boolean).join(" — "), 155);
+  const fallbackDescription = excerpt(
+    `${member.name}${role ? `, ${role}` : ""} – NØRR3, ${
+      locale === "fi" ? "mediatoimisto Helsingissä." : "media agency in Helsinki."
+    }`,
+    155
+  );
+  const description = composed.length >= 60 ? composed : fallbackDescription;
   // The member's own portrait leads: it is what identifies them in a share card
   // (a CMS cover is a wide banner, not a face). `socialOgImage` swaps in the
   // JPG twin under /images/og/ when one exists, because social scrapers do not

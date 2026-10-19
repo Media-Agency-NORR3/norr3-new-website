@@ -23,6 +23,7 @@ export function Reveal({
   children,
   delay = 0,
   y,
+  immediate = false,
   className = "",
   as = "div",
   id,
@@ -31,6 +32,15 @@ export function Reveal({
   delay?: number;
   /** Overrides the configured reveal distance for this one element. */
   y?: number;
+  /**
+   * Above-the-fold content: render the final state in the server HTML instead
+   * of starting at opacity 0. A reveal wrapper on the first screen made the
+   * mobile LCP element invisible until the observer had hydrated and fired —
+   * PSI measured ~7 s of render delay (Oct 2026). The element is still
+   * revealed (it simply starts revealed), and nothing is ever hidden from a
+   * crawler or a no-JS visitor.
+   */
+  immediate?: boolean;
   className?: string;
   as?: "div" | "li";
   /** Forwarded so anchor links (sub-menus, hero text-links) can target a section. */
@@ -41,10 +51,10 @@ export function Reveal({
   const ref = useRef<HTMLElement | null>(null);
   // With animation switched off — or before the observer can run — render the
   // final state directly rather than hiding content.
-  const [shown, setShown] = useState(!enabled);
+  const [shown, setShown] = useState(!enabled || immediate);
 
   useEffect(() => {
-    if (!enabled) {
+    if (!enabled || immediate) {
       setShown(true);
       return;
     }
@@ -73,10 +83,10 @@ export function Reveal({
     );
     io.observe(el);
     return () => io.disconnect();
-  }, [enabled, reveal.margin]);
+  }, [enabled, reveal.margin, immediate]);
 
   const Tag = as;
-  const style: React.CSSProperties | undefined = enabled
+  const style: React.CSSProperties | undefined = enabled && !immediate
     ? {
         opacity: shown ? 1 : 0,
         transform: shown ? undefined : `translateY(${distance}px)`,

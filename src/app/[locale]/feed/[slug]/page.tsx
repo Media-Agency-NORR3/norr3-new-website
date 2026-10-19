@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { cache } from "react";
-import { isLocale } from "@/i18n/config";
+import { isLocale, type Locale } from "@/i18n/config";
 import { getSiteContent } from "@/lib/dictionary";
 import { getSocialPost, socialOgImage } from "@/lib/social";
 import { linkTo } from "@/lib/links";
@@ -32,11 +32,22 @@ export async function generateMetadata({ params }: Props) {
   const description = excerpt(text, 160) || loc(post.author.headline, locale) || `${post.author.name} — NØRR3`;
   const image = postImage(post) || post.author.photo || "/images/brand/group.webp";
   const imageUrl = socialOgImage(image);
-  const url = linkTo(locale, `/feed/${slug}`);
+  // A post declares its own language, so the canonical and the hreflang set
+  // follow the POST, not the URL the visitor happened to land on. A Finnish
+  // post read at /en/feed/<slug> points at /feed/<slug>; an English post (all
+  // of the team's posts so far) points at /en/feed/<slug> from both addresses.
+  const postLocale: Locale = post.lang === "en" ? "en" : "fi";
+  const canonical = linkTo(postLocale, `/feed/${slug}`);
+  const url = canonical;
   return {
     title,
     description,
-    alternates: { canonical: url, languages: { "fi-FI": `/feed/${slug}`, en: `/en/feed/${slug}`, "x-default": `/feed/${slug}` } },
+    alternates: {
+      canonical,
+      languages: postLocale === "fi"
+        ? { "fi-FI": `/feed/${slug}`, "x-default": `/feed/${slug}` }
+        : { en: `/en/feed/${slug}`, "x-default": `/en/feed/${slug}` },
+    },
     openGraph: {
       type: "article" as const,
       siteName: "NØRR3",

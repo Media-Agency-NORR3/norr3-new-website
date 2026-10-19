@@ -55,15 +55,25 @@ export async function ServiceLandingView({ page, locale, railEnabled }: { page: 
   return (
     <>
       <Container className="pt-12 lg:pt-16">
-        <Reveal>
-          <HeroPill>{t.title}</HeroPill>
+        {/* The page's H1 is the service name — the heading field that already
+            existed. It used to be the tagline ("Ostaja, joka etsii _sinua"),
+            so the service's own name never appeared in a heading at all. The
+            pill is exactly the markup it always was; only its element changed,
+            and Tailwind's preflight makes an <h1> and a <div> the same box. */}
+        <Reveal immediate>
+          <h1 className="block">
+            <HeroPill>{t.title}</HeroPill>
+          </h1>
         </Reveal>
+        {/* The tagline stays visible copy, now outside the heading — and the
+            caret with it, so `_` can never sit in the H1's text content. */}
         <SplitHeadline
+          as="div"
           left={t.heroLeft}
           accent={t.heroAccent}
           className="mt-6 text-[min(8vw,6.25rem)] leading-none"
         />
-        <Reveal delay={0.1} className="mt-8 flex flex-col items-start gap-6">
+        <Reveal immediate delay={0.1} className="mt-8 flex flex-col items-start gap-6">
           <p className="max-w-xl text-[15px] leading-relaxed text-ink/80 lg:text-base dark:text-white/80">{t.intro}</p>
           <div className="flex flex-wrap items-center gap-3">
             <PillButton href={linkTo(locale, "/contact")}>{dict.common.contactUs}</PillButton>

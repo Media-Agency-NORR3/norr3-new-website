@@ -4,6 +4,7 @@ import type { CaseStudy } from "@/content/cases";
 import { getCases, getSiteContent } from "@/lib/cms";
 import { linkTo } from "@/lib/links";
 import { proseHtml } from "@/lib/prose";
+import { caseTitle } from "@/lib/caseSeo";
 import { JsonLd } from "@/components/JsonLd";
 import { ORGANIZATION_ID, absolute, breadcrumbList, homeCrumb, inLanguage, pageUrl, publisherRef, webPage } from "@/lib/jsonld";
 import { Container } from "@/components/Container";
@@ -78,7 +79,7 @@ export async function CaseDetailView({
           webPage({
             url,
             locale,
-            name: locale === "fi" ? `${study.client} — NØRR3-case` : `${study.client} — NØRR3 case`,
+            name: caseTitle(study, locale),
             description: study.tagline[locale],
             image: study.image,
             extra: { mainEntity: { "@id": `${url}#case` } },
@@ -108,18 +109,18 @@ export async function CaseDetailView({
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-black/5" />
           <Container className="absolute inset-x-0 bottom-0 pb-10 lg:pb-14">
-            <Reveal>
+            <Reveal immediate>
               {/* HeroPill metrics, on-photo colours — white ink over the image. */}
               <span className="inline-flex items-center rounded-full border border-white/40 px-3.5 py-1 text-[11px] font-medium uppercase tracking-[0.14em] text-white backdrop-blur-sm">
                 {dict.cases.pill}
               </span>
             </Reveal>
-            <Reveal delay={0.05}>
+            <Reveal immediate delay={0.05}>
               <h1 className="mt-6 text-[min(13vw,8rem)] font-medium leading-[0.92] tracking-tight text-white">
                 {study.client}
               </h1>
             </Reveal>
-            <Reveal delay={0.12} className="mt-5 flex flex-col items-start gap-6">
+            <Reveal immediate delay={0.12} className="mt-5 flex flex-col items-start gap-6">
               <p className="max-w-xl text-base leading-relaxed text-white/85 lg:text-lg">{study.tagline[locale]}</p>
               <div className="flex flex-wrap gap-3">
                 <PillButton href={linkTo(locale, "/contact")} variant="lavender">

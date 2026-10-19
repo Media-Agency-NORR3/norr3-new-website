@@ -99,9 +99,11 @@ const INITIAL_ORDER = [0, 1, 2];
  * rotates through the back/mid/front slots every 2.4s, and the accent word swaps
  * in sync with whichever card holds the front slot.
  *
- * This line is a <p>, not the page's <h1>: the descriptive H1 lives on the first
- * sentence of the hero body (see HeroRandomizer), so the page keeps exactly one
- * H1 (SEO decision, Oct 2026). The whole sentence — "A New Way to Grow" — still
+ * This line is a div (not the page's <h1>) — and not a <p> either, because the
+ * card stage inside it is block-level: a <div> inside a <p> makes the parser
+ * split the paragraph and hydrate into a mismatched tree (React #418). The
+ * descriptive H1 lives on the first sentence of the hero body (see
+ * HeroRandomizer), so the page keeps exactly one H1 (SEO decision, Oct 2026). The whole sentence — "A New Way to Grow" — still
  * reaches assistive tech through the visually hidden copy below, no matter where
  * the animation sits. Reduced-motion users — and anyone before hydration — get
  * the resting state: the full left word, cards in their default slots, the
@@ -252,9 +254,15 @@ export function HomeHero({
   }, [accentWord, motion]);
 
   return (
-    <p
+    <div
       className="relative flex w-full flex-wrap items-center justify-center gap-x-1 gap-y-1 font-medium leading-none tracking-tight text-ink lg:flex-nowrap lg:justify-start lg:gap-2 dark:text-white"
     >
+      {/* A div, not a <p>: the card stage below is a block-level box, and a
+          <div> inside a <p> is invalid HTML — the parser splits the paragraph,
+          so the server markup and React's expected tree disagreed and every
+          home page load threw React #418 (hydration mismatch) and re-rendered
+          the whole tree on the client. Tailwind's preflight resets a div and a
+          p to the same box, so this is visually identical. */}
       {/* Full sentence for screen readers — every visible piece below is
           aria-hidden animated type. */}
       <span className="sr-only">{`${left} ${accent}`}</span>
@@ -384,6 +392,6 @@ export function HomeHero({
           </span>
         </span>
       </span>
-    </p>
+    </div>
   );
 }
