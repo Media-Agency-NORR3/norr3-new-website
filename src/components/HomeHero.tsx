@@ -99,10 +99,13 @@ const INITIAL_ORDER = [0, 1, 2];
  * rotates through the back/mid/front slots every 2.4s, and the accent word swaps
  * in sync with whichever card holds the front slot.
  *
- * The h1 carries the whole sentence via `aria-label`, so assistive tech and
- * crawlers always get "A New Way to Grow" no matter where the animation sits.
- * Reduced-motion users — and anyone before hydration — get the resting state:
- * the full left word, cards in their default slots, the default accent word.
+ * This line is a <p>, not the page's <h1>: the descriptive H1 lives on the first
+ * sentence of the hero body (see HeroRandomizer), so the page keeps exactly one
+ * H1 (SEO decision, Oct 2026). The whole sentence — "A New Way to Grow" — still
+ * reaches assistive tech through the visually hidden copy below, no matter where
+ * the animation sits. Reduced-motion users — and anyone before hydration — get
+ * the resting state: the full left word, cards in their default slots, the
+ * default accent word.
  */
 export function HomeHero({
   left,
@@ -249,10 +252,12 @@ export function HomeHero({
   }, [accentWord, motion]);
 
   return (
-    <h1
-      aria-label={`${left} ${accent}`}
+    <p
       className="relative flex w-full flex-wrap items-center justify-center gap-x-1 gap-y-1 font-medium leading-none tracking-tight text-ink lg:flex-nowrap lg:justify-start lg:gap-2 dark:text-white"
     >
+      {/* Full sentence for screen readers — every visible piece below is
+          aria-hidden animated type. */}
+      <span className="sr-only">{`${left} ${accent}`}</span>
       {/* Left word — types itself in, with the blinking caret trailing it.
           The visible text lives inside an inline-grid that ALSO holds an
           invisible copy of the finished word, so the box always reserves the
@@ -379,6 +384,6 @@ export function HomeHero({
           </span>
         </span>
       </span>
-    </h1>
+    </p>
   );
 }

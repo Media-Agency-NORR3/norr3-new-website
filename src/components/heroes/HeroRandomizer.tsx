@@ -177,6 +177,9 @@ export function HeroRandomizer({
   // The rotating card stack, and the fallback when nothing is eligible.
   const cardConfig = (hero?.config?.cards ?? []) as { number?: string; icon?: string }[];
   const images = heroImages(hero ?? undefined, []);
+  // The page's single H1 is the first sentence of the hero body — the animated
+  // campaign line above is a <p> now (SEO decision, Oct 2026).
+  const [leadSentence, restOfBody] = splitFirstSentence(heroText(hero?.body, "en", heroBody));
 
   return (
     <section className="relative -mt-20 flex min-h-[calc(100svh-4.25rem)] flex-col overflow-hidden bg-offwhite pt-20 dark:bg-background">
@@ -202,9 +205,19 @@ export function HeroRandomizer({
             }))}
           />
           <Reveal delay={0.3} className="mt-7 flex flex-col items-start gap-5 lg:mt-8">
-            <p className="max-w-md text-[15px] leading-relaxed text-ink/80 lg:text-base dark:text-white/80">
-              {heroText(hero?.body, "en", heroBody)}
-            </p>
+            {/* An <h1> cannot sit inside a <p>, so the body is a div here: the
+                lead sentence is an inline <h1> and the rest of the intro stays
+                an inline <p>. Both inherit the wrapper's typography, so the
+                paragraph still looks exactly like body copy. */}
+            <div className="max-w-md text-[15px] leading-relaxed text-ink/80 lg:text-base dark:text-white/80">
+              <h1 className="inline">{leadSentence}</h1>
+              {restOfBody ? (
+                <>
+                  {" "}
+                  <p className="inline">{restOfBody}</p>
+                </>
+              ) : null}
+            </div>
             {/* Primary pill + non-button ways down the page, like every other
                 hero: the pill is for buyers, the text links for browsers —
                 one into the services grid, one to the Marketing Engine. */}
@@ -228,4 +241,15 @@ export function HeroRandomizer({
 function nestedHud(hero: CmsHero | null, key: string, locale: Locale): string | undefined {
   const hud = hero?.config?.hud as Record<string, Record<string, string>> | undefined;
   return hud?.[key]?.[locale];
+}
+
+/**
+ * Split the hero body after its first sentence so the lead can carry the page's
+ * <h1> while the rest of the intro stays ordinary copy. Falls back to the whole
+ * string when there is no sentence break.
+ */
+function splitFirstSentence(text: string): [string, string] {
+  const match = text.match(/^([\s\S]*?[.!?])(?:\s+([\s\S]*))?$/);
+  if (!match) return [text, ""];
+  return [match[1], match[2] ?? ""];
 }
