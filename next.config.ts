@@ -47,6 +47,13 @@ const nextConfig: NextConfig = {
 
   async redirects() {
     return [
+      // ── www → apex, in ONE hop ──────────────────────────────────────────────
+      // `http://www.norr3.fi` used to take two redirects (the edge upgrades the
+      // scheme, then the hostname moves to the apex). Answer the hostname move
+      // here, for every path and both schemes, so a client that reaches the
+      // origin gets a single 301 straight to https://norr3.fi.
+      { source: "/:path*", has: [{ type: "host", value: "www.norr3.fi" }], destination: "https://norr3.fi/:path*", statusCode: 301 },
+
       // ── Section-prefixed detail URLs → the root slug ────────────────────────
       { source: "/cases/:slug", destination: "/:slug", statusCode: 301 },
       { source: "/insights/:slug", destination: "/:slug", statusCode: 301 },
@@ -191,6 +198,18 @@ const nextConfig: NextConfig = {
   async headers() {
     const immutable = [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }];
     return [
+      /**
+       * HSTS, one year, no preload — and deliberately without `includeSubDomains`
+       * for now: committing every subdomain (the CMS, staging hosts) to HTTPS is
+       * a decision to make deliberately, not as a side effect of this pass.
+       * Cloudflare fronts the domain and already upgrades the scheme, so this
+       * only removes the upgrade round-trip for repeat visitors and stops any
+       * plain-HTTP request from being served at the origin.
+       */
+      {
+        source: "/:path*",
+        headers: [{ key: "Strict-Transport-Security", value: "max-age=31536000" }],
+      },
       { source: "/images/:path*", headers: immutable },
       { source: "/fonts/:path*", headers: immutable },
       { source: "/heroes/:path*", headers: immutable },

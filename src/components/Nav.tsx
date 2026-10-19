@@ -8,9 +8,26 @@ import { Logo } from "./Logo";
 import { ThemeToggle } from "./ThemeToggle";
 import { Icon } from "./Icon";
 import { linkTo, otherLocaleHref, publicPath } from "@/lib/links";
-import { servicePages as bundledServicePages, servicePageLocalised, type ServicePage } from "@/content/servicePages";
+import { servicePages as bundledServicePages } from "@/content/servicePages";
 import type { Dictionary } from "@/content/dictionary";
 import type { Locale } from "@/i18n/config";
+
+/**
+ * The slice of the dictionary the header actually renders. The layout passes
+ * this instead of the whole dictionary: everything given to a client component
+ * is serialised into the RSC payload of *every* page, and the full dictionary
+ * (both locales, all ~23 page blocks) was ~112 KB of it — for four labels.
+ */
+export type NavDict = {
+  nav: Dictionary["nav"];
+  common: Pick<Dictionary["common"], "briefUs" | "toggleTheme" | "menu">;
+};
+
+/**
+ * The slice of every service page the mega-menu needs: its slug and title.
+ * The full 31-page collection was ~263 KB of the RSC payload on every page.
+ */
+export type NavServicePage = { slug: string; fi: { title: string }; en: { title: string } };
 
 // Every control in the site chrome gets the same house focus ring.
 const focusRing =
@@ -39,7 +56,7 @@ export function Nav({
     cases,
   }: {
   locale: Locale;
-  dict: Dictionary;
+  dict: NavDict;
   /** Wordmark override, editable in the CMS under Design. */
   logo?: { wordmark: string };
   /**
@@ -55,7 +72,7 @@ export function Nav({
    */
   ctas?: NavEntry[];
   /** Service landing pages (CMS-managed; bundled list is the fallback). */
-  servicePages?: ServicePage[];
+  servicePages?: NavServicePage[];
   /**
    * The cases the site currently shows (the CMS bundle leaves hidden ones
    * out), so the Caset dropdown never links to a hidden case.
@@ -72,7 +89,9 @@ export function Nav({
   // raw slug, instead of throwing on a non-null assertion.
   const spTitle = (slug: string): string => {
     const page = sp.find((p) => p.slug === slug) ?? bundledServicePages.find((p) => p.slug === slug);
-    return page ? servicePageLocalised(page, locale).title : slug;
+    if (!page) return slug;
+    const localised = locale === "en" ? page.en?.title : page.fi?.title;
+    return localised || slug;
   };
 
   const ctaLabel = (href: string, fallback: string) =>

@@ -451,14 +451,14 @@ type RawBundle = {
 /**
  * Fetch and normalise the CMS bundle.
  *
- * Revalidation is time-based as a safety net (five minutes) and tag-based for
+ * Revalidation is time-based as a safety net (one hour) and tag-based for
  * immediacy: the CMS calls `/api/revalidate` on publish, which drops these tags.
  */
 export async function getSiteContent(): Promise<SiteContent> {
   const fallback = fallbackContent();
   try {
     const res = await fetch(`${CMS_URL}/api/public/site`, {
-      next: { revalidate: 300, tags: ALL_TAGS },
+      next: { revalidate: 3600, tags: ALL_TAGS },
       signal: AbortSignal.timeout(4000),
     });
     if (!res.ok) return fallbackContent(`CMS replied ${res.status}`);
@@ -802,7 +802,7 @@ export async function getCmsPage(slug: string, cookie?: string): Promise<CmsPage
   try {
     const init: RequestInit = preview
       ? { cache: "no-store", headers: { cookie: cookie ?? "" } }
-      : { next: { revalidate: 300, tags: [CMS_TAGS.all, CMS_TAGS.pages] } };
+      : { next: { revalidate: 3600, tags: [CMS_TAGS.all, CMS_TAGS.pages] } };
     const res = await fetch(
       `${CMS_URL}/api/public/page?slug=${encodeURIComponent(slug)}${preview ? "&preview=1" : ""}`,
       { ...init, signal: AbortSignal.timeout(4000) }

@@ -13,6 +13,8 @@ import { linkTo } from "@/lib/links";
 import { ogImage } from "@/lib/ogImage";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
+import type { NavDict, NavServicePage } from "@/components/Nav";
+import type { FooterDict } from "@/components/Footer";
 import { SmoothScroll } from "@/components/SmoothScroll";
 import { RouteWipe } from "@/components/RouteWipe";
 import { CookieConsent } from "@/components/CookieConsent";
@@ -34,16 +36,21 @@ const hostGrotesk = Host_Grotesk({
  * used to be called here for the non-production noindex, which made *every*
  * route dynamic: `Cache-Control: private, no-store`, a full React render per
  * request, Cloudflare "DYNAMIC"). The CMS bundle fetch in `src/lib/cms.ts`
- * already revalidates every 300 s and carries the `cms:*` tags, so the HTML
- * is served from the ISR cache with `s-maxage=300, stale-while-revalidate`
+ * already revalidates on the same window and carries the `cms:*` tags, so the
+ * HTML is served from the ISR cache with `s-maxage=3600, stale-while-revalidate`
  * and the publish hook (`/api/revalidate` → `revalidateTag`) expires it
- * on demand. Stated here explicitly so the window stays 300 s even for a
- * page whose CMS fetch fails over to the bundled content.
+ * on demand — the window is only a safety net.
+ *
+ * The window is an hour, not five minutes (Oct 2026): a page whose cache entry
+ * had expired was re-rendered from the CMS on the request that hit it, and those
+ * cold renders measured 3–8.5 s (e.g. /insight-strategia at 8.5 s). Publishing
+ * clears the cache explicitly, so a shorter window bought nothing but slow
+ * first-hits.
  *
  * Routes that must stay dynamic opt out themselves: `/cms-preview`
  * (`force-dynamic`), `/case-preview` (cookies), `/feed` (searchParams).
  */
-export const revalidate = 300;
+export const revalidate = 3600;
 
 /**
  * Runs before first paint so the stored theme is on <html> ahead of hydration —
@@ -137,6 +144,35 @@ export default async function LocaleLayout({
   const content = await getSiteContent();
   const dict = content.dictionaries[locale];
 
+  /**
+   * The chrome only gets the fields it renders.
+   *
+   * Nav and Footer are client components, so every prop is serialised into the
+   * RSC payload that ships with *every* page. Passing the whole dictionary
+   * (~57 KB per locale, all ~23 page blocks) and the whole `servicePages`
+   * collection (~263 KB across both locales) meant the home page carried
+   * ~375 KB of payload for a menu and a footer. The menu needs each service
+   * page's title, nothing else — the full page copy is fetched by the service
+   * page itself when it renders.
+   */
+  const navDict: NavDict = {
+    nav: dict.nav,
+    common: {
+      briefUs: dict.common.briefUs,
+      toggleTheme: dict.common.toggleTheme,
+      menu: dict.common.menu,
+    },
+  };
+  const footerDict: FooterDict = {
+    footer: dict.footer,
+    cookies: { settings: dict.cookies.settings },
+  };
+  const navServicePages: NavServicePage[] = content.servicePages.map((page) => ({
+    slug: page.slug,
+    fi: { title: page.fi.title },
+    en: { title: page.en.title },
+  }));
+
   return (
     // suppressHydrationWarning: the theme script mutates <html>'s class list
     // before React hydrates, so the client class never matches the SSR one.
@@ -182,12 +218,12 @@ export default async function LocaleLayout({
               message={content.announcement?.message[locale]}
               href={content.announcement?.href || "/engine"}
             />
-            <Nav locale={locale} dict={dict} menu={content.nav.header} logo={content.brand.logo} ctas={content.ctas} servicePages={content.servicePages} cases={content.cases.map(({ slug, client }) => ({ slug, client }))} />
+            <Nav locale={locale} dict={navDict} menu={content.nav.header} logo={content.brand.logo} ctas={content.ctas} servicePages={navServicePages} cases={content.cases.map(({ slug, client }) => ({ slug, client }))} />
           </div>
           <main id="main-content" tabIndex={-1} className="flex-1 outline-none">
             {children}
           </main>
-          <Footer locale={locale} dict={dict} logo={content.brand.logo} />
+          <Footer locale={locale} dict={footerDict} logo={content.brand.logo} />
           {/* Always-visible sliding Media Insights strip — fetches its own
               page-filtered items from /api/insights (see the component). */}
           <InsightsTicker locale={locale} />

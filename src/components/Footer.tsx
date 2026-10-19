@@ -7,6 +7,16 @@ import type { Locale } from "@/i18n/config";
 import { legalPath, linkTo, publicPath } from "@/lib/links";
 import { CookieSettingsButton } from "@/components/CookieSettingsButton";
 
+/**
+ * The slice of the dictionary the footer renders. Handing a client component
+ * the whole dictionary serialises every page block of both locales into the
+ * RSC payload of every page; the footer needs two blocks.
+ */
+export type FooterDict = {
+  footer: Dictionary["footer"];
+  cookies: Pick<Dictionary["cookies"], "settings">;
+};
+
 
 export function Footer({
   locale,
@@ -14,7 +24,7 @@ export function Footer({
   logo,
 }: {
   locale: Locale;
-  dict: Dictionary;
+  dict: FooterDict;
   /** Wordmark override, editable in the CMS under Design. */
   logo?: { wordmark: string };
 }) {
