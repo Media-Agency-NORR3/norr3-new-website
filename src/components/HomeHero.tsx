@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { PixelArt } from "./PixelArt";
-import { MediaAsset } from "./MediaAsset";
+import { MediaAsset, isVideo } from "./MediaAsset";
+import { HeroVideo } from "./heroes/HeroVideo";
 import { Icon } from "./Icon";
 import { IconTileArt } from "./IconTileArt";
 
@@ -301,6 +302,17 @@ export function HomeHero({
           {deck.map((card, index) => {
             const slotIndex = slotOf[index];
             const slot = SLOTS[slotIndex];
+            // The front slot holds the largest card, so it is the page's LCP
+            // element: it is the one that gets the high-priority hint (and, for a
+            // video card, the preload below — React 19 hoists it into <head>).
+            const isFront = slotIndex === SLOTS.length - 1;
+            const video = isVideo(card.src);
+            // Only the front card is the LCP candidate. The other two are drawn
+            // behind it and load on their own: React 19 hoists a preload for
+            // every eager <img>, and the back card's still (~58 kB, 1600 px wide
+            // for a ~190 px box) was competing with the LCP fetch for no reason
+            // (Lighthouse "image delivery", Oct 2026). They stay in the first
+            // viewport and pop in a beat later, so lazy still starts immediately.
             // During the intro, a card is hidden until its turn in the pop
             // sequence (back → mid → front). After the intro `popped` is 3, so
             // every card is shown and this is always true.
@@ -331,27 +343,42 @@ export function HomeHero({
                 >
                   {/* MediaAsset rather than a plain <img>: the CMS may point a
                       card's image at a video (the DOOH loop), and this renders
-                      either without the card having to care. */}
+                      either without the card having to care. The hero's video
+                      card uses HeroVideo instead — the front card is the LCP
+                      element, and its still + deferral are handled there. */}
                   {card.icon && !card.src ? (
                     /* Icon card — the brand tile art fills the card: lavender
                        ground, lime stack, ghosts, yellow main card + icon. */
                     <IconTileArt icon={card.icon} />
                   ) : (
                     <>
-                      <MediaAsset
-                        src={card.src}
-                        alt={altText(index)}
-                        // The cards pop in back → mid → front, so the BACK card
-                        // (slot index 0) is the first one visible and is the LCP
-                        // element PSI reports. It gets the high-priority hint;
-                        // all three load eagerly. The intrinsic 9:16 size
-                        // reserves the box so the card cannot shift layout.
-                        loading="eager"
-                        fetchPriority={slotIndex === 0 ? "high" : undefined}
-                        width={900}
-                        height={1600}
-                        className="absolute inset-0 h-full w-full object-cover"
-                      />
+                      {video ? (
+                        <HeroVideo
+                          src={card.src}
+                          alt={altText(index)}
+                          priority={isFront}
+                          width={900}
+                          height={1600}
+                          className="absolute inset-0 h-full w-full object-cover"
+                        />
+                      ) : (
+                        <MediaAsset
+                          src={card.src}
+                          alt={altText(index)}
+                          // The cards pop in back → mid → front; the FRONT card
+                          // (highest slot) is the largest one on screen and is
+                          // the element PSI reports as the LCP. It gets the
+                          // eager, high-priority treatment; the two cards behind
+                          // it load lazily so they cannot delay it. The intrinsic
+                          // 9:16 size reserves the box so the card cannot shift
+                          // layout.
+                          loading={isFront ? "eager" : "lazy"}
+                          fetchPriority={isFront ? "high" : undefined}
+                          width={900}
+                          height={1600}
+                          className="absolute inset-0 h-full w-full object-cover"
+                        />
+                      )}
                       <span className="absolute inset-0 bg-gradient-to-b from-violet/15 to-ink/50" />
                     </>
                   )}

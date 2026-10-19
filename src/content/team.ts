@@ -122,6 +122,21 @@ export const team: TeamMember[] = [
  * Norr35464, Norr35493, Norr35502
  */
 
+export type TeamMemberView = Pick<TeamMember, "id" | "name" | "photo" | "role">;
+
+/**
+ * The subset of the roster the sliding team strip renders.
+ *
+ * `TeamMarquee` is a client component, so every field it is handed is serialised
+ * into the RSC payload of the page. The full roster carries per-person bios
+ * (two languages, several paragraphs each) and shoot metadata the strip never
+ * reads — that alone was ~58 kB of the home page's payload (Oct 2026 audit).
+ * Map through this before passing the roster to the strip.
+ */
+export function teamStrip(members: TeamMember[]): TeamMemberView[] {
+  return members.map(({ id, name, photo, role }) => ({ id, name, photo, role }));
+}
+
 export type OpenRole = {
   id: string;
   title: { fi: string; en: string };

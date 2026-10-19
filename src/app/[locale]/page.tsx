@@ -25,6 +25,7 @@ import { StatGrid } from "@/components/StatGrid";
 import { TeamMarquee } from "@/components/TeamMarquee";
 import { MediaAsset } from "@/components/MediaAsset";
 import { linkTo } from "@/lib/links";
+import { teamStrip } from "@/content/team";
 import { pageSeo } from "@/lib/pageSeo";
 import { JsonLd } from "@/components/JsonLd";
 import { ORGANIZATION_ID, breadcrumbList, homeCrumb, organizationNode, pageUrl, webPage, webSiteNode } from "@/lib/jsonld";
@@ -123,13 +124,12 @@ export default async function HomePage({ params }: PageProps<"/[locale]">) {
     <>
       <JsonLd data={jsonLd} />
 
-      {/* Preload the hero card photograph the hero renders first (back slot).
-          The randomising hero is client-only — pre-hydration the page holds a
-          placeholder — so without this the LCP image is only discovered after
-          the JS runs and the 4.5 s LCP PSI reported (Oct 2026) is unavoidable.
-          React 19 hoists this into <head>. If the CMS repoints the hero's first
-          card image, update this href to match. */}
-      <link rel="preload" as="image" href="/images/brand/services-planning.webp" fetchPriority="high" />
+      {/* The hero's LCP still is preloaded from inside <HomeHero> now (React 19
+          hoists it into <head>): it is derived from whichever image or video the
+          CMS puts in the FRONT card, so it cannot drift the way a hardcoded href
+          here did. The old link pointed at services-planning.webp — a card that
+          is not the LCP element — and rendered twice, once from this tag and
+          once from React's own hoist of the hero's first fetched image. */}
 
       {/* Hero — randomizes between the original HomeHero and the CityHero
           (dark Helsinki cityscape parallax) on each page load. The CityHero
@@ -314,7 +314,7 @@ export default async function HomePage({ params }: PageProps<"/[locale]">) {
               </h3>
               <p className="text-[15px] leading-relaxed text-ink/70 dark:text-white/70">{dict.home.people.body}</p>
             </Reveal>
-            <TeamMarquee locale={locale} members={content.team} />
+            <TeamMarquee locale={locale} members={teamStrip(content.team)} />
             <div className="mt-8 flex flex-wrap items-center justify-center gap-x-7 gap-y-4">
               <PillButton href={linkTo(locale, "/tiimi")} variant="secondary">{dict.common.meetTeam}</PillButton>
             </div>

@@ -21,6 +21,7 @@ import { PrinciplesGrid } from "@/components/PrinciplesGrid";
 import { MediaAsset } from "@/components/MediaAsset";
 import { linkTo } from "@/lib/links";
 import { ogImage } from "@/lib/ogImage";
+import { teamStrip } from "@/content/team";
 
 export async function generateMetadata({ params }: PageProps<"/[locale]/meista">) {
   const { locale } = await params;
@@ -206,7 +207,7 @@ export default async function AboutPage({ params }: PageProps<"/[locale]/meista"
           <SectionHeader heading={a.team.heading} body={a.team.body} />
         </Container>
         <div className="mt-14 lg:mt-16">
-          <TeamMarquee locale={locale} members={content.team} />
+          <TeamMarquee locale={locale} members={teamStrip(content.team)} />
         </div>
         <Container className="mt-12 flex justify-center">
           <PillButton href={linkTo(locale, "/tiimi")}>{dict.common.meetTeam}</PillButton>

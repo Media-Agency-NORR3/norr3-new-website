@@ -37,6 +37,7 @@ import { BLOCK_TONE, StyleScope, TONE_IS_DARK, TONE_IS_PALE, pad } from "./Block
 import { CodeEmbed } from "./CodeEmbed";
 import { cx } from "@/lib/cx";
 import { linkTo } from "@/lib/links";
+import { teamStrip } from "@/content/team";
 import { wrapTables } from "@/lib/prose";
 import type { BlockContext } from "./context";
 
@@ -585,7 +586,7 @@ function BlockSwitch({
               <p className="max-w-xl text-[15px] leading-relaxed text-ink/70 dark:text-white/70">{t("caption")}</p>
             </Container>
           )}
-          <TeamMarquee locale={locale} members={context.team} />
+          <TeamMarquee locale={locale} members={teamStrip(context.team)} />
         </section>
       );
 
