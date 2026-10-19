@@ -97,6 +97,20 @@ function withHostRobots(response: NextResponse, request: NextRequest): NextRespo
   if (!isProductionHost(request.headers.get("host"))) {
     response.headers.set("X-Robots-Tag", "noindex, nofollow");
   }
+  /**
+   * The password-gated internal SEO report keeps its noindex header on every
+   * host (production included — unlike the host rule above, this is not about
+   * the host but about the page) and must never be cached by Cloudflare or any
+   * shared proxy: the unlocked HTML carries the report itself, and the lock
+   * screen must not be stored in front of an unlocked request either.
+   * next.config.ts declares the same pair for the public paths; setting it here
+   * as well guarantees it on middleware-rewritten responses.
+   */
+  const path = request.nextUrl.pathname.replace(/\/+$/, "");
+  if (path === "/seo-report" || path === "/en/seo-report" || path === "/fi/seo-report") {
+    response.headers.set("X-Robots-Tag", "noindex, nofollow");
+    response.headers.set("Cache-Control", "private, no-store");
+  }
   return response;
 }
 
