@@ -90,7 +90,11 @@ export async function ServiceLandingView({ page, locale, railEnabled }: { page: 
             {/* Content column */}
             <div className="space-y-12">
               {t.sections.map((section, i) => (
-                <Reveal key={section.heading} delay={i * 0.05}>
+                // The first section sits in the mobile first viewport, and it
+                // was the LCP element Lighthouse reported on these pages: a
+                // reveal wrapper makes it start at opacity 0, so its paint waits
+                // for hydration. It renders revealed from the server instead.
+                <Reveal key={section.heading} delay={i * 0.05} immediate={i === 0}>
                   <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-purple dark:text-light-purple">
                     {String(i + 1).padStart(2, "0")}
                   </p>
