@@ -210,6 +210,43 @@ const nextConfig: NextConfig = {
         source: "/:path*",
         headers: [{ key: "Strict-Transport-Security", value: "max-age=31536000" }],
       },
+      /**
+       * The internal SEO competitor report is password-gated. Its own metadata
+       * already says noindex, but the header survives even on the lock-screen
+       * response and on any non-200 a cache might see, and `private, no-store`
+       * keeps an unlocked report out of Cloudflare's cache and out of any
+       * shared proxy — the unlocked HTML must never be served to the next
+       * visitor. Declared for the public path, the English path, the internal
+       * `/fi/...` rewrite target and the unlock endpoint.
+       */
+      {
+        source: "/seo-report",
+        headers: [
+          { key: "X-Robots-Tag", value: "noindex, nofollow" },
+          { key: "Cache-Control", value: "private, no-store" },
+        ],
+      },
+      {
+        source: "/en/seo-report",
+        headers: [
+          { key: "X-Robots-Tag", value: "noindex, nofollow" },
+          { key: "Cache-Control", value: "private, no-store" },
+        ],
+      },
+      {
+        source: "/fi/seo-report",
+        headers: [
+          { key: "X-Robots-Tag", value: "noindex, nofollow" },
+          { key: "Cache-Control", value: "private, no-store" },
+        ],
+      },
+      {
+        source: "/api/seo-report",
+        headers: [
+          { key: "X-Robots-Tag", value: "noindex, nofollow" },
+          { key: "Cache-Control", value: "private, no-store" },
+        ],
+      },
       { source: "/images/:path*", headers: immutable },
       { source: "/fonts/:path*", headers: immutable },
       { source: "/heroes/:path*", headers: immutable },
