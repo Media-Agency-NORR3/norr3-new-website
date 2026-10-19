@@ -7,7 +7,7 @@ import { linkTo } from "@/lib/links";
 import { wrapTables } from "@/lib/prose";
 import { ogImage } from "@/lib/ogImage";
 import { JsonLd } from "@/components/JsonLd";
-import { faqItemsFromHtml, faqPage } from "@/lib/jsonld";
+import { faqItemsFromHtml, faqPage, faqSectionFromHtml } from "@/lib/jsonld";
 import { modificationIso, publicationIso } from "@/lib/dates";
 import {
   absolute,
@@ -26,6 +26,7 @@ import { StaggerGrid } from "@/components/StaggerGrid";
 import { SectionHeader } from "@/components/SectionHeader";
 import { ShareRow } from "@/components/ShareRow";
 import { AuthorByline, AuthorCard } from "@/components/AuthorCard";
+import { ArticleFaq } from "@/components/ArticleFaq";
 import { BlogCard } from "@/components/cards/BlogCard";
 import { ContactBanner } from "@/components/ContactBanner";
 
@@ -70,6 +71,9 @@ export async function InsightArticleView({
       }).format(new Date(dateModified as string))
     : "";
   const faq = faqItemsFromHtml(content.html);
+  // The FAQ section is pulled out of the body so it can render as the house
+  // collapsible (ArticleFaq); schema and widget come from the same parse.
+  const faqSection = faqSectionFromHtml(content.html);
 
   return (
     <>
@@ -176,11 +180,31 @@ export async function InsightArticleView({
           <Reveal>
             {/* Authored in the CMS and sanitised there against a narrow tag
                 allowlist; `.article-prose` carries the typography the hand-built
-                paragraph list used to apply inline. */}
-            <div
-              className="article-prose"
-              dangerouslySetInnerHTML={{ __html: wrapTables(content.html, locale) }}
-            />
+                paragraph list used to apply inline. A FAQ section is pulled out
+                and rendered as the house collapsible (ArticleFaq) between two
+                prose runs, with the same copy the FAQPage node quotes. */}
+            {faqSection ? (
+              <>
+                {faqSection.before ? (
+                  <div
+                    className="article-prose"
+                    dangerouslySetInnerHTML={{ __html: wrapTables(faqSection.before, locale) }}
+                  />
+                ) : null}
+                <ArticleFaq section={faqSection} />
+                {faqSection.after ? (
+                  <div
+                    className="article-prose"
+                    dangerouslySetInnerHTML={{ __html: wrapTables(faqSection.after, locale) }}
+                  />
+                ) : null}
+              </>
+            ) : (
+              <div
+                className="article-prose"
+                dangerouslySetInnerHTML={{ __html: wrapTables(content.html, locale) }}
+              />
+            )}
           </Reveal>
 
           {/* Author section — the post's byline as a card with the author's

@@ -293,31 +293,63 @@ export function htmlToPlainText(value: string): string {
 }
 
 /**
- * FAQ content of an insight post. A post writes its FAQ as an `<h2>` reading
- * "Usein kysyttyä" (FI) or "FAQ" (EN) — or the English spelling — with each
- * `<h3>` under it a question and the blocks between the headings the answer.
- * The answer text is the visible copy with tags stripped, so the structured
- * data quotes what the page actually shows and nothing that was not written.
+ * The FAQ section of an article body, split out of the HTML so the page can
+ * render it as the house collapsible widget (ArticleFaq) while the structured
+ * data keeps quoting exactly the same copy. A post writes its FAQ as an
+ * `<h2>` reading "Usein kysyttyä" (FI) or "FAQ"/"Frequently asked questions"
+ * (EN), with each `<h3>` under it a question and the blocks between the
+ * headings the answer. Raw inner HTML is kept per row for rendering;
+ * `faqItemsFromHtml` derives the plain-text rows for the FAQPage node from
+ * this same parse, so the widget and its structured data cannot drift apart.
+ * A post has at most one FAQ section — the first matching heading wins.
  */
-export function faqItemsFromHtml(html: string): FaqItem[] {
-  if (!html) return [];
+export type ArticleFaqSection = {
+  /** The article body before the FAQ heading (may be empty). */
+  before: string;
+  /** Inner HTML of the section heading. */
+  heading: string;
+  /** Question (`<h3>`) and answer (the blocks that follow) as inner HTML. */
+  items: { question: string; answer: string }[];
+  /** The article body after the FAQ section (may be empty). */
+  after: string;
+};
+
+export function faqSectionFromHtml(html: string): ArticleFaqSection | null {
+  if (!html) return null;
   const sections = [...html.matchAll(/<h2[^>]*>([\s\S]*?)<\/h2>/gi)];
-  const items: FaqItem[] = [];
-  sections.forEach((section, index) => {
-    if (!FAQ_SECTION_HEADING.test(htmlToPlainText(section[1]))) return;
-    const bodyStart = (section.index ?? 0) + section[0].length;
+  for (let index = 0; index < sections.length; index += 1) {
+    const section = sections[index];
+    if (!FAQ_SECTION_HEADING.test(htmlToPlainText(section[1]))) continue;
+    const headingStart = section.index ?? 0;
+    const bodyStart = headingStart + section[0].length;
     const bodyEnd = index + 1 < sections.length ? (sections[index + 1].index ?? html.length) : html.length;
     const block = html.slice(bodyStart, bodyEnd);
     const questions = [...block.matchAll(/<h3[^>]*>([\s\S]*?)<\/h3>/gi)];
-    questions.forEach((question, qi) => {
-      const answerStart = (question.index ?? 0) + question[0].length;
-      const answerEnd = qi + 1 < questions.length ? (questions[qi + 1].index ?? block.length) : block.length;
-      const name = htmlToPlainText(question[1]);
-      const text = htmlToPlainText(block.slice(answerStart, answerEnd));
-      if (name && text) items.push({ question: name, answer: text });
-    });
-  });
-  return items;
+    const items = questions
+      .map((question, qi) => {
+        const answerStart = (question.index ?? 0) + question[0].length;
+        const answerEnd = qi + 1 < questions.length ? (questions[qi + 1].index ?? block.length) : block.length;
+        return { question: question[1], answer: block.slice(answerStart, answerEnd) };
+      })
+      .filter((row) => htmlToPlainText(row.question) && htmlToPlainText(row.answer));
+    if (items.length === 0) continue;
+    return { before: html.slice(0, headingStart), heading: section[1], items, after: html.slice(bodyEnd) };
+  }
+  return null;
+}
+
+/**
+ * FAQ content of an insight post as plain-text rows for the FAQPage node —
+ * the visible copy with tags stripped, so the structured data quotes what
+ * the page actually shows and nothing that was not written.
+ */
+export function faqItemsFromHtml(html: string): FaqItem[] {
+  const section = faqSectionFromHtml(html);
+  if (!section) return [];
+  return section.items.map((row) => ({
+    question: htmlToPlainText(row.question),
+    answer: htmlToPlainText(row.answer),
+  }));
 }
 
 /* ------------------------------------------------------------ organization */

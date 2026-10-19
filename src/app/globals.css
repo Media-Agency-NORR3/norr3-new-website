@@ -314,6 +314,31 @@ html[data-city-hero-active] .site-nav .bg-ink {
 }
 
 /*
+ * The answers of an article FAQ, rendered as the house collapsible widget
+ * (ArticleFaq). Same body colour and link treatment as `.article-prose`, a
+ * notch smaller because the rows already carry the questions in larger type.
+ */
+.faq-answer {
+  font-size: 15px;
+  line-height: 1.7;
+  color: color-mix(in srgb, var(--foreground) 75%, transparent);
+}
+
+.faq-answer > * + * { margin-top: 0.9rem; }
+
+.faq-answer a {
+  color: var(--color-purple);
+  overflow-wrap: anywhere;
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--color-purple) 35%, transparent);
+  text-underline-offset: 3px;
+}
+
+.dark .faq-answer a { color: var(--color-light-purple); }
+
+.faq-answer strong { font-weight: 600; color: var(--foreground); }
+
+/*
  * Data tables in articles and rich-text blocks (the CMS allows plain tables;
  * a total row is authored as <tfoot>). Brand treatment: first column left,
  * figures centred, purple header row, thin grey rules, light-purple total row.
