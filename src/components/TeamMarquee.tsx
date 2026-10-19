@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { Icon } from "./Icon";
-import { team as bundledTeam, type TeamMember } from "@/content/team";
+import { team as bundledTeam, type TeamMemberView } from "@/content/team";
 import type { Locale } from "@/i18n/config";
 
 /**
@@ -74,7 +74,7 @@ export function TeamMarquee({
 }: {
   locale: Locale;
   /** Roster from the CMS; the bundled list is the fallback. */
-  members?: TeamMember[];
+  members?: TeamMemberView[];
 }) {
   const [active, setActive] = useState<number | null>(null);
   // The strip pattern depends on how many people are in the roster, which the

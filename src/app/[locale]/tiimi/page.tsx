@@ -23,6 +23,7 @@ import { CountUpStat } from "@/components/CountUpStat";
 import { Icon } from "@/components/Icon";
 import { linkTo } from "@/lib/links";
 import { ogImage } from "@/lib/ogImage";
+import { teamStrip } from "@/content/team";
 
 export async function generateMetadata({ params }: PageProps<"/[locale]/tiimi">) {
   const { locale } = await params;
@@ -141,7 +142,7 @@ export default async function TeamPage({ params }: PageProps<"/[locale]/tiimi">)
         </Reveal>
       </Container>
       <div className="mt-10 lg:mt-12">
-        <TeamMarquee locale={locale} members={team} />
+        <TeamMarquee locale={locale} members={teamStrip(team)} />
       </div>
       <Container className="pb-24 pt-12 lg:pb-32">
         <Reveal className="flex flex-col items-start gap-6">
