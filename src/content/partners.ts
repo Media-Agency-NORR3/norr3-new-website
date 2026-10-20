@@ -20,7 +20,7 @@ export const partners: Partner[] = [
   { id: "vuoden-toimisto", label: "Vuoden Toimisto 2022 & 2023", src: "/images/partners/vuoden-toimisto.svg" },
   { id: "vuoden-toimisto-finalisti", label: "Vuoden Toimisto Finalisti 2024 & 2025", src: "/images/partners/vuoden-toimisto-1.svg" },
   { id: "menestyjat", label: "Menestyjät", src: "/images/partners/menestyjat.svg" },
-  { id: "meta", label: "Meta", src: "/images/partners/meta-business-partner.webp" },
+  { id: "meta", label: "Meta", src: "/images/partners/meta-business-partner-badge.webp" },
   { id: "google-partner", label: "Google Partner", src: "/images/partners/google-partner.svg" },
   { id: "iab", label: "IAB Finland", src: "/images/partners/iab.svg" },
   { id: "marketing-finland", label: "Marketing Finland", src: "/images/partners/marketing-finland.webp" },
