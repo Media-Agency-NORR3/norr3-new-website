@@ -47,7 +47,7 @@ export const partners: Partner[] = [
   { id: "ilta-sanomat", label: "Ilta-Sanomat", src: "/images/partners/ilta-sanomat.svg" },
   { id: "facebook", label: "Facebook", src: "/images/partners/facebook.svg" },
   { id: "instagram", label: "Instagram", src: "/images/partners/instagram.svg" },
-  { id: "tiktok", label: "TikTok", src: "/images/partners/tiktok.svg" },
+  { id: "tiktok", label: "TikTok", src: "/images/partners/tiktok-marketing-partners.webp" },
   { id: "jodel", label: "Jodel", src: "/images/partners/jodel.svg" },
   { id: "linkedin", label: "LinkedIn", src: "/images/partners/linkedin.svg" },
   { id: "youtube", label: "YouTube", src: "/images/partners/youtube.svg" },
