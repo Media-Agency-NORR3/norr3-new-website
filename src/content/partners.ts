@@ -59,3 +59,25 @@ export const partners: Partner[] = [
   { id: "outshine", label: "Outshine", src: "/images/partners/outshine.svg" },
   { id: "alma", label: "Alma Media", src: "/images/partners/alma.svg" },
 ];
+
+/**
+ * The footer's short line: awards, platform partner badges and industry
+ * memberships — the marks that vouch for NØRR3 itself, as opposed to the
+ * media owners and platforms we buy from, which stay in the home page marquee.
+ * Order is the order they render in.
+ */
+export const footerPartnerIds = [
+  "vuoden-toimisto",
+  "vuoden-toimisto-finalisti",
+  "menestyjat",
+  "meta",
+  "google-partner",
+  "tiktok",
+  "iab",
+  "marketing-finland",
+  "luotettava",
+] as const;
+
+export const footerPartners: Partner[] = footerPartnerIds
+  .map((id) => partners.find((partner) => partner.id === id))
+  .filter((partner): partner is Partner => Boolean(partner));

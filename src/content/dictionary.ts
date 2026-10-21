@@ -913,6 +913,7 @@ const fi = {
     copyright: "© NØRR3 2026",
     privacy: "Tietosuojaseloste",
     terms: "Käyttöehdot",
+    partnersLabel: "Kumppanit ja tunnustukset",
   },
   social: {
     pill: "FEED",
@@ -1929,6 +1930,7 @@ const en: Dictionary = {
     copyright: "© NØRR3 2026",
     privacy: "Privacy Policy",
     terms: "Terms & Conditions",
+    partnersLabel: "Partners and recognition",
   },
   social: {
     pill: "FEED",

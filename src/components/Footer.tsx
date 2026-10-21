@@ -6,6 +6,8 @@ import type { Dictionary } from "@/content/dictionary";
 import type { Locale } from "@/i18n/config";
 import { legalPath, linkTo, publicPath } from "@/lib/links";
 import { CookieSettingsButton } from "@/components/CookieSettingsButton";
+import { MediaAsset } from "@/components/MediaAsset";
+import { footerPartners } from "@/content/partners";
 
 /**
  * The slice of the dictionary the footer renders. Handing a client component
@@ -145,6 +147,29 @@ export function Footer({
             ))}
           </div>
         </div>
+      </div>
+
+      {/* Partner line: awards, platform partner badges and memberships. Each
+          mark sits on its own white tile in its original colours: the award
+          badges carry white detail on dark squares, so a white silhouette on
+          the purple would flatten them into blank blocks, and the partner
+          programmes expect their lockups unaltered. The footer is purple in
+          both themes, so one treatment covers light and dark. */}
+      <div className="mx-auto max-w-[1600px] px-6 pb-12 lg:px-14">
+        <ul
+          aria-label={dict.footer.partnersLabel}
+          className="flex flex-wrap items-center gap-3 border-t border-white/15 pt-10"
+        >
+          {footerPartners.map((partner) => (
+            <li key={partner.id} className="flex h-14 items-center rounded-lg bg-white px-4">
+              <MediaAsset
+                src={partner.src}
+                alt={partner.label}
+                className="h-8 w-auto max-w-[140px] object-contain"
+              />
+            </li>
+          ))}
+        </ul>
       </div>
 
       {/* Legal row: real routes now exist, so these are no longer href="#". */}
