@@ -1014,6 +1014,23 @@ const fi = {
       },
     },
   },
+  emailPrefs: {
+    metaTitle: "Sähköpostiasetukset | NØRR3",
+    pill: "Sähköpostiasetukset",
+    title: "Mitä haluat meiltä?",
+    intro: "Valitse, mitä viestejä lähetämme osoitteeseen {email}. Muutos tulee voimaan heti.",
+    newsletter: { title: "Uutiskirjeet", body: "Markkinoinnin ja median näkemyksiä, dataa ja ajankohtaisia asioita muutaman kerran vuodessa." },
+    events: { title: "Tapahtumat ja webinaarit", body: "Kutsut aamiaisille, koulutuksiin ja webinaareihin." },
+    surveys: { title: "Asiakaskyselyt", body: "Lyhyet kyselyt siitä, miten työmme onnistuu. Lähetämme näitä vain asiakkaillemme." },
+    save: "Tallenna valinnat",
+    saving: "Tallennetaan…",
+    saved: "Valinnat tallennettu.",
+    unsubscribeAll: "Peru kaikki viestit",
+    unsubscribedAll: "Et saa meiltä enää viestejä. Jos muutat mielesi, valitse viestit yllä ja tallenna.",
+    invalid: "Linkki ei ole voimassa. Avaa linkki uudelleen viestistämme tai kirjoita osoitteeseen info@norr3.fi, niin muutamme asetukset puolestasi.",
+    error: "Tallennus ei onnistunut. Yritä hetken päästä uudelleen tai kirjoita osoitteeseen info@norr3.fi.",
+    privacy: "Miten käsittelemme tietojasi: tietosuojaseloste",
+  },
 };
 
 const en: Dictionary = {
@@ -2029,6 +2046,23 @@ const en: Dictionary = {
         body: "Remembers settings such as language and theme, and helps us improve the experience. Does not track you.",
       },
     },
+  },
+  emailPrefs: {
+    metaTitle: "Email preferences | NØRR3",
+    pill: "Email preferences",
+    title: "What would you like from us?",
+    intro: "Choose which emails we send to {email}. Changes take effect immediately.",
+    newsletter: { title: "Newsletters", body: "Views, data and news on marketing and media a few times a year." },
+    events: { title: "Events and webinars", body: "Invitations to breakfasts, trainings and webinars." },
+    surveys: { title: "Client surveys", body: "Short surveys on how our work is going. We send these to clients only." },
+    save: "Save choices",
+    saving: "Saving…",
+    saved: "Your choices are saved.",
+    unsubscribeAll: "Unsubscribe from all",
+    unsubscribedAll: "You will not receive emails from us. If you change your mind, choose the emails above and save.",
+    invalid: "This link is not valid. Open the link from our email again, or write to info@norr3.fi and we will change your settings for you.",
+    error: "We could not save your choices. Please try again shortly or write to info@norr3.fi.",
+    privacy: "How we handle your data: privacy policy",
   },
 };
 

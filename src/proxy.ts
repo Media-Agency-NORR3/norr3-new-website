@@ -197,6 +197,7 @@ export async function proxy(request: NextRequest) {
       "/en/privacy": "/en/tietosuojaseloste",
       "/en/terms": "/en/kayttoehdot",
       "/en/cases": "/en/caset",
+      "/en/email-preferences": "/en/sahkopostiasetukset",
     };
     const aliased = EN_ALIASES[pathname.replace(/\/$/, "")];
     if (aliased) {
