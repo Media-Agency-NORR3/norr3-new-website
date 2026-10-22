@@ -66,8 +66,15 @@ const PAGE_SLUG_ALIASES: Record<string, string> = {
 function pageSlugForPath(pathname: string): string | null {
   const path = pathname.replace(/^\/en(?=\/|$)/, "").replace(/^\/+|\/+$/g, "");
   if (!path) return "home";
-  // Member profiles, the social feed and the CMS preview are not coded pages.
-  if (path.startsWith("feed/") || path.startsWith("tiimi/") || path.startsWith("cms-preview")) return null;
+  // Member profiles, the social feed, the careers detail pages and the CMS
+  // preview are not coded pages.
+  if (
+    path.startsWith("feed/") ||
+    path.startsWith("tiimi/") ||
+    path.startsWith("cms-preview") ||
+    path.startsWith("careers/")
+  )
+    return null;
   return PAGE_SLUG_ALIASES[path] ?? path;
 }
 

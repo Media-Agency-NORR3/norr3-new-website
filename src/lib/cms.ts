@@ -783,6 +783,30 @@ export async function getCaseViaPreviewApi(
   }
 }
 
+/**
+ * Draft career preview: fetches a single role from the CMS — including a hidden
+ * (`active = 0`) draft — when a valid signed `?preview=` token is supplied.
+ * The token is minted and verified by the CMS (which owns the secret), so all
+ * this function does is forward the signature and read the response.
+ */
+export async function getCareerViaPreviewApi(
+  slug: string,
+  signature: string
+): Promise<(CmsCareer & { applyUrl?: string; active?: boolean }) | undefined> {
+  const base = process.env.NORR3_CMS_URL ?? "http://127.0.0.1:3848";
+  try {
+    const res = await fetch(
+      `${base}/api/public/career?slug=${encodeURIComponent(slug)}&preview=${encodeURIComponent(signature)}`,
+      { cache: "no-store", signal: AbortSignal.timeout(8000) }
+    );
+    if (!res.ok) return undefined;
+    const data = (await res.json()) as { career?: CmsCareer & { applyUrl?: string; active?: boolean } };
+    return data.career;
+  } catch {
+    return undefined;
+  }
+}
+
 /* -------------------------------------------------------------- block pages */
 
 export type CmsPage = {
