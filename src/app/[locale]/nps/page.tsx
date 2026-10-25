@@ -7,16 +7,17 @@ import { NpsSurvey } from "@/components/NpsSurvey";
 /*
  * Client NPS survey. The 0–10 buttons in the NPS email link here with the
  * recipient's token and score (`/nps?t=<token>&s=<score>`); the score is saved
- * on arrival and the remaining questions are optional. Answers go to the
- * Supabase edge function `nps` (norr3-business-data-hub, sql/nps_2026.sql),
- * which holds every key itself, so the site needs none. The page is personal
+ * on arrival and the remaining questions are optional. Texts and questions come
+ * with the invite from the Supabase edge function `nps` (norr3-business-data-hub,
+ * sql/nps_2026.sql, sql/nps_config_signers.sql), which also stores the answers.
+ * The function holds every key itself, so the site needs none. The page is personal
  * to the recipient: never indexed, never linked from the site.
  */
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   if (!isLocale(locale)) return {};
   return {
-    title: locale === "fi" ? "Miten meillä menee? | NØRR3" : "How are we doing? | NØRR3",
+    title: locale === "fi" ? "Miten yhteistyömme sujuu? | NØRR3" : "How our cooperation is going? | NØRR3",
     robots: { index: false, follow: false },
   };
 }
