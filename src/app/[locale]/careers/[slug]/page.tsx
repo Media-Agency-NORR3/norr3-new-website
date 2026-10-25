@@ -75,7 +75,7 @@ export default async function CareerPage({ params, searchParams }: Props) {
     <>
       {isDraft && (
         <div className="z-[80] bg-yellow py-1.5 text-center text-[11px] font-semibold uppercase tracking-[0.18em] text-ink">
-          {fi ? "ESIKATSELU — ei julkaistu" : "PREVIEW — not published"}
+          {fi ? "ESIKATSELU – ei julkaistu" : "PREVIEW – not published"}
         </div>
       )}
 
