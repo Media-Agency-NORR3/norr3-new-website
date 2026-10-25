@@ -17,6 +17,7 @@ import { SkillChips } from "@/components/social/SkillChips";
 import { PortfolioGrid } from "@/components/social/PortfolioGrid";
 import { BlogCard } from "@/components/cards/BlogCard";
 import { getPosts, type CmsPost } from "@/lib/cms";
+import { leaveNote } from "@/content/team";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
@@ -209,6 +210,14 @@ export default async function ProfilePage({ params }: Props) {
                   linkedinLabel={dict.common.linkedin}
                   emailLabel={dict.common.email}
                 />
+
+              {/* Away on family leave — the profile still exists, but a client
+                  who lands here should know a reply may take a while. */}
+              {content.team.find((m) => m.id === slug)?.onLeave && (
+                <p className="inline-flex w-fit items-center rounded-full bg-yellow px-3.5 py-1.5 text-[12px] font-medium leading-none text-ink">
+                  {leaveNote[locale]}
+                </p>
+              )}
 
               {about && (
                 <section aria-labelledby="profile-about" className={`${panelClass} p-5 sm:p-8`}>

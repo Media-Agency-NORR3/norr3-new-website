@@ -14,6 +14,13 @@ export type TeamMember = {
   bio: { fi: string; en: string };
   /** True for the management team (drives the Contact page's lead-contact row). */
   lead?: boolean;
+  /**
+   * On parental leave (CMS `team_members.on_leave`). The member keeps their
+   * card and links, but the card carries a note saying so — a client who
+   * emails them anyway knows why the reply may take longer, and the roster
+   * does not silently drop a colleague.
+   */
+  onLeave?: boolean;
   /** Optional per-person links. Left undefined until real URLs/addresses are
    *  supplied — the card falls back to the company LinkedIn + info@norr3.fi
    *  rather than fabricating personal contacts. */
@@ -39,6 +46,19 @@ export const houseBio = {
 };
 
 const bio = houseBio;
+
+/**
+ * The note a card carries while its person is away on family leave. "Äitiysloma"
+ * is the everyday word, but since the 2022 family-leave reform the official,
+ * covering term for the leave a parent takes is **vanhempainvapaa** — and it is
+ * the one that reads correctly whichever parent it is, so the site uses it
+ * (EN: "On parental leave"). Kept here next to the roster rather than in the
+ * CMS dictionary: it is one standard phrase, not copy anyone edits.
+ */
+export const leaveNote = {
+  fi: "Vanhempainvapaalla",
+  en: "On parental leave",
+};
 
 /**
  * Role-based bios for members whose personal bio is not in the CMS yet.

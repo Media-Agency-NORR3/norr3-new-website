@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { Icon } from "@/components/Icon";
 import { HoverLift } from "@/components/HoverLift";
-import { houseBio as bundledHouseBio, type TeamMember } from "@/content/team";
+import { houseBio as bundledHouseBio, leaveNote, type TeamMember } from "@/content/team";
 import type { Locale } from "@/i18n/config";
 
 const COMPANY_LINKEDIN = "https://www.linkedin.com/company/norr3/";
@@ -167,6 +167,14 @@ export function TeamMemberCard({
           </p>
         ) : (
           <span aria-hidden className="mt-1.5 block h-px w-8 bg-black/15 dark:bg-white/20" />
+        )}
+        {/* Away on family leave. Sits between the role and the chips, and is
+            set in the brand yellow so it reads as a note about the person
+            rather than a second job title. */}
+        {member.onLeave && (
+          <p className="mt-2.5 inline-flex w-fit items-center rounded-full bg-yellow px-3 py-1 text-[11px] font-medium leading-none text-ink">
+            {leaveNote[locale]}
+          </p>
         )}
         <div className="mt-auto flex flex-wrap gap-2 pt-5">
           <a
