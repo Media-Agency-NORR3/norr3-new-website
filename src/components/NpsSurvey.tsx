@@ -79,6 +79,8 @@ const DEFAULT_TEXTS: Texts = {
     no: { fi: "Ei", en: "No" },
     required: { fi: "Pakollinen", en: "Required" },
     submit: { fi: "Lähetä vastaukset", en: "Send answers" },
+    save_score: { fi: "Tallenna arvosana", en: "Save score" },
+    score_saved: { fi: "Arvosana tallennettu", en: "Score saved" },
     sending: { fi: "Lähetetään…", en: "Sending…" },
     unsubscribe: { fi: "En halua jatkossa näitä kyselyitä", en: "I do not want these surveys in future" },
   },
@@ -205,15 +207,23 @@ export function NpsSurvey({ locale }: { locale: Locale }) {
   // (Safe Links, Mimecast) open every link and run this page within seconds of
   // sending, so the score is saved on the first real click, tap or key press.
   const pendingScore = useRef<number | null>(null);
+  const [savedScore, setSavedScore] = useState<number | null>(null);
+  async function saveScore(value: number) {
+    const data = await post({ t: token, score: value, language: locale }).catch(() => ({ ok: false }));
+    if (data.ok) setSavedScore(value);
+    else setError(t("messages", "error"));
+  }
   useEffect(() => {
     if (state !== "form") return;
     const savePending = (e: Event) => {
       const s = pendingScore.current;
       if (s === null) return;
-      // A click on another score saves that one in chooseScore instead.
+      // A click on another score or on the save button saves in its own handler.
       if ((e.target as Element | null)?.closest?.("[data-score-button]")) return;
       pendingScore.current = null;
-      void post({ t: token, score: s, language: locale });
+      void post({ t: token, score: s, language: locale })
+        .then((data) => data.ok && setSavedScore(s))
+        .catch(() => undefined);
     };
     const events = ["pointerdown", "keydown", "touchstart"] as const;
     events.forEach((e) => window.addEventListener(e, savePending, { capture: true }));
@@ -249,6 +259,7 @@ export function NpsSurvey({ locale }: { locale: Locale }) {
         may_contact: r?.may_contact ?? null,
         may_quote: r?.may_quote ?? null,
       });
+      setSavedScore(r?.score ?? null);
       if (fromEmail !== null && fromEmail !== r?.score) pendingScore.current = fromEmail;
       setState(r?.completed_at && fromEmail === null ? "done" : "form");
     })();
@@ -257,7 +268,7 @@ export function NpsSurvey({ locale }: { locale: Locale }) {
   async function chooseScore(value: number) {
     pendingScore.current = null;
     set("score", value);
-    await post({ t: token, score: value, language: locale });
+    await saveScore(value);
   }
 
   async function submit(e: React.FormEvent) {
@@ -337,6 +348,25 @@ export function NpsSurvey({ locale }: { locale: Locale }) {
             <span>{t("email", "low")}</span>
             <span>{t("email", "high")}</span>
           </div>
+          {q.id === "score" && current !== null && (
+            <div className="mt-4" aria-live="polite">
+              {current === savedScore ? (
+                <p className="text-sm text-ink/70 dark:text-white/70">✓ {t("survey", "score_saved")}</p>
+              ) : (
+                <button
+                  type="button"
+                  data-score-button
+                  onClick={() => {
+                    pendingScore.current = null;
+                    void saveScore(current);
+                  }}
+                  className={optionClass(true)}
+                >
+                  {t("survey", "save_score")}
+                </button>
+              )}
+            </div>
+          )}
         </fieldset>
       );
     }
