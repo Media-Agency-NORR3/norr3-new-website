@@ -203,9 +203,10 @@ export function NpsSurvey({ locale }: { locale: Locale }) {
   const score = typeof answers.score === "number" ? answers.score : null;
   const set = (id: string, v: unknown) => setAnswers((a) => ({ ...a, [id]: v }));
 
-  // The score from the email is only preselected on load. Mail security scanners
-  // (Safe Links, Mimecast) open every link and run this page within seconds of
-  // sending, so the score is saved on the first real click, tap or key press.
+  // The email promises a one-click score, so the click is sent on load as
+  // provisional: nps_save drops it when it looks like a mail security scanner
+  // (Safe Links, Mimecast open every link within minutes of sending). The first
+  // real click, tap or key press on the page confirms it.
   const pendingScore = useRef<number | null>(null);
   const [savedScore, setSavedScore] = useState<number | null>(null);
   async function saveScore(value: number) {
@@ -260,7 +261,10 @@ export function NpsSurvey({ locale }: { locale: Locale }) {
         may_quote: r?.may_quote ?? null,
       });
       setSavedScore(r?.score ?? null);
-      if (fromEmail !== null && fromEmail !== r?.score) pendingScore.current = fromEmail;
+      if (fromEmail !== null && fromEmail !== r?.score) {
+        pendingScore.current = fromEmail;
+        void post({ t: token, score: fromEmail, provisional: true, language: locale }).catch(() => undefined);
+      }
       setState(r?.completed_at && fromEmail === null ? "done" : "form");
     })();
   }, [token, scoreParam, locale]);
