@@ -201,8 +201,25 @@ export function NpsSurvey({ locale }: { locale: Locale }) {
   const score = typeof answers.score === "number" ? answers.score : null;
   const set = (id: string, v: unknown) => setAnswers((a) => ({ ...a, [id]: v }));
 
-  // Load the invite once, then save the score from the email straight away so
-  // it counts even if the recipient closes the tab here.
+  // The score from the email is only preselected on load. Mail security scanners
+  // (Safe Links, Mimecast) open every link and run this page within seconds of
+  // sending, so the score is saved on the first real click, tap or key press.
+  const pendingScore = useRef<number | null>(null);
+  useEffect(() => {
+    if (state !== "form") return;
+    const savePending = (e: Event) => {
+      const s = pendingScore.current;
+      if (s === null) return;
+      // A click on another score saves that one in chooseScore instead.
+      if ((e.target as Element | null)?.closest?.("[data-score-button]")) return;
+      pendingScore.current = null;
+      void post({ t: token, score: s, language: locale });
+    };
+    const events = ["pointerdown", "keydown", "touchstart"] as const;
+    events.forEach((e) => window.addEventListener(e, savePending, { capture: true }));
+    return () => events.forEach((e) => window.removeEventListener(e, savePending, { capture: true }));
+  }, [state, token, locale]);
+
   useEffect(() => {
     if (loaded.current) return;
     loaded.current = true;
@@ -232,12 +249,13 @@ export function NpsSurvey({ locale }: { locale: Locale }) {
         may_contact: r?.may_contact ?? null,
         may_quote: r?.may_quote ?? null,
       });
-      if (fromEmail !== null && fromEmail !== r?.score) await post({ t: token, score: fromEmail, language: locale });
+      if (fromEmail !== null && fromEmail !== r?.score) pendingScore.current = fromEmail;
       setState(r?.completed_at && fromEmail === null ? "done" : "form");
     })();
   }, [token, scoreParam, locale]);
 
   async function chooseScore(value: number) {
+    pendingScore.current = null;
     set("score", value);
     await post({ t: token, score: value, language: locale });
   }
@@ -306,6 +324,7 @@ export function NpsSurvey({ locale }: { locale: Locale }) {
               <button
                 key={i}
                 type="button"
+                data-score-button
                 aria-pressed={current === i}
                 onClick={() => (q.id === "score" ? chooseScore(i) : set(q.id, i))}
                 className={`${optionClass(current === i)} font-medium tabular-nums`}
