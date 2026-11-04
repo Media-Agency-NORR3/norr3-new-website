@@ -40,7 +40,7 @@ export const ORGANIZATION_FACTS = {
    * previews — the card then shows a broken-image placeholder. `Logo.tsx`
    * still renders the vector wordmark in the page itself.
    */
-  logo: `${SITE_URL}/logo-wordmark.png`,
+  logo: `${SITE_URL}/logo-wordmark-512.png`,
   /**
    * Public profiles. Only URLs confirmed on the site (footer) or in the CMS
    * are listed; empty strings are filtered out at build time.
