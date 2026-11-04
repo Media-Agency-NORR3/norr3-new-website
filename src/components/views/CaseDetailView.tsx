@@ -7,7 +7,7 @@ import { proseHtml } from "@/lib/prose";
 import { caseTitle } from "@/lib/caseSeo";
 import { JsonLd } from "@/components/JsonLd";
 import { ORGANIZATION_ID, absolute, breadcrumbList, homeCrumb, inLanguage, pageUrl, publisherRef, webPage } from "@/lib/jsonld";
-import { Container } from "@/components/Container";
+import { Container, HeroPill } from "@/components/Container";
 import { PillButton } from "@/components/PillButton";
 import { Reveal } from "@/components/Reveal";
 import { StaggerGrid } from "@/components/StaggerGrid";
@@ -16,7 +16,6 @@ import { CaseCard } from "@/components/cards/CaseCard";
 import { ContactBanner } from "@/components/ContactBanner";
 import { StatGrid } from "@/components/StatGrid";
 import { CountUpStat } from "@/components/CountUpStat";
-import { ParallaxImage } from "@/components/ParallaxImage";
 import { Icon } from "@/components/Icon";
 
 /**
@@ -88,53 +87,50 @@ export async function CaseDetailView({
         ]}
       />
 
-      {/* Editorial hero — magazine opener */}
-      <section className="relative">
-        <div className="relative aspect-[4/5] w-full overflow-hidden sm:aspect-[16/10] lg:aspect-[16/7]">
-          {study.parallax ? (
-            <ParallaxImage
-              src={study.image}
-              alt={`${study.client} — ${study.tagline[locale]}`}
-              className="absolute inset-0 h-full w-full object-cover"
-            />
-          ) : (
-            <img
-              src={study.image}
-              alt={`${study.client} — ${study.tagline[locale]}`}
-              width={1600}
-              height={1066}
-              fetchPriority="high"
-              className="absolute inset-0 h-full w-full object-cover"
-            />
-          )}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-black/5" />
-          <Container className="absolute inset-x-0 bottom-0 pb-10 lg:pb-14">
-            <Reveal immediate>
-              {/* HeroPill metrics, on-photo colours — white ink over the image. */}
-              <span className="inline-flex items-center rounded-full border border-white/40 px-3.5 py-1 text-[11px] font-medium uppercase tracking-[0.14em] text-white backdrop-blur-sm">
-                {dict.cases.pill}
-              </span>
-            </Reveal>
-            <Reveal immediate delay={0.05}>
-              <h1 className="mt-6 text-[min(13vw,8rem)] font-medium leading-[0.92] tracking-tight text-white">
-                {study.client}
-              </h1>
-            </Reveal>
-            <Reveal immediate delay={0.12} className="mt-5 flex flex-col items-start gap-6">
-              <p className="max-w-xl text-base leading-relaxed text-white/85 lg:text-lg">{study.tagline[locale]}</p>
-              <div className="flex flex-wrap gap-3">
-                <PillButton href={linkTo(locale, "/contact")} variant="lavender">
-                  {dict.common.contactUs}
-                </PillButton>
-                {/* A way back to the index from a case that was landed on
-                    directly — previously the nav was the only exit. */}
-                <PillButton href={linkTo(locale, "/caset")} variant="outlineLight">
-                  {dict.common.allCases}
-                </PillButton>
-              </div>
-            </Reveal>
-          </Container>
+      {/* Case plate — the case's own creative, shown WHOLE on a dark stage
+          (`object-contain`): a cover crop turned a 16:9 poster into an
+          unreadable fragment on a phone. The stage only shows through where the
+          artwork is narrower than the band. */}
+      <section className="bg-ink dark:bg-[#0e0b16]">
+        <div className="relative aspect-[4/3] w-full overflow-hidden sm:aspect-[16/10] lg:aspect-[2/1]">
+          <img
+            src={study.image}
+            alt={`${study.client} — ${study.tagline[locale]}`}
+            width={1600}
+            height={1066}
+            fetchPriority="high"
+            className="absolute inset-0 h-full w-full object-contain"
+          />
         </div>
+      </section>
+
+      {/* Title block. The title used to sit ON the photo, which only worked
+          while the photo was cropped to a plain background — over a whole ad
+          creative the heading and the ad's own type fought each other. */}
+      <section className="pb-12 pt-12 lg:pb-16 lg:pt-16">
+        <Container>
+          <Reveal immediate>
+            <HeroPill>{dict.cases.pill}</HeroPill>
+          </Reveal>
+          <Reveal immediate delay={0.05}>
+            <h1 className="mt-5 text-[min(13vw,8rem)] font-medium leading-[0.92] tracking-tight text-ink dark:text-white">
+              {study.client}
+            </h1>
+          </Reveal>
+          <Reveal immediate delay={0.12} className="mt-5 flex flex-col items-start gap-6">
+            <p className="max-w-xl text-base leading-relaxed text-ink/70 lg:text-lg dark:text-white/70">
+              {study.tagline[locale]}
+            </p>
+            <div className="flex flex-wrap gap-3">
+              <PillButton href={linkTo(locale, "/contact")}>{dict.common.contactUs}</PillButton>
+              {/* A way back to the index from a case that was landed on
+                  directly — previously the nav was the only exit. */}
+              <PillButton href={linkTo(locale, "/caset")} variant="secondary">
+                {dict.common.allCases}
+              </PillButton>
+            </div>
+          </Reveal>
+        </Container>
       </section>
 
       {/* Intro lede — deliberately tighter than the page rhythm, because the
@@ -272,41 +268,51 @@ export async function CaseDetailView({
         </Container>
       )}
 
-      {/* Methods */}
-      <section className="pb-24 lg:pb-32">
-        <Container>
-          <Reveal>
-            <h2 className="text-3xl font-medium leading-[1.15] tracking-tight text-ink lg:text-4xl dark:text-white">
-              {d.methods}
-            </h2>
-          </Reveal>
-          <ul className="mt-10 grid gap-card-gap sm:grid-cols-3 lg:mt-12">
-            {study.methods.map((m, i) => (
-              <Reveal
-                key={m[locale].title}
-                as="li"
-                delay={i * 0.08}
-                className="flex h-full flex-col gap-5 rounded-card bg-grey/70 p-card-pad dark:bg-white/[0.04] dark:ring-1 dark:ring-white/10"
-              >
-                <div className="flex h-[64px] w-[64px] items-center justify-center rounded-[5px] bg-yellow text-ink">
-                  <Icon name={m.icon} style={{ fontSize: "28px" }} />
-                </div>
-                <div>
-                  <h3 className="text-lg font-medium text-ink dark:text-white">{m[locale].title}</h3>
-                  <p className="mt-2.5 text-sm leading-relaxed text-ink/65 dark:text-white/65">{m[locale].body}</p>
-                </div>
-              </Reveal>
-            ))}
-          </ul>
-        </Container>
-      </section>
+      {/* Methods — only when the case actually lists them; otherwise the
+          heading sat over an empty grid (Beely, GT Musiikkiluvat) and read as a
+          broken layout with a blank band under it. */}
+      {(study.methods?.length ?? 0) > 0 && (
+        <section className="pb-24 lg:pb-32">
+          <Container>
+            <Reveal>
+              <h2 className="text-3xl font-medium leading-[1.15] tracking-tight text-ink lg:text-4xl dark:text-white">
+                {d.methods}
+              </h2>
+            </Reveal>
+            <ul className="mt-10 grid gap-card-gap sm:grid-cols-3 lg:mt-12">
+              {study.methods.map((m, i) => (
+                <Reveal
+                  key={m[locale].title}
+                  as="li"
+                  delay={i * 0.08}
+                  className="flex h-full flex-col gap-5 rounded-card bg-grey/70 p-card-pad dark:bg-white/[0.04] dark:ring-1 dark:ring-white/10"
+                >
+                  <div className="flex h-[64px] w-[64px] items-center justify-center rounded-[5px] bg-yellow text-ink">
+                    <Icon name={m.icon} style={{ fontSize: "28px" }} />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-medium text-ink dark:text-white">{m[locale].title}</h3>
+                    <p className="mt-2.5 text-sm leading-relaxed text-ink/65 dark:text-white/65">{m[locale].body}</p>
+                  </div>
+                </Reveal>
+              ))}
+            </ul>
+          </Container>
+        </section>
+      )}
 
       {/* 3. Results */}
       <Container className="pb-24 lg:pb-32">
-        {/* Photo echo — same shot, wider crop, on a slow parallax: a visual
-            breather before the numbers. Decorative duplicate, so alt="". */}
-        <Reveal className="mb-16 aspect-[16/6] w-full overflow-hidden rounded-card lg:mb-20">
-          <ParallaxImage src={study.image} />
+        {/* Photo echo — same shot, on the same matte as the gallery rather than
+            a wide `object-cover` band, which sliced the artwork. Decorative
+            duplicate, so alt="". */}
+        <Reveal className="mb-16 items-center justify-center overflow-hidden rounded-card bg-grey/70 dark:bg-white/[0.04] lg:mb-20">
+          <img
+            src={study.image}
+            alt=""
+            loading="lazy"
+            className="aspect-[4/3] w-full object-contain sm:aspect-[16/8]"
+          />
         </Reveal>
 
         <Reveal className="grid gap-5 lg:grid-cols-[minmax(0,16rem)_minmax(0,1fr)] lg:gap-14">
@@ -351,31 +357,42 @@ export async function CaseDetailView({
                 {d.creative}
               </h2>
             </Reveal>
-            <StaggerGrid className="mt-10 grid gap-card-gap sm:grid-cols-2 lg:mt-12">
-              {gallery.map((image, i) => (
-                <figure
-                  key={image.src + i}
-                  className={
-                    // A lone trailing picture spans the row so the grid never
-                    // ends on a half-empty line.
-                    gallery.length % 2 === 1 && i === gallery.length - 1 ? "sm:col-span-2" : undefined
-                  }
-                >
-                  <div className="overflow-hidden rounded-card bg-grey/70 dark:bg-white/[0.04]">
-                    <img
-                      src={image.src}
-                      alt={image.alt[locale] || `${study.client} — ${i + 1}`}
-                      loading="lazy"
-                      className="aspect-[4/3] h-full w-full object-cover"
-                    />
-                  </div>
-                  {image.caption[locale] && (
-                    <figcaption className="mt-3 text-sm leading-relaxed text-ink/60 dark:text-white/60">
-                      {image.caption[locale]}
-                    </figcaption>
-                  )}
-                </figure>
-              ))}
+            <StaggerGrid
+              // The col-span goes on the grid ITEM, which is the wrapper
+              // StaggerGrid renders per child — a class written on the <figure>
+              // itself is inert, so a lone picture stuck in the left column.
+              className={`mt-10 grid gap-card-gap sm:grid-cols-2 lg:mt-12 ${
+                gallery.length % 2 === 1 ? "sm:[&>*:last-child]:col-span-2" : ""
+              }`}
+            >
+              {gallery.map((image, i) => {
+                // A lone trailing picture takes the whole row so a case with
+                // one creative reads as an editorial plate, not a half-empty
+                // grid — and gets a wider frame to match.
+                const wide = gallery.length % 2 === 1 && i === gallery.length - 1;
+                return (
+                  <figure key={image.src + i} className="flex h-full flex-col">
+                    {/* Creatives are finished artwork (ads, posters, TV frames)
+                        in every aspect ratio there is, so they are fitted whole
+                        inside the frame (`object-contain`) on a matte instead of
+                        being cropped to fill it — a slice through a 1080×1080
+                        poster cut its headline off. */}
+                    <div className="flex flex-1 items-center justify-center overflow-hidden rounded-card bg-grey/70 dark:bg-white/[0.04]">
+                      <img
+                        src={image.src}
+                        alt={image.alt[locale] || `${study.client} — ${i + 1}`}
+                        loading="lazy"
+                        className={`w-full object-contain ${wide ? "aspect-[3/2]" : "aspect-[4/3]"}`}
+                      />
+                    </div>
+                    {image.caption[locale] && (
+                      <figcaption className="mt-3 text-sm leading-relaxed text-ink/60 dark:text-white/60">
+                        {image.caption[locale]}
+                      </figcaption>
+                    )}
+                  </figure>
+                );
+              })}
             </StaggerGrid>
           </Container>
         </section>

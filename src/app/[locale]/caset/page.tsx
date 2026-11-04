@@ -22,7 +22,11 @@ import { linkTo } from "@/lib/links";
 import { ogImage } from "@/lib/ogImage";
 
 /** Editorial widths for the hero collage — varied, so the strip reads as a
- *  magazine contact sheet rather than a uniform row of thumbnails. */
+ *  magazine contact sheet rather than a uniform row of thumbnails. They are
+ *  flex bases, not fixed widths: the row is allowed to shrink them so every
+ *  tile fits inside the container instead of being sliced off at the right
+ *  edge (the strip used to overflow `overflow-hidden` by ~180px on a 1440
+ *  viewport, cutting the last tile in half). */
 const TILE_WIDTHS = ["w-40 sm:w-56", "w-32 sm:w-44", "w-36 sm:w-52", "w-32 sm:w-44"];
 
 export async function generateMetadata({ params }: PageProps<"/[locale]/caset">) {
@@ -122,33 +126,45 @@ export default async function CasesPage({ params }: PageProps<"/[locale]/caset">
           className="mt-6 text-[min(9vw,6.25rem)] leading-none"
         />
         {/* Photo collage strip — real case photography, one tile per case, with
-            the client named on the tile so the strip is legible, not abstract. */}
-        <div className="mt-10 flex items-end gap-3 overflow-hidden lg:mt-12">
-          {cases.map((study, i) => (
-            <Reveal key={study.slug} delay={0.15 + i * 0.08} className={`relative shrink-0 ${TILE_WIDTHS[i % TILE_WIDTHS.length]}`}>
-              <img
-                src={study.image}
-                alt={`${study.client} — ${study.tagline[locale]}`}
-                width={1600}
-                height={1066}
-                className="h-40 w-full object-cover sm:h-56"
-                // The first tile is in the hero viewport — it should not wait
-                // for the lazy pass like the ones scrolling in behind it.
-                loading={i === 0 ? "eager" : "lazy"}
-                fetchPriority={i === 0 ? "high" : undefined}
-              />
-              <span
-                aria-hidden
-                className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent px-3 pb-2 pt-8 text-[11px] font-medium uppercase tracking-[0.14em] text-white"
-              >
+            the client named under the tile so the strip is legible, not
+            abstract. Tiles shrink/grow to fit the row exactly (they used to
+            overflow `overflow-hidden` and get sliced at the right edge), the
+            creative is shown WHOLE on a matte (a case picture carries the
+            client's own logo, which a square crop cut), and only the first few
+            show below `lg` — nine slivers on a phone are unreadable. */}
+        <div className="mt-10 flex items-start gap-3 lg:mt-12">
+          {cases.slice(0, 5).map((study, i) => (
+            <Reveal
+              key={study.slug}
+              delay={0.15 + i * 0.08}
+              className={`relative min-w-0 shrink grow ${TILE_WIDTHS[i % TILE_WIDTHS.length]} ${
+                i >= 3 ? "hidden lg:block" : i === 2 ? "hidden sm:block" : ""
+              }`}
+            >
+              <div className="flex h-36 w-full items-center justify-center overflow-hidden rounded-card bg-grey/70 sm:h-44 dark:bg-white/[0.04]">
+                <img
+                  src={study.image}
+                  alt={`${study.client} — ${study.tagline[locale]}`}
+                  width={1600}
+                  height={1066}
+                  className="h-full w-full object-contain"
+                  // The first tile is in the hero viewport — it should not wait
+                  // for the lazy pass like the ones scrolling in behind it.
+                  loading={i === 0 ? "eager" : "lazy"}
+                  fetchPriority={i === 0 ? "high" : undefined}
+                />
+              </div>
+              {/* `truncate`: the tiles shrink to fit the row, so a long client
+                  name wrapped/overflowed its tile and read as a clipped label. */}
+              <span className="mt-2 block truncate text-[11px] font-medium uppercase tracking-[0.14em] text-ink/70 dark:text-white/70">
                 {study.client}
               </span>
             </Reveal>
           ))}
           {/* Purple stat tile — the brand's solid-colour tile among the photos */}
-          <Reveal delay={0.15 + cases.length * 0.08} className="relative hidden shrink-0 w-36 sm:block sm:w-52">
-            <div className="flex h-40 w-full flex-col items-center justify-center gap-1 bg-purple px-4 text-center text-white sm:h-56">
-              <span className="text-4xl font-medium tabular-nums tracking-tight sm:text-5xl">
+          <Reveal delay={0.15 + cases.length * 0.08} className="relative hidden w-36 min-w-0 shrink grow sm:block sm:w-52">
+            <div className="flex h-36 w-full flex-col items-center justify-center gap-1 rounded-card bg-purple px-4 text-center text-white sm:h-44">
+              <span className="text-3xl font-medium tabular-nums tracking-tight sm:text-4xl">
                 <CountUpStat
                   value={statCase.kpi.value}
                   decimals={statCase.kpi.decimals ?? 0}
