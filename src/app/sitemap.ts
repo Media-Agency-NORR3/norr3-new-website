@@ -106,7 +106,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         priority: route === "" ? 1 : 0.8,
         // The brand logo, as a raster file, so image crawlers index the one
         // image answer engines use to represent NØRR3.
-        images: route === "" ? [`${BASE}/logo-wordmark.png`] : undefined,
+        images: route === "" ? [`${BASE}/logo-wordmark-512.png`] : undefined,
       })
     ),
     ...content.cases.flatMap((study) => entry(study.slug, { priority: 0.6 })),
