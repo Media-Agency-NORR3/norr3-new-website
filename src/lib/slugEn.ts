@@ -78,6 +78,9 @@ export const POST_EN_SLUG: Record<string, string> = {
   "tre-kronor-media": "tre-kronor-media-finland",
   "voittava-mediamix-2024": "winning-media-mix-2024",
   "isojen-ruutujen-trendit": "big-screen-trends",
+  "radiomainonnan-hinta-ja-kuuntelijamaarat-2026": "radio-advertising-costs-and-listeners-2026",
+  "somekanavien-kayttajat-suomessa-2026": "social-media-users-in-finland-2026",
+  "kampanjasuunnitelma-nain-teet-sen": "how-to-make-a-campaign-plan",
 };
 
 /** Every known FI → EN path (exact slugs). */
@@ -98,10 +101,15 @@ const FI_FROM_EN: Record<string, string> = Object.fromEntries(
   Object.entries(ALL).map(([fi, en]) => [en, fi])
 );
 
-/** The English path for a Finnish slug, honouring a CMS override when given. */
+/**
+ * The English path for a Finnish slug, honouring a CMS override when given.
+ * A CMS value that only repeats the Finnish slug is not an override: the CMS
+ * copies `slug` into `slug_en` when a post is created, and the post editor
+ * cannot change `slug_en` yet, so such a row falls through to this table.
+ */
 export function enSlugFor(fiSlug: string, cmsSlugEn?: string | null): string {
   const override = (cmsSlugEn ?? "").trim().replace(/^\/+|\/+$/g, "");
-  if (override) return override;
+  if (override && override !== fiSlug.replace(/^\/+|\/+$/g, "")) return override;
   return eagerEn(fiSlug);
 }
 
