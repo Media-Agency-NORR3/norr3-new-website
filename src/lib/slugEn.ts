@@ -81,6 +81,7 @@ export const POST_EN_SLUG: Record<string, string> = {
   "radiomainonnan-hinta-ja-kuuntelijamaarat-2026": "radio-advertising-costs-and-listeners-2026",
   "somekanavien-kayttajat-suomessa-2026": "social-media-users-in-finland-2026",
   "kampanjasuunnitelma-nain-teet-sen": "how-to-make-a-campaign-plan",
+  "natiivimainonta-2026": "native-advertising-in-finland-2026",
 };
 
 /** Every known FI → EN path (exact slugs). */
