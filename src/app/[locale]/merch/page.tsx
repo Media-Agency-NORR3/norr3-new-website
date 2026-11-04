@@ -12,7 +12,7 @@ import { StaggerGrid } from "@/components/StaggerGrid";
 import { SectionHeader } from "@/components/SectionHeader";
 import { Icon } from "@/components/Icon";
 import { ProductArt, type ProductArtKind } from "@/components/merch/ProductArt";
-import { linkTo } from "@/lib/links";
+import { languageAlternates, linkTo } from "@/lib/links";
 import { ogImage } from "@/lib/ogImage";
 
 export async function generateMetadata({ params }: PageProps<"/[locale]/merch">) {
@@ -30,7 +30,7 @@ export async function generateMetadata({ params }: PageProps<"/[locale]/merch">)
     robots: robotsDirective(seo.robots),
     alternates: {
       canonical: seo.canonical || linkTo(locale, "/merch"),
-      languages: { "fi-FI": "/merch", en: "/en/merch", "x-default": "/merch" },
+      languages: languageAlternates("merch"),
     },
     openGraph: {
       type: "website" as const,

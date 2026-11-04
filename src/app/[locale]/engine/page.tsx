@@ -19,7 +19,7 @@ import { FloatingCard } from "@/components/FloatingCard";
 import { HoverLift } from "@/components/HoverLift";
 import { EngineAppsShowcase } from "@/components/heroes/EngineAppsShowcase";
 import { Icon } from "@/components/Icon";
-import { linkTo } from "@/lib/links";
+import { languageAlternates, linkTo } from "@/lib/links";
 import { ogImage } from "@/lib/ogImage";
 
 export async function generateMetadata({ params }: PageProps<"/[locale]/engine">) {
@@ -35,7 +35,7 @@ export async function generateMetadata({ params }: PageProps<"/[locale]/engine">
     title: seo.title,
     description: seo.description,
     robots: robotsDirective(seo.robots),
-    alternates: { canonical: seo.canonical || linkTo(locale, "/engine"), languages: { "fi-FI": "/engine", en: "/en/engine", "x-default": "/engine" } },
+    alternates: { canonical: seo.canonical || linkTo(locale, "/engine"), languages: languageAlternates("engine") },
     openGraph: {
       type: "website" as const,
       siteName: "NØRR3",

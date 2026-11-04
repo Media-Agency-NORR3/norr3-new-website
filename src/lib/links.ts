@@ -1,4 +1,5 @@
 import type { Locale } from "@/i18n/config";
+import { enPath, enSlugFor, fiSlugFor } from "@/lib/slugEn";
 
 /**
  * Public URL helpers.
@@ -8,13 +9,41 @@ import type { Locale } from "@/i18n/config";
  * two locales still resolve to distinct URLs for hreflang. Internally the app
  * keeps routing through the existing `[locale]` segment (`fi`/`en`); middleware
  * rewrites root-level requests to `/fi` transparently.
+ *
+ * English addresses read English: `/hakukonemainonta` is
+ * `/en/search-engine-advertising`, not `/en/hakukonemainonta` (see `slugEn.ts`).
+ * `linkTo` applies that mapping itself, so every caller — nav, footer, cards,
+ * metadata, canonical, hreflang — gets the right address without knowing the
+ * table.
  */
 
 /** A locale-relative path (leading slash optional) as its public URL. */
 export function linkTo(locale: Locale, path = ""): string {
   const clean = path.startsWith("/") ? path : `/${path}`;
-  if (locale === "en") return clean === "/" ? "/en" : `/en${clean}`;
+  if (locale === "en") {
+    // Translate the Finnish slug into its English address, keeping `#fragment`
+    // and `?query` suffixes (a `/engine#tuote` link stays an anchor).
+    const english = enPath(clean);
+    return english === "/" ? "/en" : `/en${english}`;
+  }
   return clean === "/" ? "/" : clean;
+}
+
+/**
+ * The FI and EN URLs of the same page, given its Finnish (canonical) slug and
+ * an optional CMS-managed English slug override. Drives `canonical` and the
+ * `hreflang` alternates so both locales point at each other's real address.
+ */
+export function pagePair(fiSlug: string, cmsSlugEn?: string | null): { fi: string; en: string } {
+  const clean = fiSlug.replace(/^\/+|\/+$/g, "");
+  const enSlug = clean ? enSlugFor(clean, cmsSlugEn) : "";
+  return { fi: linkTo("fi", clean ? `/${clean}` : "/"), en: linkTo("en", enSlug ? `/${enSlug}` : "/") };
+}
+
+/** The `alternates.languages` block for a page, from its Finnish slug. */
+export function languageAlternates(fiSlug: string, cmsSlugEn?: string | null) {
+  const { fi, en } = pagePair(fiSlug, cmsSlugEn);
+  return { "fi-FI": fi, en, "x-default": fi };
 }
 
 /**
@@ -62,22 +91,19 @@ export function publicPath(href: string): string {
   return segments.join("/") + rest.join("");
 }
 
-/** The same page in the other locale, given the current browser pathname. */
+/**
+ * The same page in the other locale, given the current browser pathname.
+ *
+ * The two locales use different slugs (Finnish `/hakukonemainonta`, English
+ * `/en/search-engine-advertising`), so the switch maps the path through
+ * `slugEn.ts` rather than just swapping the prefix — the Finnish page links to
+ * the English page's real address, and vice-versa.
+ */
 export function otherLocaleHref(pathname: string, current: Locale): string {
   const other: Locale = current === "fi" ? "en" : "fi";
   const stripped = pathname.replace(/^\/(?:en|fi)(?=\/|$)/, "");
-  // The legal pages use different slugs per locale; map either form to the
-  // other locale's slug so the language switch lands on the canonical URL,
-  // not a Finnish-slug English URL (or vice-versa).
-  const WITHOUT_PREFIX = stripped.replace(/^\/|\/$/g, "");
-  const LEGAL_TO_PAGE: Record<string, "privacy" | "terms"> = {
-    tietosuojaseloste: "privacy",
-    "privacy-policy": "privacy",
-    privacy: "privacy",
-    kayttoehdot: "terms",
-    terms: "terms",
-  };
-  const page = LEGAL_TO_PAGE[WITHOUT_PREFIX];
-  if (page) return legalPath(other, page);
-  return linkTo(other, stripped || "/");
+  const slug = stripped.replace(/^\/+|\/+$/g, "");
+  if (!slug) return linkTo(other, "/");
+  if (other === "en") return linkTo("en", `/${slug}`);
+  return linkTo("fi", `/${fiSlugFor(slug)}`);
 }

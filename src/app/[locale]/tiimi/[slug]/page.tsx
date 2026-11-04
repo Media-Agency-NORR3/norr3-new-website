@@ -4,7 +4,7 @@ import { cache } from "react";
 import { isLocale, type Locale } from "@/i18n/config";
 import { getSiteContent } from "@/lib/dictionary";
 import { getSocialMember, getSocialMembers, profileFromRoster, socialOgImage, type MemberPage } from "@/lib/social";
-import { linkTo } from "@/lib/links";
+import { languageAlternates, linkTo } from "@/lib/links";
 import { absoluteUrl, excerpt, fill, loc, paragraphs, safeHttpUrl, type MemberSummary } from "@/lib/socialFormat";
 import { JsonLd } from "@/components/JsonLd";
 import { ORGANIZATION_ID, WEBSITE_ID, breadcrumbList, homeCrumb, inLanguage, organizationRef, pageUrl, personId } from "@/lib/jsonld";
@@ -95,7 +95,7 @@ export async function generateMetadata({ params }: Props) {
   return {
     title,
     description,
-    alternates: { canonical: url, languages: { "fi-FI": `/tiimi/${slug}`, en: `/en/tiimi/${slug}`, "x-default": `/tiimi/${slug}` } },
+    alternates: { canonical: url, languages: languageAlternates(`tiimi/${slug}`) },
     openGraph: {
       type: "profile" as const,
       siteName: "NØRR3",

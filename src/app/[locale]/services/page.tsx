@@ -19,7 +19,7 @@ import { CaseCard } from "@/components/cards/CaseCard";
 import { BlogCard } from "@/components/cards/BlogCard";
 import { ContactBanner } from "@/components/ContactBanner";
 import { Icon } from "@/components/Icon";
-import { linkTo } from "@/lib/links";
+import { languageAlternates, linkTo } from "@/lib/links";
 import { ogImage } from "@/lib/ogImage";
 import { servicePageLocalised } from "@/content/servicePages";
 
@@ -38,7 +38,7 @@ export async function generateMetadata({ params }: PageProps<"/[locale]/services
     title: seo.title,
     description: seo.description,
     robots: robotsDirective(seo.robots),
-    alternates: { canonical: seo.canonical || linkTo(locale, "/services"), languages: { "fi-FI": "/services", en: "/en/services", "x-default": "/services" } },
+    alternates: { canonical: seo.canonical || linkTo(locale, "/services"), languages: languageAlternates("services") },
     openGraph: {
       type: "website" as const,
       siteName: "NØRR3",

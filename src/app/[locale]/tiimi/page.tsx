@@ -21,7 +21,7 @@ import { ContactBanner } from "@/components/ContactBanner";
 import { StatGrid } from "@/components/StatGrid";
 import { CountUpStat } from "@/components/CountUpStat";
 import { Icon } from "@/components/Icon";
-import { linkTo } from "@/lib/links";
+import { languageAlternates, linkTo } from "@/lib/links";
 import { ogImage } from "@/lib/ogImage";
 import { teamStrip } from "@/content/team";
 
@@ -40,7 +40,7 @@ export async function generateMetadata({ params }: PageProps<"/[locale]/tiimi">)
     title: seo.title,
     description: seo.description,
     robots: robotsDirective(seo.robots),
-    alternates: { canonical: seo.canonical || linkTo(locale, "/tiimi"), languages: { "fi-FI": "/tiimi", en: "/en/tiimi", "x-default": "/tiimi" } },
+    alternates: { canonical: seo.canonical || linkTo(locale, "/tiimi"), languages: languageAlternates("tiimi") },
     openGraph: {
       type: "website" as const,
       siteName: "NØRR3",

@@ -8,7 +8,7 @@ import { Reveal } from "@/components/Reveal";
 import { BriefForm } from "@/components/BriefForm";
 import { JsonLd } from "@/components/JsonLd";
 import { homeCrumb, pageGraph, pageUrl } from "@/lib/jsonld";
-import { linkTo } from "@/lib/links";
+import { languageAlternates, linkTo } from "@/lib/links";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     description: dict.brief.metaDescription,
     alternates: {
       canonical: linkTo(locale, "/brief"),
-      languages: { "fi-FI": "/brief", en: "/en/brief", "x-default": "/brief" },
+      languages: languageAlternates("brief"),
     },
     openGraph: {
       type: "website" as const,

@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { isLocale, type Locale } from "@/i18n/config";
-import { getCase, getCmsPage, getPost, getSiteContent } from "@/lib/cms";
+import { getCase, getCmsPage, getPost, getPostByEnSlug, getSiteContent } from "@/lib/cms";
 import type { CaseStudy } from "@/content/cases";
 import { buildBlockContext } from "@/components/blocks/context";
 import { BlockRenderer } from "@/components/blocks/BlockRenderer";
@@ -8,7 +8,8 @@ import { CaseDetailView } from "@/components/views/CaseDetailView";
 import { InsightArticleView } from "@/components/views/InsightArticleView";
 import { ServiceLandingView } from "@/components/views/ServiceLandingView";
 import { servicePageLocalised } from "@/content/servicePages";
-import { linkTo } from "@/lib/links";
+import { languageAlternates, linkTo } from "@/lib/links";
+import { enSlugFor } from "@/lib/slugEn";
 import { caseDescription, caseTitle } from "@/lib/caseSeo";
 import { ogImage } from "@/lib/ogImage";
 import { pageSeo } from "@/lib/pageSeo";
@@ -62,10 +63,18 @@ type Params = {
 /** Pre-render the content we know at build time; anything else renders on demand. */
 export async function generateStaticParams() {
   const content = await getSiteContent();
+  // Both addresses of every item: the Finnish slug for `/fi`, the English one
+  // for `/en` (a case keeps the same slug in both).
   return [
     ...content.cases.map((study) => ({ slug: [study.slug] })),
-    ...content.posts.map((post) => ({ slug: [post.slug] })),
-    ...content.servicePages.map((page) => ({ slug: [page.slug] })),
+    ...content.posts.flatMap((post) => [
+      { slug: [post.slug] },
+      { slug: enSlugFor(post.slug, post.slugEn).split("/") },
+    ]),
+    ...content.servicePages.flatMap((page) => [
+      { slug: page.slug.split("/") },
+      { slug: enSlugFor(page.slug, page.slugEn).split("/") },
+    ]),
   ];
 }
 
@@ -82,7 +91,9 @@ export async function generateMetadata({ params }: Params) {
   const path = slug.join("/");
   // The post is resolved up front only so the precedence chain below can log a
   // shadowed post; it is the LAST surface consulted, mirroring the page body.
-  const post = slug.length === 1 ? await getPost(slug[0]) : undefined;
+  // A post can arrive on its Finnish slug (`/hakukoneoptimointi`) or its
+  // English address (`/en/how-to-build-a-media-plan`) — resolve both.
+  const post = slug.length === 1 ? (await getPost(slug[0])) ?? (await getPostByEnSlug(slug[0])) : undefined;
 
   // Case study at the root slug.
   const study = slug.length === 1 ? await getCase(slug[0]) : undefined;
@@ -94,8 +105,9 @@ export async function generateMetadata({ params }: Params) {
       title,
       description,
       alternates: {
-        canonical: linkTo(locale, `/${slug[0]}`),
-        languages: { "fi-FI": `/${slug[0]}`, en: `/en/${slug[0]}`, "x-default": `/${slug[0]}` },
+        // A case slug is the client's name — the same in both locales.
+        canonical: linkTo(locale, `/${study.slug}`),
+        languages: languageAlternates(study.slug),
       },
       openGraph: {
         type: "article" as const,
@@ -111,13 +123,15 @@ export async function generateMetadata({ params }: Params) {
   }
 
   // Service landing page at the root slug.
-  const servicePage = (await getSiteContent()).servicePages.find((p) => p.slug === slug.join("/"));
+  const servicePage = (await getSiteContent()).servicePages.find(
+    (p) => p.slug === path || enSlugFor(p.slug, p.slugEn) === path
+  );
   if (servicePage) {
     if (post) logSlugConflict(path, locale, `service page “${servicePage.slug}”`, `blog post “${post.slug}”`);
     const t = servicePageLocalised(servicePage, locale);
     // SEO is CMS-managed (Pages screen) with the bundled copy as fallback, so
     // the service landing pages behave like every other hand-built route.
-    const seo = await pageSeo(slug.join("/"), locale, {
+    const seo = await pageSeo(servicePage.slug, locale, {
       title: t.metaTitle,
       description: t.metaDescription,
       image: "/images/brand/services-planning.webp",
@@ -126,10 +140,10 @@ export async function generateMetadata({ params }: Params) {
       title: seo.title,
       description: seo.description,
       alternates: {
-        // The full path, not slug[0]: nested service pages (mediasuunnittelu/radio)
-        // must point at themselves, not at their parent.
-        canonical: linkTo(locale, `/${path}`),
-        languages: { "fi-FI": `/${path}`, en: `/en/${path}`, "x-default": `/${path}` },
+        // The canonical pair: the Finnish slug and its English address (nested
+        // pages like mediasuunnittelu/radio included).
+        canonical: linkTo(locale, `/${servicePage.slug}`),
+        languages: languageAlternates(servicePage.slug, servicePage.slugEn),
       },
       openGraph: {
         type: "website" as const,
@@ -157,8 +171,8 @@ export async function generateMetadata({ params }: Params) {
         title: post.seo[locale].title || `${content.title} — NØRR3`,
         description: post.seo[locale].description || content.excerpt,
         alternates: {
-          canonical: linkTo(locale, `/${slug[0]}`),
-          languages: { "fi-FI": `/${slug[0]}`, en: `/en/${slug[0]}`, "x-default": `/${slug[0]}` },
+          canonical: linkTo(locale, `/${post.slug}`),
+          languages: languageAlternates(post.slug, post.slugEn),
         },
         openGraph: {
           type: "article" as const,
@@ -197,8 +211,8 @@ export async function generateMetadata({ params }: Params) {
     title,
     description,
     alternates: {
-      canonical: linkTo(locale, `/${path}`),
-      languages: { "fi-FI": `/${path}`, en: `/en/${path}`, "x-default": `/${path}` },
+      canonical: linkTo(locale, `/${page.slug}`),
+      languages: languageAlternates(page.slug, page.slugEn),
     },
     openGraph: {
       type: "website" as const,
@@ -230,7 +244,9 @@ export default async function RootSlugPage({ params }: Params) {
   // A published blog post on this slug, if any. Read up front so the page
   // surfaces below can report a conflict, but rendered LAST: a service page or
   // a CMS page owns its URL (see the file header).
-  const post = slug.length === 1 ? await getPost(slug[0]) : undefined;
+  // A post can arrive on its Finnish slug (`/hakukoneoptimointi`) or its
+  // English address (`/en/how-to-build-a-media-plan`) — resolve both.
+  const post = slug.length === 1 ? (await getPost(slug[0])) ?? (await getPostByEnSlug(slug[0])) : undefined;
 
   // Case study at the root slug.
   if (slug.length === 1) {
@@ -245,18 +261,18 @@ export default async function RootSlugPage({ params }: Params) {
   // The rail switch rides in on the cached CMS bundle (see rail.ts), so this
   // stays an ISR page: a flip shows up at the next revalidation or publish.
   const rail = await railEnabled(railPreview);
-  const servicePage = content.servicePages.find((p) => p.slug === path);
+  const servicePage = content.servicePages.find((p) => p.slug === path || enSlugFor(p.slug, p.slugEn) === path);
   if (servicePage) {
     if (post) logSlugConflict(path, locale, `service page “${servicePage.slug}”`, `blog post “${post.slug}”`);
     const t = servicePageLocalised(servicePage, locale);
     // The same CMS-managed SEO generateMetadata reads, so the structured data
     // and the <head> never disagree.
-    const seo = await pageSeo(path, locale, {
+    const seo = await pageSeo(servicePage.slug, locale, {
       title: t.metaTitle,
       description: t.metaDescription,
       image: "/images/brand/services-planning.webp",
     });
-    const url = absolute(seo.canonical || linkTo(locale, `/${path}`));
+    const url = absolute(seo.canonical || linkTo(locale, `/${servicePage.slug}`));
     // Home › Services › (parent service, when nested) › this page.
     const parent = slug.length > 1 ? content.servicePages.find((p) => p.slug === slug.slice(0, -1).join("/")) : undefined;
     const crumbs: Crumb[] = [

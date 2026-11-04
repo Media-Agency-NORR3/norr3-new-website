@@ -19,7 +19,7 @@ import { ContactBanner } from "@/components/ContactBanner";
 import { StatGrid } from "@/components/StatGrid";
 import { PrinciplesGrid } from "@/components/PrinciplesGrid";
 import { MediaAsset } from "@/components/MediaAsset";
-import { linkTo } from "@/lib/links";
+import { languageAlternates, linkTo } from "@/lib/links";
 import { ogImage } from "@/lib/ogImage";
 import { teamStrip } from "@/content/team";
 
@@ -38,7 +38,7 @@ export async function generateMetadata({ params }: PageProps<"/[locale]/meista">
     title: seo.title,
     description: seo.description,
     robots: robotsDirective(seo.robots),
-    alternates: { canonical: seo.canonical || linkTo(locale, "/meista"), languages: { "fi-FI": "/meista", en: "/en/meista", "x-default": "/meista" } },
+    alternates: { canonical: seo.canonical || linkTo(locale, "/meista"), languages: languageAlternates("meista") },
     openGraph: {
       type: "website" as const,
       siteName: "NØRR3",

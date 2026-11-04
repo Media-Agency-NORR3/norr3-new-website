@@ -4,7 +4,7 @@ import { getDictionary } from "@/lib/dictionary";
 import { LegalArticle } from "@/components/LegalArticle";
 import { JsonLd } from "@/components/JsonLd";
 import { homeCrumb, pageGraph, pageUrl } from "@/lib/jsonld";
-import { linkTo, legalPath, LEGAL_PATHS } from "@/lib/links";
+import { LEGAL_PATHS, languageAlternates, legalPath, linkTo } from "@/lib/links";
 
 export async function generateMetadata({ params }: PageProps<"/[locale]/tietosuojaseloste">) {
   const { locale } = await params;
@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: PageProps<"/[locale]/tietosuo
     description: dict.seo.privacy.description,
     alternates: {
       canonical: legalPath(locale, "privacy"),
-      languages: { "fi-FI": legalPath("fi", "privacy"), en: legalPath("en", "privacy"), "x-default": legalPath("fi", "privacy") },
+      languages: languageAlternates("tietosuojaseloste"),
     },
     openGraph: {
       type: "website" as const,

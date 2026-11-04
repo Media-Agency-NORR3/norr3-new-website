@@ -9,7 +9,7 @@ import { locales, isLocale } from "@/i18n/config";
 import { getDictionary } from "@/lib/dictionary";
 import { getSiteContent } from "@/lib/cms";
 import { pageSeo, robotsDirective } from "@/lib/pageSeo";
-import { linkTo } from "@/lib/links";
+import { languageAlternates, linkTo } from "@/lib/links";
 import { ogImage } from "@/lib/ogImage";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
@@ -103,7 +103,7 @@ export async function generateMetadata({ params }: LayoutProps<"/[locale]">) {
     description: seo.description,
     alternates: {
       canonical: seo.canonical || linkTo(locale),
-      languages: { "fi-FI": "/", en: "/en", "x-default": "/" },
+      languages: languageAlternates(""),
     },
     openGraph: {
       // Metadata is merged shallowly, so this object replaces the root

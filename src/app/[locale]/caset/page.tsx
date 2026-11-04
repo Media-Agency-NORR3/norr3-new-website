@@ -18,7 +18,7 @@ import { CaseCard } from "@/components/cards/CaseCard";
 import { CaseFeature } from "@/components/cards/CaseFeature";
 import { BlogCard } from "@/components/cards/BlogCard";
 import { ContactBanner } from "@/components/ContactBanner";
-import { linkTo } from "@/lib/links";
+import { languageAlternates, linkTo } from "@/lib/links";
 import { ogImage } from "@/lib/ogImage";
 
 /** Editorial widths for the hero collage — varied, so the strip reads as a
@@ -40,7 +40,7 @@ export async function generateMetadata({ params }: PageProps<"/[locale]/caset">)
     title: seo.title,
     description: seo.description,
     robots: robotsDirective(seo.robots),
-    alternates: { canonical: seo.canonical || linkTo(locale, "/caset"), languages: { "fi-FI": "/caset", en: "/en/caset", "x-default": "/caset" } },
+    alternates: { canonical: seo.canonical || linkTo(locale, "/caset"), languages: languageAlternates("caset") },
     openGraph: {
       type: "website" as const,
       siteName: "NØRR3",
