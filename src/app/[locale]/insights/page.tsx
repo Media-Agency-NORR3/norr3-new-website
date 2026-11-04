@@ -14,7 +14,7 @@ import { TextCta } from "@/components/TextCta";
 import { BlogCard } from "@/components/cards/BlogCard";
 import { ContactBanner } from "@/components/ContactBanner";
 import { getPosts } from "@/lib/cms";
-import { languageAlternates, linkTo } from "@/lib/links";
+import { languageAlternates, linkTo, slugLink } from "@/lib/links";
 import { ogImage } from "@/lib/ogImage";
 
 export async function generateMetadata({ params }: PageProps<"/[locale]/insights">) {
@@ -112,7 +112,7 @@ export default async function InsightsPage({ params }: PageProps<"/[locale]/insi
       <Container className="pb-24 pt-14 lg:pb-32 lg:pt-16">
         <Reveal>
           <Link
-            href={linkTo(locale, `/${featured.slug}`)}
+            href={slugLink(locale, featured.slug, featured.slugEn)}
             className="group grid gap-8 rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-purple lg:grid-cols-2 lg:items-center lg:gap-14 dark:focus-visible:outline-light-purple"
           >
             <div className="aspect-[4/3] overflow-hidden rounded-card">

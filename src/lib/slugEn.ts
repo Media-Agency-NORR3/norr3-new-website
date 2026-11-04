@@ -82,6 +82,7 @@ export const POST_EN_SLUG: Record<string, string> = {
   "somekanavien-kayttajat-suomessa-2026": "social-media-users-in-finland-2026",
   "kampanjasuunnitelma-nain-teet-sen": "how-to-make-a-campaign-plan",
   "natiivimainonta-2026": "native-advertising-in-finland-2026",
+  "kampanja-15-minuutissa-marketing-engine-iab": "campaign-in-15-minutes-marketing-engine-iab",
 };
 
 /** Every known FI → EN path (exact slugs). */
