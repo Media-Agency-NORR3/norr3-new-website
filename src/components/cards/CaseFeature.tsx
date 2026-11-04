@@ -33,13 +33,17 @@ export function CaseFeature({
         href={linkTo(locale, `/${study.slug}`)}
         className="group grid gap-8 rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-purple lg:grid-cols-2 lg:items-center lg:gap-14 dark:focus-visible:outline-light-purple"
       >
-        <div className="overflow-hidden rounded-card">
+        {/* The featured case's creative is shown WHOLE on a matte: a 4:3 cover
+            crop sliced the edge of the artwork, where the client's wordmark
+            often sits. No hover zoom either — scaling a contained image crops
+            it again. */}
+        <div className="flex aspect-[4/3] items-center justify-center overflow-hidden rounded-card bg-grey/70 dark:bg-white/[0.04]">
           <img
             src={study.image}
             alt={`${study.client} — ${study.tagline[locale]}`}
             width={1600}
             height={1066}
-            className="aspect-[4/3] h-full w-full object-cover transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.04]"
+            className="h-full w-full object-contain"
             loading="lazy"
           />
         </div>

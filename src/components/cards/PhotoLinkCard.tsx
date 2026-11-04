@@ -3,16 +3,20 @@ import type { ReactNode } from "react";
 
 /**
  * The editorial photo card the site uses wherever a picture leads into a link:
- * 4:3 photo, title, summary, outlined READ MORE pill. The whole card is the
- * link, the photo eases in on hover, and the pill inverts — so the card reads
- * as interactive before the click. `CaseCard` and the home page's About Us
- * blocks both render through this so the two grids stay pixel-identical.
+ * title, summary, outlined READ MORE pill. The whole card is the link, the
+ * photo eases in on hover, and the pill inverts — so the card reads as
+ * interactive before the click. `CaseCard` and the home page's About Us blocks
+ * both render through this so the two grids stay pixel-identical.
  *
- * `stat` is the optional yellow result badge over the photo — the Figma case
- * card carries its headline number, so a case grid reads as proof at a glance
- * instead of as four summaries. From `md` up it sits bottom-left over the
- * photo; below that it drops into the flow between the photo and the title.
- * On a phone the badge is a third of the card's width, and several case
+ * `fit` — case cards pass "contain": a case picture is finished client artwork
+ * (an ad, a poster, a branded photo) and its wordmark often sits at the edge of
+ * the frame, so a 4:3 cover crop sliced the client's own logo in half. Contained
+ * artwork sits whole on a matte instead. Default stays "cover" for editorial
+ * photography (About Us, blog), where the frame is the point.
+ *
+ * `stat` is the optional yellow result badge — from `md` up it sits bottom-left
+ * over the photo; below that it drops into the flow between the photo and the
+ * title. On a phone the badge is a third of the card's width, and several case
  * photos carry their own typography in that corner (Sambla's Rahalaitos
  * wordmark, for one) — a badge over the picture there covered the words.
  */
@@ -26,6 +30,7 @@ export function PhotoLinkCard({
   stat,
   large = false,
   clampBody = false,
+  fit = "cover",
 }: {
   href: string;
   image: string;
@@ -36,23 +41,31 @@ export function PhotoLinkCard({
   stat?: ReactNode;
   large?: boolean;
   clampBody?: boolean;
+  fit?: "cover" | "contain";
 }) {
+  const contain = fit === "contain";
   return (
     <Link
       href={href}
       className="group flex h-full flex-col rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-purple dark:focus-visible:outline-light-purple"
     >
       <div className="relative">
-        <div className="aspect-[4/3] overflow-hidden">
+        <div
+          className={`flex aspect-[4/3] items-center justify-center overflow-hidden ${
+            contain ? "rounded-card bg-grey/70 dark:bg-white/[0.04]" : ""
+          }`}
+        >
           <img
             src={image}
             alt={alt}
-            className="h-full w-full object-cover transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.04]"
+            className={`h-full w-full transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+              contain ? "object-contain" : "object-cover group-hover:scale-[1.04]"
+            }`}
             loading="lazy"
           />
         </div>
         {stat && (
-          <span className="mt-4 flex w-fit items-baseline gap-1.5 rounded-full bg-yellow px-3.5 py-1.5 text-ink md:absolute md:bottom-3 md:left-3 md:mt-0">
+          <span className="mt-4 flex w-fit items-baseline gap-1.5 rounded-full bg-yellow px-3.5 py-1.5 text-ink">
             {stat}
           </span>
         )}

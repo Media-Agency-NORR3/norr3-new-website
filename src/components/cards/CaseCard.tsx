@@ -45,6 +45,7 @@ export function CaseCard({
       }
       large={large}
       clampBody
+      fit="contain"
     />
   );
 }
