@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { readingMinutes, type Insight } from "@/content/insights";
 import type { Locale } from "@/i18n/config";
-import { linkTo } from "@/lib/links";
+import { slugLink } from "@/lib/links";
 
 /**
  * Blog card per Figma: a photo OR a lavender tile with a giant ghost figure,
@@ -25,7 +25,7 @@ export function BlogCard({
   const minutes = post.readingMinutes ?? readingMinutes(content.body);
   return (
     <Link
-      href={linkTo(locale, `/${post.slug}`)}
+      href={slugLink(locale, post.slug, post.slugEn)}
       className="group flex h-full flex-col rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-purple dark:focus-visible:outline-light-purple"
     >
       <div className="aspect-[5/4] overflow-hidden">

@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { isLocale, type Locale } from "@/i18n/config";
 import { getCase, getCmsPage, getPost, getPostByEnSlug, getSiteContent } from "@/lib/cms";
 import type { CaseStudy } from "@/content/cases";
@@ -8,7 +8,7 @@ import { CaseDetailView } from "@/components/views/CaseDetailView";
 import { InsightArticleView } from "@/components/views/InsightArticleView";
 import { ServiceLandingView } from "@/components/views/ServiceLandingView";
 import { servicePageLocalised } from "@/content/servicePages";
-import { languageAlternates, linkTo } from "@/lib/links";
+import { languageAlternates, linkTo, slugLink } from "@/lib/links";
 import { enSlugFor } from "@/lib/slugEn";
 import { caseDescription, caseTitle } from "@/lib/caseSeo";
 import { ogImage } from "@/lib/ogImage";
@@ -142,7 +142,7 @@ export async function generateMetadata({ params }: Params) {
       alternates: {
         // The canonical pair: the Finnish slug and its English address (nested
         // pages like mediasuunnittelu/radio included).
-        canonical: linkTo(locale, `/${servicePage.slug}`),
+        canonical: slugLink(locale, servicePage.slug, servicePage.slugEn),
         languages: languageAlternates(servicePage.slug, servicePage.slugEn),
       },
       openGraph: {
@@ -171,7 +171,7 @@ export async function generateMetadata({ params }: Params) {
         title: post.seo[locale].title || `${content.title} — NØRR3`,
         description: post.seo[locale].description || content.excerpt,
         alternates: {
-          canonical: linkTo(locale, `/${post.slug}`),
+          canonical: slugLink(locale, post.slug, post.slugEn),
           languages: languageAlternates(post.slug, post.slugEn),
         },
         openGraph: {
@@ -211,7 +211,7 @@ export async function generateMetadata({ params }: Params) {
     title,
     description,
     alternates: {
-      canonical: linkTo(locale, `/${page.slug}`),
+      canonical: slugLink(locale, page.slug, page.slugEn),
       languages: languageAlternates(page.slug, page.slugEn),
     },
     openGraph: {
@@ -272,7 +272,7 @@ export default async function RootSlugPage({ params }: Params) {
       description: t.metaDescription,
       image: "/images/brand/services-planning.webp",
     });
-    const url = absolute(seo.canonical || linkTo(locale, `/${servicePage.slug}`));
+    const url = absolute(seo.canonical || slugLink(locale, servicePage.slug, servicePage.slugEn));
     // Home › Services › (parent service, when nested) › this page.
     const parent = slug.length > 1 ? content.servicePages.find((p) => p.slug === slug.slice(0, -1).join("/")) : undefined;
     const crumbs: Crumb[] = [
@@ -323,7 +323,15 @@ export default async function RootSlugPage({ params }: Params) {
 
   // Insight post at the root slug — reached only when no page surface claimed
   // the URL, which is what keeps a post from replacing a service page.
-  if (post) return <InsightArticleView post={post} locale={locale} dict={dict} />;
+  // A post answers on both its slugs (see `post` above), so one of them would
+  // render a duplicate with the wrong locale's address (`/en/<finnish-slug>`,
+  // linked from cards before the CMS `slug_en` was honoured). 301 it to the
+  // address the canonical and hreflang name.
+  if (post) {
+    const own = slugLink(locale, post.slug, post.slugEn);
+    if (own !== (locale === "en" ? `/en/${path}` : `/${path}`)) permanentRedirect(own);
+    return <InsightArticleView post={post} locale={locale} dict={dict} />;
+  }
 
   notFound();
 }

@@ -3,7 +3,7 @@ import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/content/dictionary";
 import type { CmsPost } from "@/lib/cms";
 import { getPosts, getSiteContent } from "@/lib/cms";
-import { linkTo } from "@/lib/links";
+import { linkTo, slugLink } from "@/lib/links";
 import { wrapTables } from "@/lib/prose";
 import { ogImage } from "@/lib/ogImage";
 import { JsonLd } from "@/components/JsonLd";
@@ -51,7 +51,7 @@ export async function InsightArticleView({
     getSiteContent(),
   ]);
   const minutes = post.readingMinutes;
-  const url = pageUrl(locale, `/${post.slug}`);
+  const url = absolute(slugLink(locale, post.slug, post.slugEn));
   // ISO 8601 with the Helsinki offset, from the CMS stamps. `dateModified` is
   // the newest human-written revision and never predates `datePublished`.
   const datePublished = publicationIso(post.publishedAt, post.updatedAt);

@@ -40,6 +40,16 @@ export function pagePair(fiSlug: string, cmsSlugEn?: string | null): { fi: strin
   return { fi: linkTo("fi", clean ? `/${clean}` : "/"), en: linkTo("en", enSlug ? `/${enSlug}` : "/") };
 }
 
+/**
+ * Public URL of a CMS-managed page or post in `locale`, honouring its CMS
+ * `slug_en`. `linkTo` only knows the static table in `slugEn.ts`, so anything
+ * with a CMS slug (posts, service pages) must link through here: otherwise a
+ * post published after the last deploy gets `/en/<finnish-slug>`.
+ */
+export function slugLink(locale: Locale, fiSlug: string, cmsSlugEn?: string | null): string {
+  return pagePair(fiSlug, cmsSlugEn)[locale];
+}
+
 /** The `alternates.languages` block for a page, from its Finnish slug. */
 export function languageAlternates(fiSlug: string, cmsSlugEn?: string | null) {
   const { fi, en } = pagePair(fiSlug, cmsSlugEn);

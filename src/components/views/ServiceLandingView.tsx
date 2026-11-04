@@ -2,7 +2,7 @@ import { Fragment } from "react";
 import Link from "next/link";
 import { getDictionary } from "@/lib/dictionary";
 import { getSiteContent } from "@/lib/cms";
-import { linkTo } from "@/lib/links";
+import { linkTo, slugLink } from "@/lib/links";
 import { renderBodySegments } from "@/lib/richtext";
 import type { Locale } from "@/i18n/config";
 import { Container, HeroPill } from "@/components/Container";
@@ -186,7 +186,7 @@ export async function ServiceLandingView({ page, locale, railEnabled }: { page: 
               return (
                 <a
                   key={p.slug}
-                  href={linkTo(locale, `/${p.slug}`)}
+                  href={slugLink(locale, p.slug, p.slugEn)}
                   className="group inline-flex items-center gap-2 rounded-full border border-ink/25 bg-white px-5 py-2.5 text-sm font-medium text-ink transition-colors hover:border-ink hover:bg-ink hover:text-white dark:border-white/25 dark:bg-white/5 dark:text-white dark:hover:bg-white dark:hover:text-ink"
                 >
                   <Icon name={p.icon} style={{ fontSize: "18px" }} />
