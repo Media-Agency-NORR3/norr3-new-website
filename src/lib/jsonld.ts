@@ -33,8 +33,14 @@ export const ORGANIZATION_FACTS = {
   vatId: "FI29620748",
   taxId: "2962074-8",
   foundingDate: "2019",
-  /** The wordmark the site itself uses as its logo (Logo.tsx). */
-  logo: `${SITE_URL}/logo-wordmark.svg`,
+  /**
+   * The brand logo as a RASTER image, not the SVG the site renders inline.
+   * Answer engines and social crawlers (ChatGPT, Google, LinkedIn) cannot
+   * rasterise an SVG, so a `.svg` logo is dropped from brand cards and link
+   * previews — the card then shows a broken-image placeholder. `Logo.tsx`
+   * still renders the vector wordmark in the page itself.
+   */
+  logo: `${SITE_URL}/logo-wordmark-512.png`,
   /**
    * Public profiles. Only URLs confirmed on the site (footer) or in the CMS
    * are listed; empty strings are filtered out at build time.
@@ -381,7 +387,7 @@ export function organizationNode(content: SiteContent, locale: Locale, descripti
     legalName: facts.legalName,
     alternateName: "NORR3",
     url: SITE_URL,
-    logo: { "@type": "ImageObject", url: facts.logo },
+    logo: { "@type": "ImageObject", url: facts.logo, width: 512, height: 512 },
     image: `${SITE_URL}/images/brand/og-image.jpg`,
     description,
     foundingDate: facts.foundingDate,

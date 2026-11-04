@@ -70,6 +70,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority?: number;
       /** CMS-managed English slug override for this row. */
       slugEn?: string | null;
+      /** Image URLs for this row, so Google/Bing index the brand imagery. */
+      images?: string[];
     } = {}
   ) => {
     // Home is served at the bare origin — the sitemap `<loc>` must match the
@@ -88,6 +90,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       ...(options.lastModified ? { lastModified: options.lastModified } : {}),
       changeFrequency: options.changeFrequency ?? ("monthly" as const),
       priority: options.priority ?? 0.8,
+      ...(options.images?.length ? { images: options.images } : {}),
       alternates: { languages },
     }));
   };
@@ -101,6 +104,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       entry(route, {
         changeFrequency: route === "" ? "weekly" : route === "feed" ? "daily" : "monthly",
         priority: route === "" ? 1 : 0.8,
+        // The brand logo, as a raster file, so image crawlers index the one
+        // image answer engines use to represent NØRR3.
+        images: route === "" ? [`${BASE}/logo-wordmark-512.png`] : undefined,
       })
     ),
     ...content.cases.flatMap((study) => entry(study.slug, { priority: 0.6 })),
