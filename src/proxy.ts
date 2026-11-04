@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { isProductionHost } from "@/lib/host";
+import { enSlugFor, fiSlugFor } from "@/lib/slugEn";
 
 /**
  * CMS-managed redirects. The CMS exposes them in its public bundle; the
@@ -67,8 +68,17 @@ function pageSlugForPath(pathname: string): string | null {
   const path = pathname.replace(/^\/en(?=\/|$)/, "").replace(/^\/+|\/+$/g, "");
   if (!path) return "home";
   // Member profiles, the social feed and the CMS preview are not coded pages.
-  if (path.startsWith("feed/") || path.startsWith("tiimi/") || path.startsWith("cms-preview")) return null;
-  return PAGE_SLUG_ALIASES[path] ?? path;
+  if (
+    path.startsWith("feed/") ||
+    path.startsWith("tiimi/") ||
+    path.startsWith("team/") ||
+    path.startsWith("cms-preview")
+  )
+    return null;
+  // An English address resolves to the Finnish slug the CMS keys on
+  // (`search-engine-advertising` → `hakukonemainonta`), so the publish gate
+  // applies to both locales.
+  return PAGE_SLUG_ALIASES[path] ?? fiSlugFor(path);
 }
 
 /** Draft previews (CMS session or per-item preview cookies) bypass the gate. */
@@ -172,6 +182,19 @@ export async function proxy(request: NextRequest) {
   // Trailing slash and the legacy Finnish prefix → the canonical URL, permanently.
   if (canonical !== pathname) return redirectTo(canonical, 301);
 
+  // English addresses read English (see src/lib/slugEn.ts): the English page
+  // used to reuse the Finnish slug (`/en/hakukonemainonta`, `/en/meista`), and
+  // those legacy URLs 301 to the readable English address so the two locales
+  // never disagree about which URL is canonical. A path that is already an
+  // English slug is left alone (enSlugFor returns it unchanged).
+  if (pathname === "/en" || pathname.startsWith("/en/")) {
+    const rest = pathname.slice(3).replace(/^\/+|\/+$/g, "");
+    // `/en/privacy` was an alias of the privacy page before the switch.
+    const LEGACY_EN: Record<string, string> = { privacy: "privacy-policy" };
+    const target = rest ? LEGACY_EN[rest] ?? enSlugFor(rest) : "";
+    if (rest && target !== rest) return redirectTo(`/en/${target}`, 301);
+  }
+
   // CMS publish control: a page switched to draft in the CMS 404s on the live
   // site even though its route is code-rendered. Previews bypass the gate.
   const slug = pageSlugForPath(pathname);
@@ -199,7 +222,18 @@ export async function proxy(request: NextRequest) {
       "/en/cases": "/en/caset",
       "/en/email-preferences": "/en/sahkopostiasetukset",
     };
-    const aliased = EN_ALIASES[pathname.replace(/\/$/, "")];
+    const cleanEn = pathname.replace(/\/$/, "");
+    // Nested English aliases: a team profile is `/en/team/<member>` publicly
+    // while the route folder is `/en/tiimi/<member>`. Same idea for the cases
+    // listing's children.
+    const EN_PREFIX_ALIASES: Record<string, string> = {
+      "/en/team/": "/en/tiimi/",
+      "/en/cases/": "/en/caset/",
+    };
+    const aliasPrefix = Object.keys(EN_PREFIX_ALIASES).find((p) => cleanEn.startsWith(p));
+    const aliased =
+      EN_ALIASES[cleanEn] ??
+      (aliasPrefix ? EN_PREFIX_ALIASES[aliasPrefix] + cleanEn.slice(aliasPrefix.length) : undefined);
     if (aliased) {
       const url = request.nextUrl.clone();
       url.pathname = aliased;

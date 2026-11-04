@@ -20,7 +20,7 @@ import { PhotoInterstitial } from "@/components/PhotoInterstitial";
 import { ContactBanner } from "@/components/ContactBanner";
 import { OpenApplicationCta } from "@/components/OpenApplicationCta";
 import { Icon } from "@/components/Icon";
-import { linkTo } from "@/lib/links";
+import { languageAlternates, linkTo } from "@/lib/links";
 import { ogImage } from "@/lib/ogImage";
 
 export async function generateMetadata({ params }: PageProps<"/[locale]/toihin-meille">) {
@@ -38,7 +38,7 @@ export async function generateMetadata({ params }: PageProps<"/[locale]/toihin-m
     title: seo.title,
     description: seo.description,
     robots: robotsDirective(seo.robots),
-    alternates: { canonical: seo.canonical || linkTo(locale, "/toihin-meille"), languages: { "fi-FI": "/toihin-meille", en: "/en/toihin-meille", "x-default": "/toihin-meille" } },
+    alternates: { canonical: seo.canonical || linkTo(locale, "/toihin-meille"), languages: languageAlternates("toihin-meille") },
     openGraph: {
       type: "website" as const,
       siteName: "NØRR3",

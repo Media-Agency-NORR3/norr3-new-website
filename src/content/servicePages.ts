@@ -2,6 +2,11 @@ import type { Locale } from "@/i18n/config";
 
 export type ServicePage = {
   slug: string;
+  /**
+   * English address for this page (CMS `service_pages.slug_en`). Empty/absent
+   * falls back to the `slugEn.ts` table, then to the Finnish slug.
+   */
+  slugEn?: string;
   icon: string;
   /** Photo under the hero (WebP in /images/services/). Empty = no image. */
   image?: string;

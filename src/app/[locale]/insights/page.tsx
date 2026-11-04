@@ -14,7 +14,7 @@ import { TextCta } from "@/components/TextCta";
 import { BlogCard } from "@/components/cards/BlogCard";
 import { ContactBanner } from "@/components/ContactBanner";
 import { getPosts } from "@/lib/cms";
-import { linkTo } from "@/lib/links";
+import { languageAlternates, linkTo } from "@/lib/links";
 import { ogImage } from "@/lib/ogImage";
 
 export async function generateMetadata({ params }: PageProps<"/[locale]/insights">) {
@@ -34,7 +34,7 @@ export async function generateMetadata({ params }: PageProps<"/[locale]/insights
     robots: robotsDirective(seo.robots),
     alternates: {
       canonical: seo.canonical || linkTo(locale, "/insights"),
-      languages: { "fi-FI": "/insights", en: "/en/insights", "x-default": "/insights" },
+      languages: languageAlternates("insights"),
     },
     openGraph: {
       type: "website" as const,

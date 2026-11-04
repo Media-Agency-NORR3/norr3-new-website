@@ -7,6 +7,7 @@ import { channels as staticChannels, mediaGroups as staticMediaGroups, type Chan
 import { servicePages as bundledServicePages, type ServicePage } from "@/content/servicePages";
 import type { Locale } from "@/i18n/config";
 import type { Block } from "@/content/blocks";
+import { enSlugFor } from "@/lib/slugEn";
 
 /**
  * The site's content layer.
@@ -214,6 +215,8 @@ export type CmsRailItem = {
 
 export type CmsPageSummary = {
   slug: string;
+  /** English address for this page (CMS `pages.slug_en`). */
+  slugEn?: string;
   title: Record<Locale, string>;
   navLabel: Record<Locale, string>;
   updatedAt: string;
@@ -750,6 +753,16 @@ export async function getPost(slug: string): Promise<CmsPost | undefined> {
   return (await getPosts()).find((post) => post.slug === slug);
 }
 
+/**
+ * Resolve a post by its English address (`/en/how-to-build-a-media-plan`).
+ * Falls back to the static FI→EN table so a post whose CMS `slug_en` is empty
+ * still answers on its English URL.
+ */
+export async function getPostByEnSlug(slug: string): Promise<CmsPost | undefined> {
+  const posts = await getPosts();
+  return posts.find((post) => enSlugFor(post.slug, post.slugEn) === slug);
+}
+
 export async function getCases(): Promise<CaseStudy[]> {
   return (await getSiteContent()).cases;
 }
@@ -787,6 +800,8 @@ export async function getCaseViaPreviewApi(
 
 export type CmsPage = {
   slug: string;
+  /** English address for this page (CMS `pages.slug_en`). */
+  slugEn?: string;
   kind: string;
   title: Record<Locale, string>;
   seo: Record<Locale, { title: string; description: string }>;

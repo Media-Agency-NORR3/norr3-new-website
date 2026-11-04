@@ -1,5 +1,10 @@
 export type Insight = {
   slug: string;
+  /**
+   * English address for this post (CMS `posts.slug_en`). Empty/absent falls
+   * back to the `slugEn.ts` table, then to the Finnish slug.
+   */
+  slugEn?: string;
   date: string;
   ghost?: string;
   image?: string;

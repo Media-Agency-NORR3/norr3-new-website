@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 import { getSiteContent } from "@/lib/cms";
-import { legalPath, linkTo } from "@/lib/links";
+import { linkTo, pagePair } from "@/lib/links";
 import { helsinkiIso } from "@/lib/dates";
 import { getSocialSitemap } from "@/lib/social";
 
@@ -41,19 +41,6 @@ const PAGE_SLUG: Record<string, string> = {
 
 const cmsPageSlug = (route: string) => PAGE_SLUG[route] ?? route;
 
-/**
- * The two legal routes use Finnish slugs in `CODED_ROUTES` but English slugs
- * in English URLs (`/en/privacy-policy`, `/en/terms`) — mirror the locale-aware
- * mapping so the sitemap's `en` entries match the canonical English URLs.
- */
-const LEGAL_PAGE: Record<string, "privacy" | "terms"> = {
-  tietosuojaseloste: "privacy",
-  kayttoehdot: "terms",
-};
-
-const legalAwareLink = (locale: (typeof LOCALES)[number], path: string) =>
-  locale === "en" && LEGAL_PAGE[path] ? legalPath(locale, LEGAL_PAGE[path]) : linkTo(locale, path);
-
 /** Undefined status = page not managed in the CMS → keep it (fail open). */
 const pageIsLive = (content: { pageStatus: Record<string, string> }, route: string) => {
   const status = content.pageStatus[cmsPageSlug(route)];
@@ -63,10 +50,11 @@ const pageIsLive = (content: { pageStatus: Record<string, string> }, route: stri
 /**
  * The sitemap is derived from the CMS rather than hand-listed.
  *
- * The slug lists here used to be maintained by hand and had already drifted —
- * three of the four article URLs pointed at posts that no longer existed, and
- * newly published ones were missing. Reading the live content means publishing a
- * case, a post or a block page puts it in the sitemap with no second edit.
+ * Every entry carries BOTH addresses — the Finnish slug at the root and the
+ * English address under `/en` (see `src/lib/slugEn.ts`; a CMS `slug_en` wins
+ * when set) — plus the `alternates.languages` block that ties them together as
+ * one page in two languages, which is the hreflang Google reads from a
+ * sitemap.
  */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [content, social] = await Promise.all([getSiteContent(), getSocialSitemap()]);
@@ -76,22 +64,33 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // crawlers to ignore the field entirely.
   const entry = (
     path: string,
-    options: { lastModified?: Date; changeFrequency?: "daily" | "weekly" | "monthly"; priority?: number } = {}
-  ) =>
-    LOCALES.map((locale) => ({
-      url: `${BASE}${legalAwareLink(locale, path || "")}`,
+    options: {
+      lastModified?: Date;
+      changeFrequency?: "daily" | "weekly" | "monthly";
+      priority?: number;
+      /** CMS-managed English slug override for this row. */
+      slugEn?: string | null;
+    } = {}
+  ) => {
+    // Home is served at the bare origin — the sitemap `<loc>` must match the
+    // canonical the page emits (which has no trailing slash), or Google reads
+    // the two as different URLs.
+    const bare = (u: string) => (u === "/" ? BASE : `${BASE}${u}`);
+    const pair = pagePair(path || "", options.slugEn);
+    const languages = {
+      "fi-FI": bare(pair.fi),
+      en: bare(pair.en),
+      // Finnish is the default for anyone we have no better match for.
+      "x-default": bare(pair.fi),
+    };
+    return LOCALES.map((locale) => ({
+      url: locale === "fi" ? bare(pair.fi) : bare(pair.en),
       ...(options.lastModified ? { lastModified: options.lastModified } : {}),
       changeFrequency: options.changeFrequency ?? ("monthly" as const),
       priority: options.priority ?? 0.8,
-      alternates: {
-        languages: {
-          "fi-FI": `${BASE}${legalAwareLink("fi", path || "")}`,
-          en: `${BASE}${legalAwareLink("en", path || "")}`,
-          // Finnish is the default for anyone we have no better match for.
-          "x-default": `${BASE}${legalAwareLink("fi", path || "")}`,
-        },
-      },
+      alternates: { languages },
     }));
+  };
 
   return [
     ...CODED_ROUTES.filter((route) => {
@@ -108,6 +107,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...content.posts.flatMap((post) =>
       entry(post.slug, {
         priority: 0.5,
+        slugEn: post.slugEn,
         // <lastmod> = the newest human-written revision (autosaves excluded),
         // falling back to the publish date. Same stamp the article's
         // dateModified carries.
@@ -121,11 +121,24 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       ? social.members.map((m) => ({ slug: m.slug, updatedAt: m.updatedAt }))
       : content.team.map((m) => ({ slug: m.id, updatedAt: "" }))
     ).flatMap((m) => entry(`tiimi/${m.slug}`, { priority: 0.5, lastModified: validDate(m.updatedAt) })),
-    ...social.posts.flatMap((p) => entry(`feed/${p.slug}`, { priority: 0.4, lastModified: validDate(p.updatedAt) })),
+    // A social post is written in one language and its page canonicalises to
+    // that locale's URL alone, so the sitemap lists that single URL (with the
+    // page's own hreflang) instead of a FI/EN pair.
+    ...social.posts.map((p) => {
+      const url = `${BASE}${linkTo(p.lang, `/feed/${p.slug}`)}`;
+      const languages = { [p.lang === "fi" ? "fi-FI" : "en"]: url, "x-default": url };
+      return {
+        url,
+        ...(validDate(p.updatedAt) ? { lastModified: validDate(p.updatedAt) } : {}),
+        changeFrequency: "monthly" as const,
+        priority: 0.4,
+        alternates: { languages },
+      };
+    }),
     // Service landing pages — the keyword-optimised sub-pages under /palvelut.
     ...content.servicePages
       .filter((page) => pageIsLive(content, page.slug))
-      .flatMap((page) => entry(page.slug, { priority: 0.7 })),
+      .flatMap((page) => entry(page.slug, { priority: 0.7, slugEn: page.slugEn })),
     // Pages composed in the CMS page editor. `status` is "published" for
     // public pages; anything else (drafts, retired pages like the old
     // media-insights landing) stays out of the sitemap.
@@ -134,6 +147,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .flatMap((page) =>
         entry(page.slug, {
           priority: 0.6,
+          slugEn: page.slugEn,
           lastModified: page.updatedAt ? new Date(page.updatedAt.replace(" ", "T")) : undefined,
         })
       ),

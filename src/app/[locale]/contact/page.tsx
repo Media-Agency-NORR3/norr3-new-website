@@ -18,7 +18,7 @@ import { PillButton } from "@/components/PillButton";
 import { BookingButton } from "@/components/BookingButton";
 import { Icon } from "@/components/Icon";
 import { MediaAsset } from "@/components/MediaAsset";
-import { legalPath, linkTo } from "@/lib/links";
+import { languageAlternates, legalPath, linkTo } from "@/lib/links";
 import { ogImage } from "@/lib/ogImage";
 
 /** The five people who take direct contact on this page. The rest of the
@@ -48,7 +48,7 @@ export async function generateMetadata({ params }: PageProps<"/[locale]/contact"
     robots: robotsDirective(seo.robots),
     alternates: {
       canonical: seo.canonical || linkTo(locale, "/contact"),
-      languages: { "fi-FI": "/contact", en: "/en/contact", "x-default": "/contact" },
+      languages: languageAlternates("contact"),
     },
     openGraph: {
       type: "website" as const,

@@ -4,7 +4,7 @@ import { isLocale } from "@/i18n/config";
 import { getDictionary, getSiteContent } from "@/lib/dictionary";
 import { pageSeo, robotsDirective } from "@/lib/pageSeo";
 import { getSocialFeed, getSocialMembers, getSocialStories } from "@/lib/social";
-import { linkTo } from "@/lib/links";
+import { languageAlternates, linkTo } from "@/lib/links";
 import { ogImage } from "@/lib/ogImage";
 import { absoluteUrl, jsonLd, type MemberSummary } from "@/lib/socialFormat";
 import { Container, HeroPill } from "@/components/Container";
@@ -36,7 +36,7 @@ export async function generateMetadata({ params }: Props) {
     description: seo.description,
     robots: robotsDirective(seo.robots),
     // Hashtag filters (?tag=) are views of this page, not pages of their own.
-    alternates: { canonical: seo.canonical || url, languages: { "fi-FI": "/feed", en: "/en/feed", "x-default": "/feed" } },
+    alternates: { canonical: seo.canonical || url, languages: languageAlternates("feed") },
     openGraph: {
       type: "website" as const,
       siteName: "NØRR3",
