@@ -206,14 +206,22 @@ export async function getSocialStories(): Promise<StoryGroup[]> {
     .filter((g) => g.member.slug && g.stories.length > 0);
 }
 
-export type SocialSitemap = { members: { slug: string; updatedAt: string }[]; posts: { slug: string; updatedAt: string }[] };
+export type SocialSitemap = {
+  members: { slug: string; updatedAt: string }[];
+  /** A post declares its own language — its page exists at that locale only. */
+  posts: { slug: string; updatedAt: string; lang: "fi" | "en" }[];
+};
 
 /** `GET /api/public/social/sitemap`. */
 export async function getSocialSitemap(): Promise<SocialSitemap> {
   const data = await getJson<{ members?: unknown; posts?: unknown }>("sitemap");
   const rows = (raw: unknown) =>
     arr<Record<string, unknown>>(raw)
-      .map((r) => ({ slug: str(r?.slug), updatedAt: str(r?.updatedAt) }))
+      .map((r) => ({
+        slug: str(r?.slug),
+        updatedAt: str(r?.updatedAt),
+        lang: str(r?.lang) === "en" ? ("en" as const) : ("fi" as const),
+      }))
       .filter((r) => r.slug);
   return { members: rows(data?.members), posts: rows(data?.posts) };
 }

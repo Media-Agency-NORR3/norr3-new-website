@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 import { getSiteContent } from "@/lib/cms";
-import { pagePair } from "@/lib/links";
+import { linkTo, pagePair } from "@/lib/links";
 import { helsinkiIso } from "@/lib/dates";
 import { getSocialSitemap } from "@/lib/social";
 
@@ -121,7 +121,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       ? social.members.map((m) => ({ slug: m.slug, updatedAt: m.updatedAt }))
       : content.team.map((m) => ({ slug: m.id, updatedAt: "" }))
     ).flatMap((m) => entry(`tiimi/${m.slug}`, { priority: 0.5, lastModified: validDate(m.updatedAt) })),
-    ...social.posts.flatMap((p) => entry(`feed/${p.slug}`, { priority: 0.4, lastModified: validDate(p.updatedAt) })),
+    // A social post is written in one language and its page canonicalises to
+    // that locale's URL alone, so the sitemap lists that single URL (with the
+    // page's own hreflang) instead of a FI/EN pair.
+    ...social.posts.map((p) => {
+      const url = `${BASE}${linkTo(p.lang, `/feed/${p.slug}`)}`;
+      const languages = { [p.lang === "fi" ? "fi-FI" : "en"]: url, "x-default": url };
+      return {
+        url,
+        ...(validDate(p.updatedAt) ? { lastModified: validDate(p.updatedAt) } : {}),
+        changeFrequency: "monthly" as const,
+        priority: 0.4,
+        alternates: { languages },
+      };
+    }),
     // Service landing pages — the keyword-optimised sub-pages under /palvelut.
     ...content.servicePages
       .filter((page) => pageIsLive(content, page.slug))
