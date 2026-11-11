@@ -12,13 +12,22 @@ const nextConfig: NextConfig = {
 
   /**
    * ISR pages answer `Cache-Control: s-maxage=<revalidate>, stale-while-
-   * revalidate=<expireTime - revalidate>`. The content routes revalidate every
-   * 300 s (`src/app/[locale]/layout.tsx`), and without this the SWR window
-   * defaults to a year — a CDN could keep handing out a stale page for that
-   * long while it re-fetched. One hour bounds it: Cloudflare (or any cache in
-   * front) gets `s-maxage=300, stale-while-revalidate=3300`.
+   * revalidate=<expireTime - revalidate>`.
+   *
+   * The window used to be 3600 with the content routes revalidating every 3600 s,
+   * so the SWR part worked out to **zero**: the moment a page's entry expired,
+   * the next request — a crawler hitting each URL exactly once, a first visitor
+   * after the hour — had to wait for the full render (measured 3–8.5 s on this
+   * site) before it got any HTML. That is the "82 slow pages / TTFB 3.9–4.7 s"
+   * finding in the Nov-2026 Ahrefs audit: not a dynamic route, but an expired
+   * ISR entry with nowhere to serve from.
+   *
+   * A week of stale-while-revalidate removes the blocking path: an expired page
+   * is served immediately from the stale entry while the regeneration runs in
+   * the background. Freshness is not affected — publishing in the CMS drops the
+   * `cms:*` tags through `/api/revalidate`, which expires the page on demand.
    */
-  expireTime: 3600,
+  expireTime: 604800,
 
   /**
    * Permanent redirects — one canonical URL per piece of content.

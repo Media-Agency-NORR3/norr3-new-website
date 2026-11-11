@@ -41,11 +41,19 @@ const hostGrotesk = Host_Grotesk({
  * and the publish hook (`/api/revalidate` → `revalidateTag`) expires it
  * on demand — the window is only a safety net.
  *
- * The window is an hour, not five minutes (Oct 2026): a page whose cache entry
- * had expired was re-rendered from the CMS on the request that hit it, and those
- * cold renders measured 3–8.5 s (e.g. /insight-strategia at 8.5 s). Publishing
- * clears the cache explicitly, so a shorter window bought nothing but slow
- * first-hits.
+ * The window is an hour. Publishing clears the cache explicitly through
+ * `/api/revalidate` → `revalidateTag("cms:*")`, which expires the page the moment
+ * an editor hits publish, so the time window is only a safety net. It stays an
+ * hour rather than a day because it is also the only trigger for **scheduled**
+ * posts: the CMS already returns posts whose `published_at` has passed, but
+ * nothing fires a revalidation at that moment (no scheduler in the CMS), so the
+ * window is the upper bound on how late a scheduled post can appear. An hour is
+ * a bound an editor can live with; a day is not.
+ *
+ * With `expireTime` now well above `revalidate` (next.config.ts) the window
+ * costs nothing at request time: an expired entry is served stale while it
+ * regenerates in the background, instead of blocking the first request after
+ * expiry on a 3–8.5 s render (the slow-TTFB finding in the Nov-2026 audit).
  *
  * Routes that must stay dynamic opt out themselves: `/cms-preview`
  * (`force-dynamic`), `/case-preview` (cookies), `/feed` (searchParams).
