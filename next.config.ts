@@ -54,6 +54,14 @@ const nextConfig: NextConfig = {
       // origin gets a single 301 straight to https://norr3.fi.
       { source: "/:path*", has: [{ type: "host", value: "www.norr3.fi" }], destination: "https://norr3.fi/:path*", statusCode: 301 },
 
+      // ── Email campaign tracking (hub: sql/mail_campaigns.sql, edge function mail-track) ──
+      // Links in NØRR3 campaign emails point at norr3.fi/r/<send_token>/<link_key>; the open pixel at
+      // norr3.fi/r/<send_token>/o.gif. A temporary redirect (not a rewrite) keeps the recipient's own IP on the
+      // request, so the edge function can tell devices apart. The function logs the event and redirects only to
+      // the campaign's allow-listed URL. Tokens are 24 hex chars; anything else falls through to the 404 page.
+      { source: "/r/:s([0-9a-f]{24})/o.gif", destination: "https://jhihwsanqszemfrvqwdl.supabase.co/functions/v1/mail-track?s=:s&o=1", permanent: false },
+      { source: "/r/:s([0-9a-f]{24})/:l([a-z0-9-]{1,40})", destination: "https://jhihwsanqszemfrvqwdl.supabase.co/functions/v1/mail-track?s=:s&l=:l", permanent: false },
+
       // ── Section-prefixed detail URLs → the root slug ────────────────────────
       { source: "/cases/:slug", destination: "/:slug", statusCode: 301 },
       { source: "/insights/:slug", destination: "/:slug", statusCode: 301 },
