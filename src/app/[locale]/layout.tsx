@@ -186,10 +186,12 @@ export default async function LocaleLayout({
         {/* The icon font is font-display: block, so icons stay invisible until
             it arrives — start fetching it with the HTML, not after the CSS. */}
         <link rel="preload" href="/fonts/material-symbols-subset.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
-        {/* Google Search Console site verification — content owned by the CMS. */}
+        {/* Site-verification tags, ahead of any body content. */}
         {content.integrations.gsc && (
           <meta name="google-site-verification" content={content.integrations.gsc} />
         )}
+        {/* Bing Webmaster Tools site verification. */}
+        <meta name="msvalidate.01" content="C15F53CC80DE9243B45C045C698061B1" />
         {/* Design-token overrides from the CMS, after the stylesheet so they win. */}
         <ThemeStyle />
         {/* Admin-written CSS and head snippet, after the tokens so it can override them. */}
