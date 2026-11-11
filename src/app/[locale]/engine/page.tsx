@@ -65,7 +65,32 @@ export default async function EnginePage({ params }: PageProps<"/[locale]/engine
   });
   const url = absolute(seo.canonical || linkTo(locale, "/engine"));
   const crumbs: Crumb[] = [homeCrumb(locale), { name: dict.nav.engine }];
-  const jsonLd = pageGraph({ url, locale, name: seo.title, description: seo.description, image: seo.image, extra: { about: { "@type": "SoftwareApplication", name: "NØRR3 Marketing Engine", applicationCategory: "BusinessApplication", provider: { "@id": ORGANIZATION_ID } } }, crumbs });
+  // The Engine is described as a Service, not a SoftwareApplication: Google's
+  // rich-results test rejects SoftwareApplication without `offers` or
+  // `aggregateRating`, and neither a price nor a rating for the Engine is
+  // published, so inventing one is not an option. A Service with the
+  // organization as its provider is accurate and validates clean.
+  const engineServiceId = `${url}#engine`;
+  const jsonLd = pageGraph({
+    url,
+    locale,
+    name: seo.title,
+    description: seo.description,
+    image: seo.image,
+    extra: {
+      about: {
+        "@type": "Service",
+        "@id": engineServiceId,
+        name: "NØRR3 Marketing Engine",
+        serviceType: "Multi-location marketing campaign automation",
+        url,
+        provider: { "@id": ORGANIZATION_ID },
+        areaServed: { "@type": "Country", name: "Finland" },
+      },
+      mainEntity: { "@id": engineServiceId },
+    },
+    crumbs,
+  });
 
   return (
     <>

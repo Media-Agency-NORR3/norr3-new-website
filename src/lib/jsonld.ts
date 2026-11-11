@@ -55,6 +55,13 @@ export const ORGANIZATION_FACTS = {
   },
   /** TODO(Geir): confirm the award years — only 2023 is cited in the site copy. */
   awards: ["Vuoden Toimisto 2022", "Vuoden Toimisto 2023"],
+  /** Registered office, as filed. Used by the Organization node and llms.txt. */
+  address: {
+    streetAddress: "Pursimiehenkatu 26 C",
+    postalCode: "00150",
+    addressLocality: "Helsinki",
+    addressCountry: "FI",
+  },
   /**
    * Team slugs of the founders, referenced as `founder` on the Organization.
    * TODO(Geir): fill in — no source in the CMS or site copy names the founders,
@@ -206,13 +213,24 @@ export type ServiceInput = {
   crumbs: Crumb[];
   /** Industry pages: the audience the service is packaged for. */
   audience?: string;
+  /** ISO 8601 stamp of the newest content revision, when the CMS knows one. */
+  updatedAt?: string;
+  /** ISO 8601 publish stamp, when the CMS knows one. */
+  publishedAt?: string;
 };
 
 /**
  * Service + WebPage + BreadcrumbList for a service landing page. The
  * provider is the organization by reference; area served is Finland.
+ *
+ * The Service node deliberately carries no `inLanguage` and no `dateModified`:
+ * schema.org defines `inLanguage` on CreativeWork and its subtypes, and
+ * `dateModified` on CreativeWork / Dataset only — neither is a Service property,
+ * and validator.schema.org reports each as `UNKNOWN_FIELD(<prop>, Service)` on
+ * every service page (68 of them). Both revisions live on the WebPage node,
+ * which does accept them.
  */
-export function serviceGraph({ url, locale, name, pageTitle, description, image, crumbs, audience }: ServiceInput): JsonLdNode[] {
+export function serviceGraph({ url, locale, name, pageTitle, description, image, crumbs, audience, updatedAt, publishedAt }: ServiceInput): JsonLdNode[] {
   const serviceId = `${url}#service`;
   return [
     compact({
@@ -222,13 +240,23 @@ export function serviceGraph({ url, locale, name, pageTitle, description, image,
       serviceType: name,
       description,
       url,
-      inLanguage: inLanguage(locale),
       provider: { "@id": ORGANIZATION_ID },
-      areaServed: { "@type": "Country", name: "FI" },
+      areaServed: { "@type": "Country", name: "Finland" },
       ...(image ? { image: absolute(image) } : {}),
       ...(audience ? { audience: { "@type": "BusinessAudience", name: audience } } : {}),
     }),
-    webPage({ url, locale, name: pageTitle, description, image, extra: { mainEntity: { "@id": serviceId } } }),
+    webPage({
+      url,
+      locale,
+      name: pageTitle,
+      description,
+      image,
+      extra: {
+        mainEntity: { "@id": serviceId },
+        ...(updatedAt ? { dateModified: updatedAt } : {}),
+        ...(publishedAt ? { datePublished: publishedAt } : {}),
+      },
+    }),
     breadcrumbList(url, crumbs),
   ];
 }
@@ -249,6 +277,34 @@ export function faqPage(url: string, items: FaqItem[]): JsonLdNode | null {
       acceptedAnswer: { "@type": "Answer", text: row.answer.trim() },
     })),
   };
+}
+
+/**
+ * FAQ content of a service landing page.
+ *
+ * Service pages have no dedicated FAQ field: the questions live in the last
+ * section of the page's copy, whose heading is "Usein kysyttyä" (FI) or
+ * "Frequently asked questions" (EN), one question/answer pair per paragraph —
+ * the question ends at the first "?" and the answer is the rest of the
+ * paragraph. Same visible text, so the schema can never drift from the page.
+ */
+export function faqItemsFromServicePage(
+  sections: { heading: string; body: string }[],
+): FaqItem[] {
+  const items: FaqItem[] = [];
+  for (const section of sections) {
+    if (!/usein kysyttyä|frequently asked|^faq$|\bfaq\b/i.test(section.heading.trim())) continue;
+    for (const raw of section.body.split(/\n\s*\n/)) {
+      const paragraph = raw.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+      if (!paragraph) continue;
+      const mark = paragraph.indexOf("?");
+      if (mark === -1) continue;
+      const question = paragraph.slice(0, mark + 1).trim();
+      const answer = paragraph.slice(mark + 1).trim();
+      if (question.length > 1 && answer) items.push({ question, answer });
+    }
+  }
+  return items;
 }
 
 /**
@@ -395,13 +451,7 @@ export function organizationNode(content: SiteContent, locale: Locale, descripti
     taxID: facts.taxId,
     email,
     telephone: telephone || undefined,
-    address: {
-      "@type": "PostalAddress",
-      streetAddress: "Pursimiehenkatu 26 C",
-      postalCode: "00150",
-      addressLocality: "Helsinki",
-      addressCountry: "FI",
-    },
+    address: { "@type": "PostalAddress", ...facts.address },
     contactPoint: {
       "@type": "ContactPoint",
       contactType: "sales",

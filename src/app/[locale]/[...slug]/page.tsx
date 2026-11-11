@@ -15,8 +15,8 @@ import { ogImage } from "@/lib/ogImage";
 import { pageSeo } from "@/lib/pageSeo";
 import { railEnabled, splitRailPreview } from "@/lib/rail";
 import { JsonLd } from "@/components/JsonLd";
-import { modificationIso, publicationIso } from "@/lib/dates";
-import { absolute, faqItemsFromBlocks, faqPage, homeCrumb, pageGraph, pageUrl, serviceGraph, type Crumb } from "@/lib/jsonld";
+import { modificationIso, publicationIso, helsinkiIso } from "@/lib/dates";
+import { absolute, faqItemsFromBlocks, faqItemsFromServicePage, faqPage, homeCrumb, pageGraph, pageUrl, serviceGraph, type Crumb } from "@/lib/jsonld";
 
 /**
  * Serves everything that lives at a short, root-level slug:
@@ -60,7 +60,15 @@ type Params = {
   params: Promise<{ locale: string; slug: string[] }>;
 };
 
-/** Pre-render the content we know at build time; anything else renders on demand. */
+/**
+ * Pre-render the content we know at build time; anything else renders on demand.
+ *
+ * CMS-composed pages are included (Nov 2026). They used to be the only surface
+ * missing from this list, which made them the slowest URLs in the crawl: an
+ * on-demand ISR route has no entry to serve from on its very first request, so
+ * that request paid for the whole render — `/kampanja-15-minuutissa-marketing-engine-iab`
+ * measured 4.7 s. Drafts are skipped; the proxy 404s them anyway.
+ */
 export async function generateStaticParams() {
   const content = await getSiteContent();
   // Both addresses of every item: the Finnish slug for `/fi`, the English one
@@ -75,6 +83,12 @@ export async function generateStaticParams() {
       { slug: page.slug.split("/") },
       { slug: enSlugFor(page.slug, page.slugEn).split("/") },
     ]),
+    ...content.pages
+      .filter((page) => (content.pageStatus[page.slug] ?? "published") === "published")
+      .flatMap((page) => [
+        { slug: page.slug.split("/") },
+        { slug: enSlugFor(page.slug, page.slugEn).split("/") },
+      ]),
   ];
 }
 
@@ -281,9 +295,28 @@ export default async function RootSlugPage({ params }: Params) {
       ...(parent ? [{ name: servicePageLocalised(parent, locale).title, url: pageUrl(locale, `/${parent.slug}`) }] : []),
       { name: t.title },
     ];
+    // Newest CMS revision, when the row carries one — see ServicePage.updatedAt.
+    const updated = helsinkiIso(servicePage.updatedAt);
+    // The page's closing "Usein kysyttyä" / "Frequently asked questions"
+    // section, expressed as FAQPage schema from the very same copy.
+    const faq = faqItemsFromServicePage(t.sections);
     return (
       <>
-        <JsonLd data={serviceGraph({ url, locale, name: t.title, pageTitle: seo.title, description: seo.description, image: seo.image, crumbs })} />
+        <JsonLd
+          data={[
+            ...serviceGraph({
+              url,
+              locale,
+              name: t.title,
+              pageTitle: seo.title,
+              description: seo.description,
+              image: seo.image,
+              crumbs,
+              updatedAt: updated,
+            }),
+            faqPage(url, faq),
+          ]}
+        />
         <ServiceLandingView page={servicePage} locale={locale} railEnabled={rail} />
       </>
     );
@@ -302,7 +335,8 @@ export default async function RootSlugPage({ params }: Params) {
     return (
       <>
         {/* WebPage + breadcrumb, and a FAQPage when the editor placed an
-            accordion (question / answer) block on the page. */}
+            accordion (question / answer) block on the page. The WebPage node
+            carries the CMS revision stamp so the page reports when it changed. */}
         <JsonLd
           data={[
             ...pageGraph({
@@ -311,6 +345,7 @@ export default async function RootSlugPage({ params }: Params) {
               name: page.seo[locale].title || pageTitle,
               description: page.seo[locale].description || undefined,
               image: page.ogImage || undefined,
+              extra: helsinkiIso(page.updatedAt) ? { dateModified: helsinkiIso(page.updatedAt) } : undefined,
               crumbs: [homeCrumb(locale), { name: pageTitle }],
             }),
             faqPage(pageHref, faqItemsFromBlocks(page.blocks, locale)),
