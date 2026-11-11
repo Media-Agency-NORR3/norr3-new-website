@@ -7,6 +7,12 @@ export type ServicePage = {
    * falls back to the `slugEn.ts` table, then to the Finnish slug.
    */
   slugEn?: string;
+  /**
+   * Newest content revision, straight from the CMS row (`service_pages.updated_at`,
+   * "YYYY-MM-DD HH:MM:SS" in UTC). Feeds `dateModified` in the page's JSON-LD.
+   * Absent for the committed fallback content, which carries no timestamp.
+   */
+  updatedAt?: string;
   icon: string;
   /** Photo under the hero (WebP in /images/services/). Empty = no image. */
   image?: string;
