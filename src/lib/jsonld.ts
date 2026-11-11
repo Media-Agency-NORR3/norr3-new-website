@@ -223,11 +223,12 @@ export type ServiceInput = {
  * Service + WebPage + BreadcrumbList for a service landing page. The
  * provider is the organization by reference; area served is Finland.
  *
- * The Service node deliberately carries no `inLanguage`: schema.org defines
- * that property on CreativeWork and its subtypes, not on Service, and
- * validator.schema.org reports it as `UNKNOWN_FIELD(inLanguage, Service)` on
- * every service page (68 of them). The page's language lives on the WebPage
- * node, which does accept it.
+ * The Service node deliberately carries no `inLanguage` and no `dateModified`:
+ * schema.org defines `inLanguage` on CreativeWork and its subtypes, and
+ * `dateModified` on CreativeWork / Dataset only — neither is a Service property,
+ * and validator.schema.org reports each as `UNKNOWN_FIELD(<prop>, Service)` on
+ * every service page (68 of them). Both revisions live on the WebPage node,
+ * which does accept them.
  */
 export function serviceGraph({ url, locale, name, pageTitle, description, image, crumbs, audience, updatedAt, publishedAt }: ServiceInput): JsonLdNode[] {
   const serviceId = `${url}#service`;
@@ -243,7 +244,6 @@ export function serviceGraph({ url, locale, name, pageTitle, description, image,
       areaServed: { "@type": "Country", name: "Finland" },
       ...(image ? { image: absolute(image) } : {}),
       ...(audience ? { audience: { "@type": "BusinessAudience", name: audience } } : {}),
-      ...(updatedAt ? { dateModified: updatedAt } : {}),
     }),
     webPage({
       url,
