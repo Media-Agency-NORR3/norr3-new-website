@@ -74,13 +74,16 @@ async function main() {
   const slow = results
     .filter((r) => r.status === 200 && r.ms >= SLOW_MS)
     .sort((a, b) => b.ms - a.ms);
-  const warm = results.filter((r) => r.status === 200).map((r) => r.ms).sort((a, b) => a - b);
-  const median = warm.length ? warm[Math.floor(warm.length / 2)] : 0;
+  // Named `times`, not `warm`: a `const warm` here sits in the same scope as the
+  // `warm()` helper the worker calls, so the reference inside `worker` hit the
+  // variable's temporal dead zone and the script died on its first URL.
+  const times = results.filter((r) => r.status === 200).map((r) => r.ms).sort((a, b) => a - b);
+  const median = times.length ? times[Math.floor(times.length / 2)] : 0;
 
   for (const r of slow.slice(0, 15)) {
     console.log(`  cold ${String(r.ms).padStart(5)} ms  ${r.url}`);
   }
-  console.log(`\nmedian ${median} ms · slowest ${warm[warm.length - 1] || 0} ms · ${warm.length}/${urls.length} ok`);
+  console.log(`\nmedian ${median} ms · slowest ${times[times.length - 1] || 0} ms · ${times.length}/${urls.length} ok`);
   if (failed.length) {
     console.log(`\nFAILED (${failed.length}):`);
     for (const r of failed) console.log(`  ${r.status || "ERR"}  ${r.url}  ${r.error || ""}`);
