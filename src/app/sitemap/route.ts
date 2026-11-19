@@ -64,7 +64,6 @@ const REDIRECTS: { from: string; to: string; note?: string }[] = [
   { from: "/services/content/content-creation-services", to: "/services", note: "old English page" },
   { from: "/wp-content/uploads/2025/02/Logo-01.png", to: "/logo-wordmark.svg", note: "old logo file" },
   { from: "/wp-content/uploads/:path*", to: "/", note: "WordPress media library" },
-  { from: "/sample-page", to: "/" },
   { from: "/en/home", to: "/en" },
   { from: "/en/norr3", to: "/en" },
   { from: "/media-insights", to: "/mediasuunnittelu/norr3-media-insights", note: "old landing page" },
@@ -79,6 +78,14 @@ const REDIRECTS: { from: string; to: string; note?: string }[] = [
   { from: "/norr3-on-vuoden-toimisto-2023", to: "/meista", note: "post not published yet" },
   { from: "/ai-and-the-creative-future", to: "/insights", note: "post not published yet" },
 ];
+
+/**
+ * `/sample-page` is the WordPress demo page: it was indexed and still shows in
+ * search, but there is nothing to redirect it to. Answered **410 Gone** (see
+ * src/proxy.ts) rather than 301'd to the home page — a 301 keeps the URL in the
+ * index, which is why it was re-reported for four weeks.
+ */
+const GONE: string[] = ["/sample-page", "/en/sample-page"];
 
 const esc = (s: string) =>
   s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
@@ -114,6 +121,14 @@ export async function GET() {
       <td class="arr">→</td>
       <td class="u"><a href="${BASE}${r.to.replace(/:path\*\/?|:slug/g, "")}">${esc(r.to)}</a></td>
       <td class="note">${esc(r.note ?? "")}</td>
+    </tr>`
+  ).join("");
+
+  const goneRows = GONE.map(
+    (p) => `
+    <tr>
+      <td class="u"><code>${esc(p)}</code></td>
+      <td class="note">410 Gone — no equivalent page; removed from the index</td>
     </tr>`
   ).join("");
 
@@ -176,6 +191,12 @@ export async function GET() {
   <table>
     <thead><tr><th>From</th><th></th><th>To</th><th>Note</th></tr></thead>
     <tbody>${redirectRows}</tbody>
+  </table>
+
+  <h2>Gone<span class="count">${GONE.length}</span></h2>
+  <table>
+    <thead><tr><th>URL</th><th>Status</th></tr></thead>
+    <tbody>${goneRows}</tbody>
   </table>
 </main>
 </body>

@@ -130,7 +130,6 @@ const nextConfig: NextConfig = {
       { source: "/tarinat", destination: "/insights", statusCode: 301 },
       { source: "/norr3-marketing-engine", destination: "/engine", statusCode: 301 },
       { source: "/privacy-policy", destination: "/tietosuojaseloste", statusCode: 301 },
-      { source: "/sample-page", destination: "/", statusCode: 301 },
       { source: "/yhteystiedot", destination: "/contact", statusCode: 301 },
       { source: "/ota-yhteytta", destination: "/contact", statusCode: 301 },
       { source: "/rekry", destination: "/toihin-meille", statusCode: 301 },
