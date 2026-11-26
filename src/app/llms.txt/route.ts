@@ -30,9 +30,13 @@ const CACHE_HEADERS = {
   "Cache-Control": "public, max-age=300, s-maxage=3600, stale-while-revalidate=86400",
 } as const;
 
-/** Absolute URL of a page, from its Finnish slug and locale. */
-function url(locale: Locale, fiSlug: string): string {
-  return `${SITE_URL}${slugLink(locale, fiSlug)}`;
+/**
+ * Absolute URL of a page, from its Finnish slug and locale. Pass the CMS
+ * slug_en when the row has one, so the English links match the sitemap and the
+ * page's own canonical (the static slug table alone missed CMS-set addresses).
+ */
+function url(locale: Locale, fiSlug: string, cmsSlugEn?: string | null): string {
+  return `${SITE_URL}${slugLink(locale, fiSlug, cmsSlugEn)}`;
 }
 
 function contactLine(locale: Locale, email: string, phone: string): string {
@@ -76,7 +80,7 @@ export async function GET(): Promise<Response> {
     const services = content.servicePages.map((page) => {
       const t = servicePageLocalised(page, locale);
       const description = (t.metaDescription || t.intro || "").replace(/\s+/g, " ").trim();
-      return `- [${t.title}](${url(locale, page.slug)}): ${description}`;
+      return `- [${t.title}](${url(locale, page.slug, page.slugEn)}): ${description}`;
     });
 
     const cases = content.cases.map(
@@ -86,7 +90,7 @@ export async function GET(): Promise<Response> {
     const posts = content.posts.slice(0, 12).map((post) => {
       const own = post[locale];
       const excerpt = (own.excerpt || "").replace(/\s+/g, " ").trim();
-      return `- [${own.title}](${url(locale, post.slug)}): ${excerpt}`;
+      return `- [${own.title}](${url(locale, post.slug, post.slugEn)}): ${excerpt}`;
     });
 
     const L = locale === "fi"

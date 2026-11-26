@@ -12,7 +12,7 @@ import { languageAlternates, linkTo, slugLink } from "@/lib/links";
 import { enSlugFor } from "@/lib/slugEn";
 import { caseDescription, caseTitle } from "@/lib/caseSeo";
 import { ogImage } from "@/lib/ogImage";
-import { pageSeo } from "@/lib/pageSeo";
+import { pageSeo, robotsDirective } from "@/lib/pageSeo";
 import { railEnabled, splitRailPreview } from "@/lib/rail";
 import { JsonLd } from "@/components/JsonLd";
 import { modificationIso, publicationIso, helsinkiIso } from "@/lib/dates";
@@ -153,10 +153,13 @@ export async function generateMetadata({ params }: Params) {
     return {
       title: seo.title,
       description: seo.description,
+      // The robots directive and canonical set in the CMS Pages screen win, as
+      // on every other CMS-managed route (and as the JSON-LD below already does).
+      robots: robotsDirective(seo.robots),
       alternates: {
         // The canonical pair: the Finnish slug and its English address (nested
         // pages like mediasuunnittelu/radio included).
-        canonical: slugLink(locale, servicePage.slug, servicePage.slugEn),
+        canonical: seo.canonical || slugLink(locale, servicePage.slug, servicePage.slugEn),
         languages: languageAlternates(servicePage.slug, servicePage.slugEn),
       },
       openGraph: {
@@ -220,12 +223,16 @@ export async function generateMetadata({ params }: Params) {
   const title = seo.title || `${page.title[locale] || page.title.fi} — NØRR3`;
   const description = seo.description || undefined;
   const image = page.ogImage || "/images/brand/og-image.jpg";
+  // Robots and canonical from the CMS page row: before this, a block page
+  // ignored both, so "noindex" set in the CMS never reached the page.
+  const cmsSeo = (await getSiteContent()).pageSeo?.[page.slug];
 
   return {
     title,
     description,
+    robots: robotsDirective(cmsSeo?.robots?.trim() || "index, follow"),
     alternates: {
-      canonical: slugLink(locale, page.slug, page.slugEn),
+      canonical: cmsSeo?.canonical?.trim() || slugLink(locale, page.slug, page.slugEn),
       languages: languageAlternates(page.slug, page.slugEn),
     },
     openGraph: {
