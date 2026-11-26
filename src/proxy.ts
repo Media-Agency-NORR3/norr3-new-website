@@ -169,6 +169,20 @@ export async function proxy(request: NextRequest) {
   const canonical =
     slashless === "/fi" || slashless.startsWith("/fi/") ? slashless.replace(/^\/fi(?=\/|$)/, "") || "/" : slashless;
 
+  // `/sample-page` is the WordPress demo page. Google still lists it and it has
+  // no equivalent here, so answer **410 Gone**. A 301 to the home page keeps the
+  // URL eligible in the index — it was re-reported as "still in search, unchanged
+  // for four weeks" — so it must be answered 410, the only status that removes a
+  // URL. `canonical` already has the trailing slash stripped, so `/sample-page/`
+  // is covered too. (SEO report vk 46.)
+  const GONE = new Set(["/sample-page", "/en/sample-page"]);
+  if (GONE.has(canonical)) {
+    return new NextResponse("This page no longer exists.", {
+      status: 410,
+      headers: { "Content-Type": "text/plain; charset=utf-8", "X-Robots-Tag": "noindex" },
+    });
+  }
+
   // A plain URL, not `nextUrl.clone()`: NextURL remembers the request's
   // trailing slash and would put it straight back on the redirect target.
   const redirectTo = (target: string, status: 301 | 302 | 307 | 308) =>
